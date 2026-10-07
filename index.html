@@ -228,11 +228,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
     /* Roles: Admin (All) | Marshal (Score Only) | Viewer (View) */
     /* ========================================================= */
 
-    /* 1. Viewer / Spectator Mode: Hide both admin-only and marshal-only elements */
+    /* 1. Viewer / Spectator Mode: Hide admin-only, marshal-only, and viewer-hide elements */
     body.role-viewer .admin-only,
     body.role-viewer .marshal-only,
+    body.role-viewer .viewer-hide,
     body.spectator-mode:not(.role-admin):not(.role-marshal) .admin-only,
-    body.spectator-mode:not(.role-admin):not(.role-marshal) .marshal-only {
+    body.spectator-mode:not(.role-admin):not(.role-marshal) .marshal-only,
+    body.spectator-mode:not(.role-admin):not(.role-marshal) .viewer-hide {
       display: none !important;
     }
 
@@ -241,9 +243,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
       display: none !important;
     }
 
-    /* 3. Tournament Admin Mode: Has full access to everything (.admin-only and .marshal-only) */
+    /* 3. Tournament Admin Mode: Has full access to everything (.admin-only, .marshal-only, .viewer-hide) */
     body.role-admin .admin-only,
-    body.role-admin .marshal-only {
+    body.role-admin .marshal-only,
+    body.role-admin .viewer-hide {
       /* Displayed naturally */
     }
 
@@ -297,8 +300,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
       <!-- Right: Controls Toolbar -->
       <div class="flex flex-wrap items-center gap-2">
-        <!-- Tournament Format Dropdown -->
-        <div class="flex items-center gap-2 bg-[var(--secondary)]/80 px-3 py-1.5 rounded-xl border border-[var(--border)] hover:border-amber-500/40 transition">
+        <!-- Tournament Format Dropdown (Admin Only) -->
+        <div class="admin-only flex items-center gap-2 bg-[var(--secondary)]/80 px-3 py-1.5 rounded-xl border border-[var(--border)] hover:border-amber-500/40 transition">
           <label for="tourneyFormatSelect" class="text-[10px] font-bold text-[var(--muted-foreground)] uppercase tracking-wider shrink-0 cursor-pointer">Format:</label>
           <div class="relative flex items-center">
             <select id="tourneyFormatSelect" onchange="setTournamentMode(this.value)" class="appearance-none bg-transparent pl-1 pr-6 py-0.5 text-xs font-black text-[var(--foreground)] focus:outline-none cursor-pointer font-sans">
@@ -310,17 +313,17 @@ Check your Browserslist config to be sure that your targets are set up correctly
         </div>
 
         <!-- Fast Simulation Button (Admin Only) -->
-        <button id="btnSimulateGroup" onclick="confirmSimulateBracket()" class="admin-only  title="Auto-simulate all series with realistic MLBB results" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-md shadow-emerald-500/20 transition cursor-pointer">
+        <button id="btnSimulateGroup" onclick="confirmSimulateBracket()" title="Auto-simulate all series with realistic MLBB results" class="admin-only flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-md shadow-emerald-500/20 transition cursor-pointer">
           <span>⚡</span> <span id="simulateBtnText">Simulate Double Elim</span>
         </button>
 
-        <!-- Live Stage Screen (Theater Mode) -->
-        <button onclick="openTheaterMode()" title="Full screen projector / LED wall stage mode" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-black shadow-md shadow-purple-600/20 transition cursor-pointer">
+        <!-- Live Stage Screen (Theater Mode - Hidden for Viewers) -->
+        <button onclick="openTheaterMode()" title="Full screen projector / LED wall stage mode" class="viewer-hide flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-black shadow-md shadow-purple-600/20 transition cursor-pointer">
           <span>📺</span> Live Stage
         </button>
 
-        <!-- Cloud Sync Badge & Config Modal Trigger -->
-        <button id="cloudSyncStatusBadge" onclick="openCloudSyncModal()" title="Real-Time Cloud Synchronization Status (Firebase Realtime Database)" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[var(--border)] hover:bg-[var(--secondary)] text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition cursor-pointer">
+        <!-- Cloud Sync Badge & Config Modal Trigger (Hidden for Viewers) -->
+        <button id="cloudSyncStatusBadge" onclick="openCloudSyncModal()" title="Real-Time Cloud Synchronization Status (Firebase Realtime Database)" class="viewer-hide flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[var(--border)] hover:bg-[var(--secondary)] text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition cursor-pointer">
           <span id="cloudSyncIcon">☁️</span> <span id="cloudStatusText" class="hidden sm:inline">Cloud: Local</span>
         </button>
 
@@ -336,8 +339,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
           </div>
         </div>
 
-        <!-- Data Import/Export Menu -->
-        <div class="relative inline-block text-left">
+        <!-- Data Import/Export Menu (Hidden for Viewers) -->
+        <div class="viewer-hide relative inline-block text-left">
           <button onclick="toggleDataMenu()" class="px-2.5 py-1.5 rounded-xl border border-[var(--border)] hover:bg-[var(--secondary)] text-xs font-bold transition text-[var(--foreground)] cursor-pointer flex items-center gap-1" title="Data Backup / Restore">
             <span>💾</span> Data
           </button>
@@ -368,8 +371,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
     <!-- Real-Time Esports Broadcast Hero: LIVE NOW & UP NEXT -->
     <div id="liveBroadcastHeroContainer" class="w-full"></div>
 
-    <!-- Overview Metrics Cards (Esports Broadcast Stat Tickers) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Overview Metrics Cards (Esports Broadcast Stat Tickers - Hidden for Viewers) -->
+    <div class="viewer-hide grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       
       <!-- Metric 1: Format -->
       <div class="p-4 rounded-2xl bg-[var(--card)] border border-[var(--border)] shadow-xs flex flex-col justify-between">
@@ -423,11 +426,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     </div>
 
-    <!-- Official Tournament 3-Day Match Sequence Roadmap Container -->
-    <div id="tournamentRoadmapContainer"></div>
+    <!-- Official Tournament 3-Day Match Sequence Roadmap Container (Hidden for Viewers) -->
+    <div id="tournamentRoadmapContainer" class="viewer-hide"></div>
 
-    <!-- Main Navigation Tabs -->
-    <div class="flex items-center gap-2 border-b border-[var(--border)] pb-3 overflow-x-auto text-sm font-black">
+    <!-- Main Navigation Tabs (Hidden for Viewers: Viewers Stay Focused on Live Match & Bracket) -->
+    <div class="viewer-hide flex items-center gap-2 border-b border-[var(--border)] pb-3 overflow-x-auto text-sm font-black">
       <button id="tab-bracket" onclick="switchTab('bracket')" class="px-4 py-2 rounded-xl bg-[var(--card)] border border-amber-500/40 text-amber-400 shadow-sm shrink-0 flex items-center gap-2 cursor-pointer font-black transition">
         <span>🏆</span> Tournament Bracket
       </button>
@@ -2547,7 +2550,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   <span>🗑️</span> Blank Bracket
                 </button>
               `}
-              <button onclick="printBracketSection('full')" title="Print Full Tournament Bracket (Upper & Lower)" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-400 text-xs font-black transition cursor-pointer shadow-xs active:scale-95">
+              <button onclick="printBracketSection('full')" title="Print Full Tournament Bracket (Upper & Lower)" class="viewer-hide flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-400 text-xs font-black transition cursor-pointer shadow-xs active:scale-95">
                 <span>🖨️</span> Print Bracket
               </button>
             </div>
@@ -2562,7 +2565,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
               </div>
               <div class="flex items-center gap-2.5">
                 <span class="text-xs text-[var(--muted-foreground)] font-semibold hidden md:inline">Day 1 (M1-M6) · Day 2 Upper Final (M12)</span>
-                <button onclick="printBracketSection('upper')" title="Print Upper Bracket with Match Sequences & Standings" class="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/40 text-xs font-black transition shadow-xs cursor-pointer active:scale-95">
+                <button onclick="printBracketSection('upper')" title="Print Upper Bracket with Match Sequences & Standings" class="viewer-hide flex items-center gap-1.5 px-3 py-1 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/40 text-xs font-black transition shadow-xs cursor-pointer active:scale-95">
                   <span>🖨️</span> Print Upper Bracket
                 </button>
               </div>
@@ -2624,7 +2627,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
               </div>
               <div class="flex items-center gap-2.5">
                 <span class="text-xs text-[var(--muted-foreground)] font-semibold hidden md:inline">Day 2 (M7-M11) · Day 3 Lower Final (M13)</span>
-                <button onclick="printBracketSection('lower')" title="Print Lower Bracket with Match Sequences & Standings" class="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/40 text-xs font-black transition shadow-xs cursor-pointer active:scale-95">
+                <button onclick="printBracketSection('lower')" title="Print Lower Bracket with Match Sequences & Standings" class="viewer-hide flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/40 text-xs font-black transition shadow-xs cursor-pointer active:scale-95">
                   <span>🖨️</span> Print Lower Bracket
                 </button>
               </div>
@@ -2755,7 +2758,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   <span>🗑️</span> Blank Bracket
                 </button>
               `}
-              <button onclick="printBracketSection('single')" title="Print Single Elimination Championship Bracket" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-400 text-xs font-black transition cursor-pointer shadow-xs active:scale-95">
+              <button onclick="printBracketSection('single')" title="Print Single Elimination Championship Bracket" class="viewer-hide flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-400 text-xs font-black transition cursor-pointer shadow-xs active:scale-95">
                 <span>🖨️</span> Print Bracket
               </button>
             </div>
@@ -3704,13 +3707,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   <div class="flex items-center gap-2">
                     ${isFinal ? `
                       <span class="text-emerald-400 font-bold">✓ FINAL (${s1Num}-${s2Num})</span>
-                      <button onclick="resetMatchScore('${m.id}')" title="Reset Score" class="text-[9px] hover:text-rose-400 cursor-pointer">↺</button>
+                      <button onclick="resetMatchScore('${m.id}')" title="Reset Score" class="admin-only text-[9px] hover:text-rose-400 cursor-pointer">↺</button>
                     ` : isInProgress ? `
                       <span class="text-amber-400 font-bold flex items-center gap-1">
                         <span class="w-1.5 h-1.5 rounded-full bg-red-400 beacon-pulse"></span>
                         <span>GAME ${s1Num + s2Num + 1} (${s1Num}-${s2Num})</span>
                       </span>
-                      <button onclick="resetMatchScore('${m.id}')" title="Reset Score" class="text-[9px] hover:text-rose-400 cursor-pointer">↺</button>
+                      <button onclick="resetMatchScore('${m.id}')" title="Reset Score" class="admin-only text-[9px] hover:text-rose-400 cursor-pointer">↺</button>
                     ` : isPlayable ? `
                       <span class="text-amber-400 font-semibold">READY</span>
                     ` : `
@@ -3721,7 +3724,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
                 <!-- Quick Apply +1 Buttons -->
                 ${isPlayable && !isFinal ? `
-                  <div class="pt-1.5 flex items-center justify-between gap-1 text-[10px] border-t border-[var(--border)]/40">
+                  <div class="marshal-only pt-1.5 flex items-center justify-between gap-1 text-[10px] border-t border-[var(--border)]/40">
                     <span class="text-[var(--muted-foreground)] text-[9px] font-black uppercase tracking-wider">Apply +1:</span>
                     <div class="flex items-center gap-1.5">
                       <button onclick="incrementMatchScore('${m.id}', 1)" title="Apply +1 game win to ${m.team1 || 'Team 1'}" class="px-2.5 py-0.5 rounded-lg bg-blue-500/15 hover:bg-blue-500 text-blue-400 hover:text-white font-black border border-blue-500/30 transition cursor-pointer flex items-center gap-1">
@@ -6032,6 +6035,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
         document.body.classList.add('role-marshal');
       } else {
         document.body.classList.add('role-viewer', 'spectator-mode');
+        if (typeof currentTab !== 'undefined' && currentTab !== 'bracket') {
+          switchTab('bracket');
+        }
       }
 
       // 2. Update Header Auth Badge & Controls
