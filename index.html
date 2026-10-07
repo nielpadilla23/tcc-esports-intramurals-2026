@@ -5903,6 +5903,21 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     let isReceivingRemoteCloudUpdate = false;
 
+    function cleanForFirebase(val) {
+      if (val === undefined) return null;
+      if (val === null || typeof val !== 'object') return val;
+      if (Array.isArray(val)) {
+        return val.map(item => cleanForFirebase(item));
+      }
+      const res = {};
+      for (const k in val) {
+        if (Object.prototype.hasOwnProperty.call(val, k)) {
+          res[k] = cleanForFirebase(val[k]);
+        }
+      }
+      return res;
+    }
+
     function handleCloudSyncUpdate(data) {
       if (!data) return;
       isReceivingRemoteCloudUpdate = true;
@@ -5918,25 +5933,23 @@ Check your Browserslist config to be sure that your targets are set up correctly
         }
         if (data.PLAYOFF_DATA && typeof data.PLAYOFF_DATA === 'object') {
           for (let k in data.PLAYOFF_DATA) {
-            if (PLAYOFF_DATA[k]) {
-              PLAYOFF_DATA[k].team1 = data.PLAYOFF_DATA[k].team1;
-              PLAYOFF_DATA[k].team2 = data.PLAYOFF_DATA[k].team2;
-              PLAYOFF_DATA[k].s1 = data.PLAYOFF_DATA[k].s1;
-              PLAYOFF_DATA[k].s2 = data.PLAYOFF_DATA[k].s2;
-              PLAYOFF_DATA[k].winner = data.PLAYOFF_DATA[k].winner;
-              PLAYOFF_DATA[k].loser = data.PLAYOFF_DATA[k].loser;
-            }
+            if (!PLAYOFF_DATA[k]) PLAYOFF_DATA[k] = {};
+            Object.assign(PLAYOFF_DATA[k], data.PLAYOFF_DATA[k]);
           }
         }
         try {
           localStorage.setItem('mlbb_playoff_data_v9', JSON.stringify(PLAYOFF_DATA));
           localStorage.setItem('mlbb_teams_v9', JSON.stringify(TEAMS));
+          if (data.tournamentMode) localStorage.setItem('mlbb_tournament_mode_v9', data.tournamentMode);
         } catch(e) {}
 
+        renderHeaderTeamBadges();
+        updatePlayoffSeedsUI();
         updatePlayoffBracket();
         renderCollegeRoster();
         renderMatchScheduleList();
         renderLiveBroadcastHero();
+        if (isTheaterModeOpen) renderTheaterCurrentSlide();
       } finally {
         isReceivingRemoteCloudUpdate = false;
       }
@@ -5945,11 +5958,14 @@ Check your Browserslist config to be sure that your targets are set up correctly
     function pushToCloud() {
       if (!isCloudSyncConnected || !firebaseDbRef || isReceivingRemoteCloudUpdate) return;
       try {
-        firebaseDbRef.set({
+        const payload = cleanForFirebase({
           tournamentMode: tournamentMode,
           TEAMS: TEAMS,
           PLAYOFF_DATA: PLAYOFF_DATA,
           lastUpdated: Date.now()
+        });
+        firebaseDbRef.set(payload).catch(err => {
+          console.warn('Firebase set error:', err);
         });
       } catch(e) {
         console.warn('Failed to push to cloud:', e);
