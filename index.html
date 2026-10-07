@@ -848,47 +848,50 @@ Check your Browserslist config to be sure that your targets are set up correctly
         <!-- Injected via renderModalCodmModes() -->
       </div>
 
-      <!-- Teams Score Adjusters -->
-      <div class="grid grid-cols-2 gap-4 text-center">
-        <!-- Team 1 -->
-        <div class="p-3.5 sm:p-4 rounded-2xl bg-[var(--secondary)]/40 border border-[var(--border)] flex flex-col justify-between space-y-3">
-          <div id="modalTeam1Info" class="flex flex-col items-center gap-1.5 font-black text-sm text-[var(--foreground)]">
-            <!-- Injected via JS -->
-          </div>
-          <div class="space-y-2">
-            <div class="flex items-center justify-center gap-2">
-              <button type="button" onclick="stepModalScore(1, -1)" class="w-8 h-8 rounded-xl bg-[var(--card)] border border-[var(--border)] hover:bg-rose-500/20 hover:text-rose-400 font-black text-sm flex items-center justify-center transition cursor-pointer select-none" title="Minus 1 Game Win">-</button>
-              <input type="number" id="modalScore1" min="0" max="4" oninput="updateModalPreview()" class="w-16 text-center text-3xl font-mono font-black p-1 rounded-xl bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] focus:outline-hidden focus:border-amber-500">
-              <button type="button" onclick="stepModalScore(1, 1)" class="w-8 h-8 rounded-xl bg-[var(--card)] border border-[var(--border)] hover:bg-emerald-500/20 hover:text-emerald-400 font-black text-sm flex items-center justify-center transition cursor-pointer select-none" title="Plus 1 Game Win">+</button>
+      <!-- Standard Score Steppers & Presets Section (Shown in MLBB, hidden in CODM) -->
+      <div id="modalStandardScoreSection" class="space-y-4">
+        <!-- Teams Score Adjusters -->
+        <div class="grid grid-cols-2 gap-4 text-center">
+          <!-- Team 1 -->
+          <div class="p-3.5 sm:p-4 rounded-2xl bg-[var(--secondary)]/40 border border-[var(--border)] flex flex-col justify-between space-y-3">
+            <div id="modalTeam1Info" class="flex flex-col items-center gap-1.5 font-black text-sm text-[var(--foreground)]">
+              <!-- Injected via JS -->
             </div>
-            <button type="button" id="modalPlusOneBtn1" onclick="stepModalScore(1, 1)" class="w-full py-1.5 px-2 rounded-xl bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white font-black text-xs border border-blue-500/30 transition cursor-pointer flex items-center justify-center gap-1">
-              <span>+1</span> <span>Win Game</span>
-            </button>
+            <div class="space-y-2">
+              <div class="flex items-center justify-center gap-2">
+                <button type="button" onclick="stepModalScore(1, -1)" class="w-8 h-8 rounded-xl bg-[var(--card)] border border-[var(--border)] hover:bg-rose-500/20 hover:text-rose-400 font-black text-sm flex items-center justify-center transition cursor-pointer select-none" title="Minus 1 Game Win">-</button>
+                <input type="number" id="modalScore1" min="0" max="4" oninput="updateModalPreview()" class="w-16 text-center text-3xl font-mono font-black p-1 rounded-xl bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] focus:outline-hidden focus:border-amber-500">
+                <button type="button" onclick="stepModalScore(1, 1)" class="w-8 h-8 rounded-xl bg-[var(--card)] border border-[var(--border)] hover:bg-emerald-500/20 hover:text-emerald-400 font-black text-sm flex items-center justify-center transition cursor-pointer select-none" title="Plus 1 Game Win">+</button>
+              </div>
+              <button type="button" id="modalPlusOneBtn1" onclick="stepModalScore(1, 1)" class="w-full py-1.5 px-2 rounded-xl bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white font-black text-xs border border-blue-500/30 transition cursor-pointer flex items-center justify-center gap-1">
+                <span>+1</span> <span>Win Game</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Team 2 -->
+          <div class="p-3.5 sm:p-4 rounded-2xl bg-[var(--secondary)]/40 border border-[var(--border)] flex flex-col justify-between space-y-3">
+            <div id="modalTeam2Info" class="flex flex-col items-center gap-1.5 font-black text-sm text-[var(--foreground)]">
+              <!-- Injected via JS -->
+            </div>
+            <div class="space-y-2">
+              <div class="flex items-center justify-center gap-2">
+                <button type="button" onclick="stepModalScore(2, -1)" class="w-8 h-8 rounded-xl bg-[var(--card)] border border-[var(--border)] hover:bg-rose-500/20 hover:text-rose-400 font-black text-sm flex items-center justify-center transition cursor-pointer select-none" title="Minus 1 Game Win">-</button>
+                <input type="number" id="modalScore2" min="0" max="4" oninput="updateModalPreview()" class="w-16 text-center text-3xl font-mono font-black p-1 rounded-xl bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] focus:outline-hidden focus:border-amber-500">
+                <button type="button" onclick="stepModalScore(2, 1)" class="w-8 h-8 rounded-xl bg-[var(--card)] border border-[var(--border)] hover:bg-emerald-500/20 hover:text-emerald-400 font-black text-sm flex items-center justify-center transition cursor-pointer select-none" title="Plus 1 Game Win">+</button>
+              </div>
+              <button type="button" id="modalPlusOneBtn2" onclick="stepModalScore(2, 1)" class="w-full py-1.5 px-2 rounded-xl bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white font-black text-xs border border-blue-500/30 transition cursor-pointer flex items-center justify-center gap-1">
+                <span>+1</span> <span>Win Game</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        <!-- Team 2 -->
-        <div class="p-3.5 sm:p-4 rounded-2xl bg-[var(--secondary)]/40 border border-[var(--border)] flex flex-col justify-between space-y-3">
-          <div id="modalTeam2Info" class="flex flex-col items-center gap-1.5 font-black text-sm text-[var(--foreground)]">
-            <!-- Injected via JS -->
+        <!-- Quick Preset Scores Container -->
+        <div class="p-3 rounded-2xl bg-[var(--secondary)]/25 border border-[var(--border)] space-y-2">
+          <div id="modalPresetsContainer" class="space-y-2">
+            <!-- Injected via JS: In-Progress Game Scores & Series Final Presets -->
           </div>
-          <div class="space-y-2">
-            <div class="flex items-center justify-center gap-2">
-              <button type="button" onclick="stepModalScore(2, -1)" class="w-8 h-8 rounded-xl bg-[var(--card)] border border-[var(--border)] hover:bg-rose-500/20 hover:text-rose-400 font-black text-sm flex items-center justify-center transition cursor-pointer select-none" title="Minus 1 Game Win">-</button>
-              <input type="number" id="modalScore2" min="0" max="4" oninput="updateModalPreview()" class="w-16 text-center text-3xl font-mono font-black p-1 rounded-xl bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] focus:outline-hidden focus:border-amber-500">
-              <button type="button" onclick="stepModalScore(2, 1)" class="w-8 h-8 rounded-xl bg-[var(--card)] border border-[var(--border)] hover:bg-emerald-500/20 hover:text-emerald-400 font-black text-sm flex items-center justify-center transition cursor-pointer select-none" title="Plus 1 Game Win">+</button>
-            </div>
-            <button type="button" id="modalPlusOneBtn2" onclick="stepModalScore(2, 1)" class="w-full py-1.5 px-2 rounded-xl bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white font-black text-xs border border-blue-500/30 transition cursor-pointer flex items-center justify-center gap-1">
-              <span>+1</span> <span>Win Game</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Preset Scores Container -->
-      <div class="p-3 rounded-2xl bg-[var(--secondary)]/25 border border-[var(--border)] space-y-2">
-        <div id="modalPresetsContainer" class="space-y-2">
-          <!-- Injected via JS: In-Progress Game Scores & Series Final Presets -->
         </div>
       </div>
 
@@ -1421,8 +1424,45 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const games = getCodmMatchGames(match);
       const t1 = match.team1 || 'Team 1';
       const t2 = match.team2 || 'Team 2';
+      const t1Mascot = (DEFAULT_TEAMS.find(t => t.name === t1 || (t1 === 'COM' && t.name === 'CMID'))?.mascot) || '';
+      const t2Mascot = (DEFAULT_TEAMS.find(t => t.name === t2 || (t2 === 'COM' && t.name === 'CMID'))?.mascot) || '';
+
+      const w1 = games.filter(g => g.winner === t1).length;
+      const w2 = games.filter(g => g.winner === t2).length;
+      const hasAnyWinner = games.some(g => g.winner);
 
       container.innerHTML = `
+        <!-- Matchup Banner with Team Logos & Series Score Badge -->
+        <div class="p-3.5 rounded-2xl bg-[var(--secondary)]/40 border border-[var(--border)] flex items-center justify-between gap-3">
+          <!-- Team 1 -->
+          <div class="flex items-center gap-2.5 min-w-0">
+            ${renderTeamLogo(t1, 'w-10 h-10', 'rounded-xl shrink-0')}
+            <div class="truncate">
+              <span class="text-sm font-black text-[var(--foreground)] block truncate">${t1}</span>
+              <span class="text-[10px] text-[var(--muted-foreground)] block truncate">${t1Mascot}</span>
+            </div>
+          </div>
+
+          <!-- Series Score Tally -->
+          <div class="flex flex-col items-center shrink-0 px-3.5 py-1.5 rounded-xl bg-[var(--card)] border border-[var(--border)] shadow-xs">
+            <span class="text-[9px] font-black tracking-wider text-[var(--muted-foreground)] uppercase">Series Score</span>
+            <div class="flex items-center gap-2 font-mono text-xl font-black">
+              <span class="${w1 > w2 ? 'text-emerald-400' : 'text-[var(--foreground)]'}">${hasAnyWinner ? w1 : (match.s1 !== null ? match.s1 : 0)}</span>
+              <span class="text-[var(--muted-foreground)] font-bold text-xs">-</span>
+              <span class="${w2 > w1 ? 'text-emerald-400' : 'text-[var(--foreground)]'}">${hasAnyWinner ? w2 : (match.s2 !== null ? match.s2 : 0)}</span>
+            </div>
+          </div>
+
+          <!-- Team 2 -->
+          <div class="flex items-center gap-2.5 min-w-0 justify-end text-right">
+            <div class="truncate">
+              <span class="text-sm font-black text-[var(--foreground)] block truncate">${t2}</span>
+              <span class="text-[10px] text-[var(--muted-foreground)] block truncate">${t2Mascot}</span>
+            </div>
+            ${renderTeamLogo(t2, 'w-10 h-10', 'rounded-xl shrink-0')}
+          </div>
+        </div>
+
         <div class="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2.5">
           <div class="flex items-center justify-between">
             <span class="text-xs font-black text-amber-400 uppercase tracking-wide flex items-center gap-1.5">
@@ -1456,10 +1496,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     ${isNotNeeded ? `
                       <span class="text-[10px] text-slate-500 font-bold px-2 py-1 rounded-lg bg-white/5">Not Needed</span>
                     ` : `
-                      <button type="button" onclick="setModalCodmGameWinner(${idx}, 1)" class="px-2 py-1 rounded-lg text-xs font-black transition cursor-pointer ${isT1 ? 'bg-emerald-500 text-slate-950 shadow-sm ring-2 ring-emerald-300' : 'bg-[var(--secondary)] text-[var(--foreground)] hover:bg-emerald-500/20 hover:text-emerald-300'}">
+                      <button type="button" onclick="setModalCodmGameWinner(${idx}, 1)" class="px-2.5 py-1 rounded-lg text-xs font-black transition cursor-pointer ${isT1 ? 'bg-emerald-500 text-slate-950 shadow-sm ring-2 ring-emerald-300' : 'bg-[var(--secondary)] text-[var(--foreground)] hover:bg-emerald-500/20 hover:text-emerald-300'}">
                         ${isT1 ? '✓ ' : ''}${t1}
                       </button>
-                      <button type="button" onclick="setModalCodmGameWinner(${idx}, 2)" class="px-2 py-1 rounded-lg text-xs font-black transition cursor-pointer ${isT2 ? 'bg-emerald-500 text-slate-950 shadow-sm ring-2 ring-emerald-300' : 'bg-[var(--secondary)] text-[var(--foreground)] hover:bg-emerald-500/20 hover:text-emerald-300'}">
+                      <button type="button" onclick="setModalCodmGameWinner(${idx}, 2)" class="px-2.5 py-1 rounded-lg text-xs font-black transition cursor-pointer ${isT2 ? 'bg-emerald-500 text-slate-950 shadow-sm ring-2 ring-emerald-300' : 'bg-[var(--secondary)] text-[var(--foreground)] hover:bg-emerald-500/20 hover:text-emerald-300'}">
                         ${isT2 ? '✓ ' : ''}${t2}
                       </button>
                       <button type="button" onclick="setModalCodmGameWinner(${idx}, 0)" class="px-1.5 py-1 rounded-lg text-[10px] text-[var(--muted-foreground)] hover:text-rose-400 transition cursor-pointer" title="Clear Game Winner">
@@ -1520,10 +1560,16 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
       match.games = games;
 
+      const hasAnyWinner = games.some(g => g.winner);
       const inp1 = document.getElementById('modalScore1');
       const inp2 = document.getElementById('modalScore2');
-      if (inp1) inp1.value = w1;
-      if (inp2) inp2.value = w2;
+      if (hasAnyWinner) {
+        if (inp1) inp1.value = w1;
+        if (inp2) inp2.value = w2;
+      } else {
+        if (inp1) inp1.value = '';
+        if (inp2) inp2.value = '';
+      }
 
       updateModalPreview();
       renderModalCodmModes(match);
@@ -5914,12 +5960,21 @@ Check your Browserslist config to be sure that your targets are set up correctly
       }
 
       const codmContainer = document.getElementById('modalCodmModesContainer');
-      if (codmContainer) {
-        if (currentEsport === 'codm') {
+      const standardScoreSection = document.getElementById('modalStandardScoreSection');
+      if (currentEsport === 'codm') {
+        if (codmContainer) {
           codmContainer.classList.remove('hidden');
           renderModalCodmModes(match);
-        } else {
+        }
+        if (standardScoreSection) {
+          standardScoreSection.classList.add('hidden');
+        }
+      } else {
+        if (codmContainer) {
           codmContainer.classList.add('hidden');
+        }
+        if (standardScoreSection) {
+          standardScoreSection.classList.remove('hidden');
         }
       }
 
