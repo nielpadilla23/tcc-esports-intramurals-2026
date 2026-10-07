@@ -605,8 +605,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
           <span class="text-sm">🏫</span>
         </div>
         <div class="mt-2">
-          <div class="text-base font-black text-sky-400">8 Official Teams</div>
-          <div class="text-xs text-[var(--muted-foreground)] font-medium mt-0.5">Seeded #1 to #8 by Official Draw</div>
+          <div id="metricCollegesCount" class="text-base font-black text-sky-400">8 Official Teams</div>
+          <div id="metricCollegesDesc" class="text-xs text-[var(--muted-foreground)] font-medium mt-0.5">Seeded #1 to #8 by Official Draw</div>
         </div>
       </div>
 
@@ -653,10 +653,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
     <div id="view-teams" class="hidden space-y-6">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-[var(--card)] border border-[var(--border)] shadow-xs">
         <div>
-          <h2 class="text-lg font-black text-[var(--foreground)]">8 Official Competing Colleges</h2>
-          <p class="text-xs text-[var(--muted-foreground)] mt-0.5">Tournament Seeding Draw (#1 through #8) and college rosters</p>
+          <h2 id="collegeRosterHeaderTitle" class="text-lg font-black text-[var(--foreground)]">8 Official Competing Colleges</h2>
+          <p id="collegeRosterHeaderSubtitle" class="text-xs text-[var(--muted-foreground)] mt-0.5">Tournament Seeding Draw (#1 through #8) and college rosters</p>
         </div>
-        <div class="admin-only flex items-center gap-2 self-start sm:self-auto flex-wrap">
+        <div id="collegeRosterAdminActions" class="admin-only flex items-center gap-2 self-start sm:self-auto flex-wrap">
             <button onclick="populateSeedsToBracket()" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black shadow-md transition cursor-pointer flex items-center gap-1.5">
               <span>⚡</span> Populate Seeds into Bracket
             </button>
@@ -1706,6 +1706,38 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function createInitialPlayoffTemplate() {
       const isCodm = currentEsport === 'codm';
+      if (isCodm) {
+        return {
+          ub_qf1: { id: 'ub_qf1', seq: 1, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 1 (U1 · CCJPS BYE)', bestOf: 3, team1: 'CCJPS', team2: 'BYE', s1: null, s2: null, winner: 'CCJPS', loser: null },
+          ub_qf2: { id: 'ub_qf2', seq: 2, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 2 (U2 · CBA vs CHM)', bestOf: 3, team1: 'CBA', team2: 'CHM', s1: null, s2: null, winner: null, loser: null },
+          ub_qf3: { id: 'ub_qf3', seq: 3, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 3 (U3 · CLIS vs CIT)', bestOf: 3, team1: 'CLIS', team2: 'CIT', s1: null, s2: null, winner: null, loser: null },
+          ub_qf4: { id: 'ub_qf4', seq: 4, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 4 (U4 · COED vs CAS)', bestOf: 3, team1: 'COED', team2: 'CAS', s1: null, s2: null, winner: null, loser: null },
+
+          ub_sf1: { id: 'ub_sf1', seq: 5, day: 'DAY 1', label: 'Upper Bracket Semifinal 1 (U5 · CCJPS vs Winner U2)', bestOf: 3, team1: 'CCJPS', team2: null, s1: null, s2: null, winner: null, loser: null },
+          ub_sf2: { id: 'ub_sf2', seq: 6, day: 'DAY 1', label: 'Upper Bracket Semifinal 2 (U6 · Winner U3 vs Winner U4)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          ub_f: { id: 'ub_f', seq: 12, day: 'DAY 2', label: 'Upper Bracket Final (U7 · BO3)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+
+          lb_r1_1: { id: 'lb_r1_1', seq: 7, day: 'DAY 2', label: 'Lower Bracket Round 1 (L1 · Loser U2 BYE)', bestOf: 3, team1: null, team2: 'BYE', s1: null, s2: null, winner: null, loser: null },
+          lb_r1_2: { id: 'lb_r1_2', seq: 8, day: 'DAY 2', label: 'Lower Bracket Round 1 (L2 · Loser U3 vs Loser U4)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+
+          lb_qf1: { id: 'lb_qf1', seq: 9, day: 'DAY 2', label: 'Lower Bracket Quarterfinal 1 (L3)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          lb_qf2: { id: 'lb_qf2', seq: 10, day: 'DAY 2', label: 'Lower Bracket Quarterfinal 2 (L4)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+
+          lb_sf: { id: 'lb_sf', seq: 11, day: 'DAY 2', label: 'Lower Bracket Semifinal (L5)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          lb_f: { id: 'lb_f', seq: 13, day: 'DAY 3', label: 'Lower Bracket Final (L6 · BO3)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+
+          gf8: { id: 'gf8', seq: 14, day: 'DAY 3', label: 'Grand Championship Finals (GF · BO3)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+
+          s8_qf1: { id: 's8_qf1', seq: 1, day: 'DAY 1', label: 'Quarterfinal 1 (U1 · CCJPS BYE)', bestOf: 3, team1: 'CCJPS', team2: 'BYE', s1: null, s2: null, winner: 'CCJPS', loser: null },
+          s8_qf2: { id: 's8_qf2', seq: 2, day: 'DAY 1', label: 'Quarterfinal 2 (U2 · CBA vs CHM)', bestOf: 3, team1: 'CBA', team2: 'CHM', s1: null, s2: null, winner: null, loser: null },
+          s8_qf3: { id: 's8_qf3', seq: 3, day: 'DAY 1', label: 'Quarterfinal 3 (U3 · CLIS vs CIT)', bestOf: 3, team1: 'CLIS', team2: 'CIT', s1: null, s2: null, winner: null, loser: null },
+          s8_qf4: { id: 's8_qf4', seq: 4, day: 'DAY 1', label: 'Quarterfinal 4 (U4 · COED vs CAS)', bestOf: 3, team1: 'COED', team2: 'CAS', s1: null, s2: null, winner: null, loser: null },
+          s8_sf1: { id: 's8_sf1', seq: 5, day: 'DAY 2', label: 'Semifinal 1 (U5)', bestOf: 3, team1: 'CCJPS', team2: null, s1: null, s2: null, winner: null, loser: null },
+          s8_sf2: { id: 's8_sf2', seq: 6, day: 'DAY 2', label: 'Semifinal 2 (U6)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          s8_bronze: { id: 's8_bronze', seq: 7, day: 'DAY 3', label: 'Bronze Medal Match (BO3)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          s8_gf: { id: 's8_gf', seq: 8, day: 'DAY 3', label: 'Grand Championship Finals (GF · BO3)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null }
+        };
+      }
       return {
         ub_qf1: { id: 'ub_qf1', seq: 1, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 1 (#1 vs #8)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
         ub_qf2: { id: 'ub_qf2', seq: 2, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 2 (#4 vs #5)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
@@ -1714,7 +1746,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
         ub_sf1: { id: 'ub_sf1', seq: 5, day: 'DAY 1', label: 'Upper Bracket Semifinal 1', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
         ub_sf2: { id: 'ub_sf2', seq: 6, day: 'DAY 1', label: 'Upper Bracket Semifinal 2', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-        ub_f: { id: 'ub_f', seq: 12, day: 'DAY 2', label: isCodm ? 'Upper Bracket Final (BO3)' : 'Upper Bracket Final (BO5)', bestOf: isCodm ? 3 : 5, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+        ub_f: { id: 'ub_f', seq: 12, day: 'DAY 2', label: 'Upper Bracket Final (BO5)', bestOf: 5, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
 
         lb_r1_1: { id: 'lb_r1_1', seq: 7, day: 'DAY 2', label: 'Lower Bracket Round 1 (QF1 Loser vs QF2 Loser)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
         lb_r1_2: { id: 'lb_r1_2', seq: 8, day: 'DAY 2', label: 'Lower Bracket Round 1 (QF3 Loser vs QF4 Loser)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
@@ -1723,9 +1755,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
         lb_qf2: { id: 'lb_qf2', seq: 10, day: 'DAY 2', label: 'Lower Bracket Quarterfinal 2', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
 
         lb_sf: { id: 'lb_sf', seq: 11, day: 'DAY 2', label: 'Lower Bracket Semifinal', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-        lb_f: { id: 'lb_f', seq: 13, day: 'DAY 3', label: isCodm ? 'Lower Bracket Final (BO3)' : 'Lower Bracket Final (BO5)', bestOf: isCodm ? 3 : 5, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+        lb_f: { id: 'lb_f', seq: 13, day: 'DAY 3', label: 'Lower Bracket Final (BO5)', bestOf: 5, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
 
-        gf8: { id: 'gf8', seq: 14, day: 'DAY 3', label: isCodm ? 'Grand Championship Finals (BO3)' : 'Grand Championship Finals (BO7)', bestOf: isCodm ? 3 : 7, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+        gf8: { id: 'gf8', seq: 14, day: 'DAY 3', label: 'Grand Championship Finals (BO7)', bestOf: 7, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
 
         s8_qf1: { id: 's8_qf1', seq: 1, day: 'DAY 1', label: 'Quarterfinal 1 (#1 vs #8)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
         s8_qf2: { id: 's8_qf2', seq: 2, day: 'DAY 1', label: 'Quarterfinal 2 (#4 vs #5)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
@@ -1733,8 +1765,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
         s8_qf4: { id: 's8_qf4', seq: 4, day: 'DAY 1', label: 'Quarterfinal 4 (#3 vs #6)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
         s8_sf1: { id: 's8_sf1', seq: 5, day: 'DAY 2', label: 'Semifinal 1', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
         s8_sf2: { id: 's8_sf2', seq: 6, day: 'DAY 2', label: 'Semifinal 2', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-        s8_bronze: { id: 's8_bronze', seq: 7, day: 'DAY 3', label: isCodm ? 'Bronze Medal Match (BO3)' : 'Bronze Medal Match (BO5)', bestOf: isCodm ? 3 : 5, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-        s8_gf: { id: 's8_gf', seq: 8, day: 'DAY 3', label: isCodm ? 'Grand Championship Finals (BO3)' : 'Grand Championship Finals (BO7)', bestOf: isCodm ? 3 : 7, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null }
+        s8_bronze: { id: 's8_bronze', seq: 7, day: 'DAY 3', label: 'Bronze Medal Match (BO5)', bestOf: 5, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+        s8_gf: { id: 's8_gf', seq: 8, day: 'DAY 3', label: 'Grand Championship Finals (BO7)', bestOf: 7, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null }
       };
     }
 
@@ -1778,7 +1810,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
       // Load saved playoffs if previously saved
       const savedPlayoffs = localStorage.getItem(getStorageKey('playoff_data_v9'));
-      if (savedPlayoffs && isBracketSeeded) {
+      if (savedPlayoffs && (isBracketSeeded || currentEsport === 'codm')) {
         try {
           const parsed = JSON.parse(savedPlayoffs);
           for (let k in parsed) {
@@ -1801,21 +1833,28 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
       // Apply canonical sequences, days, and bestOf rules
       const CANONICAL_LABELS = currentEsport === 'codm' ? {
-        ub_qf1: 'Upper Bracket Quarterfinal 1 (#1 vs #8)',
-        ub_qf2: 'Upper Bracket Quarterfinal 2 (#4 vs #5)',
-        ub_qf3: 'Upper Bracket Quarterfinal 3 (#2 vs #7)',
-        ub_qf4: 'Upper Bracket Quarterfinal 4 (#3 vs #6)',
-        ub_sf1: 'Upper Bracket Semifinal 1',
-        ub_sf2: 'Upper Bracket Semifinal 2',
-        ub_f: 'Upper Bracket Final (BO3)',
-        lb_r1_1: 'Lower Bracket Round 1 (QF1 Loser vs QF2 Loser)',
-        lb_r1_2: 'Lower Bracket Round 1 (QF3 Loser vs QF4 Loser)',
-        lb_qf1: 'Lower Bracket Quarterfinal 1',
-        lb_qf2: 'Lower Bracket Quarterfinal 2',
-        lb_sf: 'Lower Bracket Semifinal',
-        lb_f: 'Lower Bracket Final (BO3)',
-        gf8: 'Grand Championship Finals (BO3)',
-        s8_gf: 'Grand Championship Finals (BO3)',
+        ub_qf1: 'Upper Bracket Quarterfinal 1 (U1 · CCJPS BYE)',
+        ub_qf2: 'Upper Bracket Quarterfinal 2 (U2 · CBA vs CHM)',
+        ub_qf3: 'Upper Bracket Quarterfinal 3 (U3 · CLIS vs CIT)',
+        ub_qf4: 'Upper Bracket Quarterfinal 4 (U4 · COED vs CAS)',
+        ub_sf1: 'Upper Bracket Semifinal 1 (U5 · CCJPS vs Winner U2)',
+        ub_sf2: 'Upper Bracket Semifinal 2 (U6 · Winner U3 vs Winner U4)',
+        ub_f: 'Upper Bracket Final (U7 · BO3)',
+        lb_r1_1: 'Lower Bracket Round 1 (L1 · Loser U2 BYE)',
+        lb_r1_2: 'Lower Bracket Round 1 (L2 · Loser U3 vs Loser U4)',
+        lb_qf1: 'Lower Bracket Quarterfinal 1 (L3)',
+        lb_qf2: 'Lower Bracket Quarterfinal 2 (L4)',
+        lb_sf: 'Lower Bracket Semifinal (L5)',
+        lb_f: 'Lower Bracket Final (L6 · BO3)',
+        gf8: 'Grand Championship Finals (GF · BO3)',
+        s8_qf1: 'Quarterfinal 1 (U1 · CCJPS BYE)',
+        s8_qf2: 'Quarterfinal 2 (U2 · CBA vs CHM)',
+        s8_qf3: 'Quarterfinal 3 (U3 · CLIS vs CIT)',
+        s8_qf4: 'Quarterfinal 4 (U4 · COED vs CAS)',
+        s8_sf1: 'Semifinal 1 (U5)',
+        s8_sf2: 'Semifinal 2 (U6)',
+        s8_bronze: 'Bronze Medal Match (BO3)',
+        s8_gf: 'Grand Championship Finals (GF · BO3)',
       } : {
         ub_qf1: 'Upper Bracket Quarterfinal 1 (#1 vs #8)',
         ub_qf2: 'Upper Bracket Quarterfinal 2 (#4 vs #5)',
@@ -2119,14 +2158,21 @@ Check your Browserslist config to be sure that your targets are set up correctly
         if (simText) simText.innerText = currentEsport === 'codm' ? 'Simulate Double Elim (CODM)' : 'Simulate Double Elim';
         if (theaterBadge) theaterBadge.innerText = currentEsport === 'codm' ? 'Double Elim · BO3 MP' : 'Double Elimination';
 
+        const colCountEl = document.getElementById('metricCollegesCount');
+        const colDescEl = document.getElementById('metricCollegesDesc');
+
         if (currentEsport === 'codm') {
-          if (mTitle) mTitle.innerText = '14 Series (Multi-Player Double Elim)';
+          if (mTitle) mTitle.innerText = '12 Played Series (7 Colleges Double Elim)';
           if (mDesc) mDesc.innerText = '3 Games: Search & Destroy · Control · Hardpoint';
           if (rTitle) rTitle.innerText = 'All Series BO3 · First to 2 Wins (S&D, Control, HP)';
+          if (colCountEl) colCountEl.innerText = '7 Official Teams (CMID No Team)';
+          if (colDescEl) colDescEl.innerText = 'Fixed Tournament Draw · No Seeding';
         } else {
           if (mTitle) mTitle.innerText = '14 Series (Double Elim)';
           if (mDesc) mDesc.innerText = 'Upper & Lower Brackets (Double Life)';
           if (rTitle) rTitle.innerText = 'BO5 UB & LB Finals · BO7 Grand Finals';
+          if (colCountEl) colCountEl.innerText = '8 Official Teams';
+          if (colDescEl) colDescEl.innerText = 'Seeded #1 to #8 by Official Draw';
         }
         if (headerSub) headerSub.innerText = 'TAGOLOAN COMMUNITY COLLEGE · INTRAMURALS 2026';
       } else {
@@ -2135,14 +2181,21 @@ Check your Browserslist config to be sure that your targets are set up correctly
         if (simText) simText.innerText = currentEsport === 'codm' ? 'Simulate Single Elim (CODM)' : 'Simulate Single Elim';
         if (theaterBadge) theaterBadge.innerText = currentEsport === 'codm' ? 'Single Elim · BO3 MP' : 'Single Elimination';
 
+        const colCountEl = document.getElementById('metricCollegesCount');
+        const colDescEl = document.getElementById('metricCollegesDesc');
+
         if (currentEsport === 'codm') {
-          if (mTitle) mTitle.innerText = '8 Series (Multi-Player Single Elim)';
+          if (mTitle) mTitle.innerText = '7 Played Series (7 Colleges Single Elim)';
           if (mDesc) mDesc.innerText = '3 Games: Search & Destroy · Control · Hardpoint';
           if (rTitle) rTitle.innerText = 'All Series BO3 · First to 2 Wins (S&D, Control, HP)';
+          if (colCountEl) colCountEl.innerText = '7 Official Teams (CMID No Team)';
+          if (colDescEl) colDescEl.innerText = 'Fixed Tournament Draw · No Seeding';
         } else {
           if (mTitle) mTitle.innerText = '8 Series (Single Elim)';
           if (mDesc) mDesc.innerText = 'Quarterfinals to Grand Championship Knockout';
           if (rTitle) rTitle.innerText = 'BO5 Bronze Match · BO7 Grand Finals';
+          if (colCountEl) colCountEl.innerText = '8 Official Teams';
+          if (colDescEl) colDescEl.innerText = 'Seeded #1 to #8 by Official Draw';
         }
         if (headerSub) headerSub.innerText = 'TAGOLOAN COMMUNITY COLLEGE · INTRAMURALS 2026';
       }
@@ -2150,9 +2203,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
     }
 
     function updateProgressMetrics() {
-      const keys = tournamentMode === 'double_elim'
-        ? ['ub_qf1', 'ub_qf2', 'ub_qf3', 'ub_qf4', 'ub_sf1', 'ub_sf2', 'lb_r1_1', 'lb_r1_2', 'lb_qf1', 'lb_qf2', 'lb_sf', 'ub_f', 'lb_f', 'gf8']
-        : ['s8_qf1', 's8_qf2', 's8_qf3', 's8_qf4', 's8_sf1', 's8_sf2', 's8_bronze', 's8_gf'];
+      const keys = currentEsport === 'codm'
+        ? (tournamentMode === 'double_elim'
+            ? ['ub_qf2', 'ub_qf3', 'ub_qf4', 'lb_r1_2', 'ub_sf1', 'ub_sf2', 'lb_qf1', 'lb_qf2', 'lb_sf', 'ub_f', 'lb_f', 'gf8']
+            : ['s8_qf2', 's8_qf3', 's8_qf4', 's8_sf1', 's8_sf2', 's8_bronze', 's8_gf'])
+        : (tournamentMode === 'double_elim'
+            ? ['ub_qf1', 'ub_qf2', 'ub_qf3', 'ub_qf4', 'ub_sf1', 'ub_sf2', 'lb_r1_1', 'lb_r1_2', 'lb_qf1', 'lb_qf2', 'lb_sf', 'ub_f', 'lb_f', 'gf8']
+            : ['s8_qf1', 's8_qf2', 's8_qf3', 's8_qf4', 's8_sf1', 's8_sf2', 's8_bronze', 's8_gf']);
 
       const total = keys.length;
       let completed = 0;
@@ -2447,6 +2504,27 @@ Check your Browserslist config to be sure that your targets are set up correctly
     function renderHeaderTeamBadges() {
       const container = document.getElementById('headerTeamBadges');
       if (!container) return;
+      if (currentEsport === 'codm') {
+        const codmColleges = ['CCJPS', 'CBA', 'CHM', 'CLIS', 'CIT', 'COED', 'CAS'];
+        container.innerHTML = `
+          <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[10px] font-black text-amber-400 shrink-0 select-none">
+            <span>🎯</span> <span>CODM 7-COLLEGE DRAW:</span>
+          </div>
+        ` + codmColleges.map(name => {
+          const t = DEFAULT_TEAMS.find(x => x.name === name);
+          return `
+            <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[var(--card)] border border-[var(--border)] shrink-0 shadow-xs" title="${t?.full || name}">
+              ${renderTeamLogo(name, 'w-4 h-4', 'rounded-md shrink-0')}
+              <span class="font-black text-xs text-[var(--foreground)]">${name}</span>
+            </div>
+          `;
+        }).join('') + `
+          <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-rose-500/10 border border-rose-500/20 text-[10px] font-bold text-rose-400 shrink-0 opacity-70" title="CMID has no team participating in CODM Multi-Player">
+            <span>❌</span> <span>CMID (No Team)</span>
+          </div>
+        `;
+        return;
+      }
       container.innerHTML = TEAMS.map((t, idx) => {
         if (!t) {
           return `
@@ -2474,6 +2552,47 @@ Check your Browserslist config to be sure that your targets are set up correctly
     function updatePlayoffSeedsUI() {
       const bar = document.getElementById('playoffSeedsBar');
       if (!bar) return;
+      if (currentEsport === 'codm') {
+        const codmTeamsInfo = [
+          { name: 'CCJPS', note: 'U1: BYE', color: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' },
+          { name: 'CBA', note: 'U2 vs CHM', color: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30' },
+          { name: 'CHM', note: 'U2 vs CBA', color: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30' },
+          { name: 'CLIS', note: 'U3 vs CIT', color: 'bg-purple-500/20 text-purple-400 border-purple-500/30' },
+          { name: 'CIT', note: 'U3 vs CLIS', color: 'bg-purple-500/20 text-purple-400 border-purple-500/30' },
+          { name: 'COED', note: 'U4 vs CAS', color: 'bg-orange-500/20 text-orange-400 border-orange-500/30' },
+          { name: 'CAS', note: 'U4 vs COED', color: 'bg-rose-500/20 text-rose-400 border-rose-500/30' },
+          { name: 'CMID', note: 'No Team', isNoTeam: true, color: 'bg-slate-800 text-slate-500 border-slate-700' }
+        ];
+        bar.innerHTML = codmTeamsInfo.map(info => {
+          if (info.isNoTeam) {
+            return `
+              <div class="flex items-center gap-2 p-2 rounded-xl bg-[var(--card)]/30 border border-dashed border-rose-500/20 opacity-50 shrink-0" title="CMID has no team in CODM">
+                <span class="w-6 h-6 rounded-lg text-[9px] font-mono font-bold flex items-center justify-center shrink-0 bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                  ❌
+                </span>
+                ${renderTeamLogo('CMID', 'w-6 h-6', 'rounded-md shrink-0 opacity-40')}
+                <div class="truncate">
+                  <div class="text-xs font-bold text-slate-500 line-through truncate">CMID</div>
+                  <div class="text-[9px] text-rose-400/80 font-bold truncate">No Team in CODM</div>
+                </div>
+              </div>
+            `;
+          }
+          return `
+            <div class="flex items-center gap-2 p-2 rounded-xl bg-[var(--card)] border border-[var(--border)] shadow-xs shrink-0">
+              <span class="px-1.5 py-0.5 rounded-md text-[9px] font-mono font-black flex items-center justify-center shrink-0 border ${info.color}">
+                ${info.note}
+              </span>
+              ${renderTeamLogo(info.name, 'w-6 h-6', 'rounded-md shrink-0')}
+              <div class="truncate">
+                <div class="text-xs font-black text-[var(--foreground)] truncate">${info.name}</div>
+                <div class="text-[9px] text-[var(--muted-foreground)] truncate">${(DEFAULT_TEAMS.find(x => x.name === info.name)?.mascot) || ''}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+        return;
+      }
       bar.innerHTML = TEAMS.map((t, idx) => {
         if (!t) {
           return `
@@ -2504,31 +2623,63 @@ Check your Browserslist config to be sure that your targets are set up correctly
       }).join('');
     }
 
+    function getMatchShortCode(matchKey) {
+      if (currentEsport === 'codm') {
+        const codmCodes = {
+          ub_qf1: 'U1',
+          ub_qf2: 'U2',
+          ub_qf3: 'U3',
+          ub_qf4: 'U4',
+          ub_sf1: 'U5',
+          ub_sf2: 'U6',
+          ub_f: 'U7',
+          lb_r1_1: 'L1',
+          lb_r1_2: 'L2',
+          lb_qf1: 'L3',
+          lb_qf2: 'L4',
+          lb_sf: 'L5',
+          lb_f: 'L6',
+          gf8: 'GF',
+          s8_qf1: 'U1',
+          s8_qf2: 'U2',
+          s8_qf3: 'U3',
+          s8_qf4: 'U4',
+          s8_sf1: 'U5',
+          s8_sf2: 'U6',
+          s8_bronze: 'B3',
+          s8_gf: 'GF'
+        };
+        return codmCodes[matchKey] || matchKey;
+      }
+      const seq = MATCH_SEQUENCES[matchKey];
+      return seq ? '#' + seq : (matchKey || '');
+    }
+
     function getMatchCanonicalLabel(matchKey) {
       const isCodm = currentEsport === 'codm';
       const labels = isCodm ? {
-        ub_qf1: 'Upper Bracket Quarterfinal 1 (#1 vs #8)',
-        ub_qf2: 'Upper Bracket Quarterfinal 2 (#4 vs #5)',
-        ub_qf3: 'Upper Bracket Quarterfinal 3 (#2 vs #7)',
-        ub_qf4: 'Upper Bracket Quarterfinal 4 (#3 vs #6)',
-        ub_sf1: 'Upper Bracket Semifinal 1',
-        ub_sf2: 'Upper Bracket Semifinal 2',
-        ub_f: 'Upper Bracket Final (BO3)',
-        lb_r1_1: 'Lower Bracket Round 1 (QF1 Loser vs QF2 Loser)',
-        lb_r1_2: 'Lower Bracket Round 1 (QF3 Loser vs QF4 Loser)',
-        lb_qf1: 'Lower Bracket Quarterfinal 1',
-        lb_qf2: 'Lower Bracket Quarterfinal 2',
-        lb_sf: 'Lower Bracket Semifinal',
-        lb_f: 'Lower Bracket Final (BO3)',
-        gf8: 'Grand Championship Finals (BO3)',
-        s8_qf1: 'Quarterfinal 1 (#1 vs #8)',
-        s8_qf2: 'Quarterfinal 2 (#4 vs #5)',
-        s8_qf3: 'Quarterfinal 3 (#2 vs #7)',
-        s8_qf4: 'Quarterfinal 4 (#3 vs #6)',
-        s8_sf1: 'Semifinal 1',
-        s8_sf2: 'Semifinal 2',
+        ub_qf1: 'Upper Bracket Quarterfinal 1 (U1 · CCJPS BYE)',
+        ub_qf2: 'Upper Bracket Quarterfinal 2 (U2 · CBA vs CHM)',
+        ub_qf3: 'Upper Bracket Quarterfinal 3 (U3 · CLIS vs CIT)',
+        ub_qf4: 'Upper Bracket Quarterfinal 4 (U4 · COED vs CAS)',
+        ub_sf1: 'Upper Bracket Semifinal 1 (U5 · CCJPS vs Winner U2)',
+        ub_sf2: 'Upper Bracket Semifinal 2 (U6 · Winner U3 vs Winner U4)',
+        ub_f: 'Upper Bracket Final (U7 · BO3)',
+        lb_r1_1: 'Lower Bracket Round 1 (L1 · Loser U2 BYE)',
+        lb_r1_2: 'Lower Bracket Round 1 (L2 · Loser U3 vs Loser U4)',
+        lb_qf1: 'Lower Bracket Quarterfinal 1 (L3)',
+        lb_qf2: 'Lower Bracket Quarterfinal 2 (L4)',
+        lb_sf: 'Lower Bracket Semifinal (L5)',
+        lb_f: 'Lower Bracket Final (L6 · BO3)',
+        gf8: 'Grand Championship Finals (GF · BO3)',
+        s8_qf1: 'Quarterfinal 1 (U1 · CCJPS BYE)',
+        s8_qf2: 'Quarterfinal 2 (U2 · CBA vs CHM)',
+        s8_qf3: 'Quarterfinal 3 (U3 · CLIS vs CIT)',
+        s8_qf4: 'Quarterfinal 4 (U4 · COED vs CAS)',
+        s8_sf1: 'Semifinal 1 (U5)',
+        s8_sf2: 'Semifinal 2 (U6)',
         s8_bronze: 'Bronze Medal Match (BO3)',
-        s8_gf: 'Grand Championship Finals (BO3)'
+        s8_gf: 'Grand Championship Finals (GF · BO3)'
       } : {
         ub_qf1: 'Upper Bracket Quarterfinal 1 (#1 vs #8)',
         ub_qf2: 'Upper Bracket Quarterfinal 2 (#4 vs #5)',
@@ -2579,6 +2730,20 @@ Check your Browserslist config to be sure that your targets are set up correctly
       function validateMatchReadiness(matchKey) {
         const m = PLAYOFF_DATA[matchKey];
         if (!m) return;
+        // If team2 is BYE, team1 automatically advances with no loser
+        if (m.team2 === 'BYE') {
+          if (m.team1) {
+            m.winner = m.team1;
+            m.loser = null;
+          } else {
+            m.winner = null;
+            m.loser = null;
+          }
+          m.s1 = null;
+          m.s2 = null;
+          if (m.games) delete m.games;
+          return;
+        }
         // If either team is missing, NO scores or winners can exist
         if (!m.team1 || !m.team2) {
           m.s1 = null;
@@ -2603,107 +2768,226 @@ Check your Browserslist config to be sure that your targets are set up correctly
         }
       }
 
-      if (tournamentMode === 'double_elim') {
-        // Upper Bracket Quarterfinals
-        PLAYOFF_DATA.ub_qf1.team1 = s1;
-        PLAYOFF_DATA.ub_qf1.team2 = s8;
-        validateMatchReadiness('ub_qf1');
+      if (currentEsport === 'codm') {
+        if (tournamentMode === 'double_elim') {
+          // Official CODM 7-College Tournament Draw (No Seeding)
+          // U1: CCJPS gets a BYE and advances automatically to U5
+          PLAYOFF_DATA.ub_qf1.team1 = 'CCJPS';
+          PLAYOFF_DATA.ub_qf1.team2 = 'BYE';
+          validateMatchReadiness('ub_qf1');
 
-        PLAYOFF_DATA.ub_qf2.team1 = s4;
-        PLAYOFF_DATA.ub_qf2.team2 = s5;
-        validateMatchReadiness('ub_qf2');
+          // U2: CBA vs CHM
+          PLAYOFF_DATA.ub_qf2.team1 = 'CBA';
+          PLAYOFF_DATA.ub_qf2.team2 = 'CHM';
+          validateMatchReadiness('ub_qf2');
 
-        PLAYOFF_DATA.ub_qf3.team1 = s2;
-        PLAYOFF_DATA.ub_qf3.team2 = s7;
-        validateMatchReadiness('ub_qf3');
+          // U3: CLIS vs CIT
+          PLAYOFF_DATA.ub_qf3.team1 = 'CLIS';
+          PLAYOFF_DATA.ub_qf3.team2 = 'CIT';
+          validateMatchReadiness('ub_qf3');
 
-        PLAYOFF_DATA.ub_qf4.team1 = s3;
-        PLAYOFF_DATA.ub_qf4.team2 = s6;
-        validateMatchReadiness('ub_qf4');
+          // U4: COED vs CAS
+          PLAYOFF_DATA.ub_qf4.team1 = 'COED';
+          PLAYOFF_DATA.ub_qf4.team2 = 'CAS';
+          validateMatchReadiness('ub_qf4');
 
-        // Lower Bracket Round 1 (fed by QF losers)
-        PLAYOFF_DATA.lb_r1_1.team1 = PLAYOFF_DATA.ub_qf1.loser || null;
-        PLAYOFF_DATA.lb_r1_1.team2 = PLAYOFF_DATA.ub_qf2.loser || null;
-        validateMatchReadiness('lb_r1_1');
+          // Lower Bracket Round 1:
+          // L1: Loser of U2 gets an automatic BYE (since U1 had BYE) -> advances to L4
+          PLAYOFF_DATA.lb_r1_1.team1 = PLAYOFF_DATA.ub_qf2.loser || null;
+          PLAYOFF_DATA.lb_r1_1.team2 = 'BYE';
+          validateMatchReadiness('lb_r1_1');
 
-        PLAYOFF_DATA.lb_r1_2.team1 = PLAYOFF_DATA.ub_qf3.loser || null;
-        PLAYOFF_DATA.lb_r1_2.team2 = PLAYOFF_DATA.ub_qf4.loser || null;
-        validateMatchReadiness('lb_r1_2');
+          // L2: Loser of U3 vs Loser of U4
+          PLAYOFF_DATA.lb_r1_2.team1 = PLAYOFF_DATA.ub_qf3.loser || null;
+          PLAYOFF_DATA.lb_r1_2.team2 = PLAYOFF_DATA.ub_qf4.loser || null;
+          validateMatchReadiness('lb_r1_2');
 
-        // Upper Bracket Semifinals (fed by QF winners)
-        PLAYOFF_DATA.ub_sf1.team1 = PLAYOFF_DATA.ub_qf1.winner || null;
-        PLAYOFF_DATA.ub_sf1.team2 = PLAYOFF_DATA.ub_qf2.winner || null;
-        validateMatchReadiness('ub_sf1');
+          // Upper Bracket Semifinals:
+          // U5: CCJPS (Waiting) vs Winner of U2 (CBA vs CHM)
+          PLAYOFF_DATA.ub_sf1.team1 = 'CCJPS';
+          PLAYOFF_DATA.ub_sf1.team2 = PLAYOFF_DATA.ub_qf2.winner || null;
+          validateMatchReadiness('ub_sf1');
 
-        PLAYOFF_DATA.ub_sf2.team1 = PLAYOFF_DATA.ub_qf3.winner || null;
-        PLAYOFF_DATA.ub_sf2.team2 = PLAYOFF_DATA.ub_qf4.winner || null;
-        validateMatchReadiness('ub_sf2');
+          // U6: Winner of U3 (CLIS vs CIT) vs Winner of U4 (COED vs CAS)
+          PLAYOFF_DATA.ub_sf2.team1 = PLAYOFF_DATA.ub_qf3.winner || null;
+          PLAYOFF_DATA.ub_sf2.team2 = PLAYOFF_DATA.ub_qf4.winner || null;
+          validateMatchReadiness('ub_sf2');
 
-        // Lower Bracket Quarterfinals (fed by UB SF losers & LB R1 winners)
-        PLAYOFF_DATA.lb_qf1.team1 = PLAYOFF_DATA.ub_sf1.loser || null;
-        PLAYOFF_DATA.lb_qf1.team2 = PLAYOFF_DATA.lb_r1_1.winner || null;
-        validateMatchReadiness('lb_qf1');
+          // Lower Bracket Quarterfinals:
+          // L3: Loser of U5 vs Winner of L2
+          PLAYOFF_DATA.lb_qf1.team1 = PLAYOFF_DATA.ub_sf1.loser || null;
+          PLAYOFF_DATA.lb_qf1.team2 = PLAYOFF_DATA.lb_r1_2.winner || null;
+          validateMatchReadiness('lb_qf1');
 
-        PLAYOFF_DATA.lb_qf2.team1 = PLAYOFF_DATA.ub_sf2.loser || null;
-        PLAYOFF_DATA.lb_qf2.team2 = PLAYOFF_DATA.lb_r1_2.winner || null;
-        validateMatchReadiness('lb_qf2');
+          // L4: Loser of U6 vs Winner of L1 (Loser of U2 via BYE)
+          PLAYOFF_DATA.lb_qf2.team1 = PLAYOFF_DATA.ub_sf2.loser || null;
+          PLAYOFF_DATA.lb_qf2.team2 = PLAYOFF_DATA.lb_r1_1.winner || null;
+          validateMatchReadiness('lb_qf2');
 
-        // Upper Bracket Final (fed by UB SF winners)
-        PLAYOFF_DATA.ub_f.team1 = PLAYOFF_DATA.ub_sf1.winner || null;
-        PLAYOFF_DATA.ub_f.team2 = PLAYOFF_DATA.ub_sf2.winner || null;
-        validateMatchReadiness('ub_f');
+          // Upper Bracket Final:
+          // U7: Winner of U5 vs Winner of U6
+          PLAYOFF_DATA.ub_f.team1 = PLAYOFF_DATA.ub_sf1.winner || null;
+          PLAYOFF_DATA.ub_f.team2 = PLAYOFF_DATA.ub_sf2.winner || null;
+          validateMatchReadiness('ub_f');
 
-        // Lower Bracket Semifinal (fed by LB QF winners)
-        PLAYOFF_DATA.lb_sf.team1 = PLAYOFF_DATA.lb_qf1.winner || null;
-        PLAYOFF_DATA.lb_sf.team2 = PLAYOFF_DATA.lb_qf2.winner || null;
-        validateMatchReadiness('lb_sf');
+          // Lower Bracket Semifinal:
+          // L5: Winner of L3 vs Winner of L4
+          PLAYOFF_DATA.lb_sf.team1 = PLAYOFF_DATA.lb_qf1.winner || null;
+          PLAYOFF_DATA.lb_sf.team2 = PLAYOFF_DATA.lb_qf2.winner || null;
+          validateMatchReadiness('lb_sf');
 
-        // Lower Bracket Final (fed by UB Final loser & LB Semi winner)
-        PLAYOFF_DATA.lb_f.team1 = PLAYOFF_DATA.ub_f.loser || null;
-        PLAYOFF_DATA.lb_f.team2 = PLAYOFF_DATA.lb_sf.winner || null;
-        validateMatchReadiness('lb_f');
+          // Lower Bracket Final:
+          // L6: Loser of U7 vs Winner of L5
+          PLAYOFF_DATA.lb_f.team1 = PLAYOFF_DATA.ub_f.loser || null;
+          PLAYOFF_DATA.lb_f.team2 = PLAYOFF_DATA.lb_sf.winner || null;
+          validateMatchReadiness('lb_f');
 
-        // Grand Championship Finals (fed by UB Final winner & LB Final winner)
-        PLAYOFF_DATA.gf8.team1 = PLAYOFF_DATA.ub_f.winner || null;
-        PLAYOFF_DATA.gf8.team2 = PLAYOFF_DATA.lb_f.winner || null;
-        validateMatchReadiness('gf8');
+          // Grand Championship Finals:
+          // GF: Winner of U7 vs Winner of L6
+          PLAYOFF_DATA.gf8.team1 = PLAYOFF_DATA.ub_f.winner || null;
+          PLAYOFF_DATA.gf8.team2 = PLAYOFF_DATA.lb_f.winner || null;
+          validateMatchReadiness('gf8');
 
-        renderDouble8PlayoffUI();
+          renderDouble8PlayoffUI();
+        } else {
+          // Single Elim for CODM
+          PLAYOFF_DATA.s8_qf1.team1 = 'CCJPS';
+          PLAYOFF_DATA.s8_qf1.team2 = 'BYE';
+          validateMatchReadiness('s8_qf1');
+
+          PLAYOFF_DATA.s8_qf2.team1 = 'CBA';
+          PLAYOFF_DATA.s8_qf2.team2 = 'CHM';
+          validateMatchReadiness('s8_qf2');
+
+          PLAYOFF_DATA.s8_qf3.team1 = 'CLIS';
+          PLAYOFF_DATA.s8_qf3.team2 = 'CIT';
+          validateMatchReadiness('s8_qf3');
+
+          PLAYOFF_DATA.s8_qf4.team1 = 'COED';
+          PLAYOFF_DATA.s8_qf4.team2 = 'CAS';
+          validateMatchReadiness('s8_qf4');
+
+          PLAYOFF_DATA.s8_sf1.team1 = 'CCJPS';
+          PLAYOFF_DATA.s8_sf1.team2 = PLAYOFF_DATA.s8_qf2.winner || null;
+          validateMatchReadiness('s8_sf1');
+
+          PLAYOFF_DATA.s8_sf2.team1 = PLAYOFF_DATA.s8_qf3.winner || null;
+          PLAYOFF_DATA.s8_sf2.team2 = PLAYOFF_DATA.s8_qf4.winner || null;
+          validateMatchReadiness('s8_sf2');
+
+          PLAYOFF_DATA.s8_bronze.team1 = PLAYOFF_DATA.s8_sf1.loser || null;
+          PLAYOFF_DATA.s8_bronze.team2 = PLAYOFF_DATA.s8_sf2.loser || null;
+          validateMatchReadiness('s8_bronze');
+
+          PLAYOFF_DATA.s8_gf.team1 = PLAYOFF_DATA.s8_sf1.winner || null;
+          PLAYOFF_DATA.s8_gf.team2 = PLAYOFF_DATA.s8_sf2.winner || null;
+          validateMatchReadiness('s8_gf');
+
+          renderSingle8PlayoffUI();
+        }
       } else {
-        // 8-Team Single Elimination
-        PLAYOFF_DATA.s8_qf1.team1 = s1;
-        PLAYOFF_DATA.s8_qf1.team2 = s8;
-        validateMatchReadiness('s8_qf1');
+        if (tournamentMode === 'double_elim') {
+          // Upper Bracket Quarterfinals
+          PLAYOFF_DATA.ub_qf1.team1 = s1;
+          PLAYOFF_DATA.ub_qf1.team2 = s8;
+          validateMatchReadiness('ub_qf1');
 
-        PLAYOFF_DATA.s8_qf2.team1 = s4;
-        PLAYOFF_DATA.s8_qf2.team2 = s5;
-        validateMatchReadiness('s8_qf2');
+          PLAYOFF_DATA.ub_qf2.team1 = s4;
+          PLAYOFF_DATA.ub_qf2.team2 = s5;
+          validateMatchReadiness('ub_qf2');
 
-        PLAYOFF_DATA.s8_qf3.team1 = s2;
-        PLAYOFF_DATA.s8_qf3.team2 = s7;
-        validateMatchReadiness('s8_qf3');
+          PLAYOFF_DATA.ub_qf3.team1 = s2;
+          PLAYOFF_DATA.ub_qf3.team2 = s7;
+          validateMatchReadiness('ub_qf3');
 
-        PLAYOFF_DATA.s8_qf4.team1 = s3;
-        PLAYOFF_DATA.s8_qf4.team2 = s6;
-        validateMatchReadiness('s8_qf4');
+          PLAYOFF_DATA.ub_qf4.team1 = s3;
+          PLAYOFF_DATA.ub_qf4.team2 = s6;
+          validateMatchReadiness('ub_qf4');
 
-        PLAYOFF_DATA.s8_sf1.team1 = PLAYOFF_DATA.s8_qf1.winner || null;
-        PLAYOFF_DATA.s8_sf1.team2 = PLAYOFF_DATA.s8_qf2.winner || null;
-        validateMatchReadiness('s8_sf1');
+          // Lower Bracket Round 1 (fed by QF losers)
+          PLAYOFF_DATA.lb_r1_1.team1 = PLAYOFF_DATA.ub_qf1.loser || null;
+          PLAYOFF_DATA.lb_r1_1.team2 = PLAYOFF_DATA.ub_qf2.loser || null;
+          validateMatchReadiness('lb_r1_1');
 
-        PLAYOFF_DATA.s8_sf2.team1 = PLAYOFF_DATA.s8_qf3.winner || null;
-        PLAYOFF_DATA.s8_sf2.team2 = PLAYOFF_DATA.s8_qf4.winner || null;
-        validateMatchReadiness('s8_sf2');
+          PLAYOFF_DATA.lb_r1_2.team1 = PLAYOFF_DATA.ub_qf3.loser || null;
+          PLAYOFF_DATA.lb_r1_2.team2 = PLAYOFF_DATA.ub_qf4.loser || null;
+          validateMatchReadiness('lb_r1_2');
 
-        PLAYOFF_DATA.s8_bronze.team1 = PLAYOFF_DATA.s8_sf1.loser || null;
-        PLAYOFF_DATA.s8_bronze.team2 = PLAYOFF_DATA.s8_sf2.loser || null;
-        validateMatchReadiness('s8_bronze');
+          // Upper Bracket Semifinals (fed by QF winners)
+          PLAYOFF_DATA.ub_sf1.team1 = PLAYOFF_DATA.ub_qf1.winner || null;
+          PLAYOFF_DATA.ub_sf1.team2 = PLAYOFF_DATA.ub_qf2.winner || null;
+          validateMatchReadiness('ub_sf1');
 
-        PLAYOFF_DATA.s8_gf.team1 = PLAYOFF_DATA.s8_sf1.winner || null;
-        PLAYOFF_DATA.s8_gf.team2 = PLAYOFF_DATA.s8_sf2.winner || null;
-        validateMatchReadiness('s8_gf');
+          PLAYOFF_DATA.ub_sf2.team1 = PLAYOFF_DATA.ub_qf3.winner || null;
+          PLAYOFF_DATA.ub_sf2.team2 = PLAYOFF_DATA.ub_qf4.winner || null;
+          validateMatchReadiness('ub_sf2');
 
-        renderSingle8PlayoffUI();
+          // Lower Bracket Quarterfinals (fed by UB SF losers & LB R1 winners)
+          PLAYOFF_DATA.lb_qf1.team1 = PLAYOFF_DATA.ub_sf1.loser || null;
+          PLAYOFF_DATA.lb_qf1.team2 = PLAYOFF_DATA.lb_r1_1.winner || null;
+          validateMatchReadiness('lb_qf1');
+
+          PLAYOFF_DATA.lb_qf2.team1 = PLAYOFF_DATA.ub_sf2.loser || null;
+          PLAYOFF_DATA.lb_qf2.team2 = PLAYOFF_DATA.lb_r1_2.winner || null;
+          validateMatchReadiness('lb_qf2');
+
+          // Upper Bracket Final (fed by UB SF winners)
+          PLAYOFF_DATA.ub_f.team1 = PLAYOFF_DATA.ub_sf1.winner || null;
+          PLAYOFF_DATA.ub_f.team2 = PLAYOFF_DATA.ub_sf2.winner || null;
+          validateMatchReadiness('ub_f');
+
+          // Lower Bracket Semifinal (fed by LB QF winners)
+          PLAYOFF_DATA.lb_sf.team1 = PLAYOFF_DATA.lb_qf1.winner || null;
+          PLAYOFF_DATA.lb_sf.team2 = PLAYOFF_DATA.lb_qf2.winner || null;
+          validateMatchReadiness('lb_sf');
+
+          // Lower Bracket Final (fed by UB Final loser & LB Semi winner)
+          PLAYOFF_DATA.lb_f.team1 = PLAYOFF_DATA.ub_f.loser || null;
+          PLAYOFF_DATA.lb_f.team2 = PLAYOFF_DATA.lb_sf.winner || null;
+          validateMatchReadiness('lb_f');
+
+          // Grand Championship Finals (fed by UB Final winner & LB Final winner)
+          PLAYOFF_DATA.gf8.team1 = PLAYOFF_DATA.ub_f.winner || null;
+          PLAYOFF_DATA.gf8.team2 = PLAYOFF_DATA.lb_f.winner || null;
+          validateMatchReadiness('gf8');
+
+          renderDouble8PlayoffUI();
+        } else {
+          // 8-Team Single Elimination
+          PLAYOFF_DATA.s8_qf1.team1 = s1;
+          PLAYOFF_DATA.s8_qf1.team2 = s8;
+          validateMatchReadiness('s8_qf1');
+
+          PLAYOFF_DATA.s8_qf2.team1 = s4;
+          PLAYOFF_DATA.s8_qf2.team2 = s5;
+          validateMatchReadiness('s8_qf2');
+
+          PLAYOFF_DATA.s8_qf3.team1 = s2;
+          PLAYOFF_DATA.s8_qf3.team2 = s7;
+          validateMatchReadiness('s8_qf3');
+
+          PLAYOFF_DATA.s8_qf4.team1 = s3;
+          PLAYOFF_DATA.s8_qf4.team2 = s6;
+          validateMatchReadiness('s8_qf4');
+
+          PLAYOFF_DATA.s8_sf1.team1 = PLAYOFF_DATA.s8_qf1.winner || null;
+          PLAYOFF_DATA.s8_sf1.team2 = PLAYOFF_DATA.s8_qf2.winner || null;
+          validateMatchReadiness('s8_sf1');
+
+          PLAYOFF_DATA.s8_sf2.team1 = PLAYOFF_DATA.s8_qf3.winner || null;
+          PLAYOFF_DATA.s8_sf2.team2 = PLAYOFF_DATA.s8_qf4.winner || null;
+          validateMatchReadiness('s8_sf2');
+
+          PLAYOFF_DATA.s8_bronze.team1 = PLAYOFF_DATA.s8_sf1.loser || null;
+          PLAYOFF_DATA.s8_bronze.team2 = PLAYOFF_DATA.s8_sf2.loser || null;
+          validateMatchReadiness('s8_bronze');
+
+          PLAYOFF_DATA.s8_gf.team1 = PLAYOFF_DATA.s8_sf1.winner || null;
+          PLAYOFF_DATA.s8_gf.team2 = PLAYOFF_DATA.s8_sf2.winner || null;
+          validateMatchReadiness('s8_gf');
+
+          renderSingle8PlayoffUI();
+        }
       }
 
       renderTournamentRoadmap();
@@ -2717,16 +3001,17 @@ Check your Browserslist config to be sure that your targets are set up correctly
       if (!container) return;
 
       if (tournamentMode === 'double_elim') {
+        const isCodm = currentEsport === 'codm';
         container.innerHTML = `
           <!-- Official Tournament 3-Day Match Sequence Roadmap -->
           <div class="p-3.5 rounded-2xl bg-[var(--card)] border border-[var(--border)] shadow-xs">
             <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-[var(--border)] text-xs">
               <div class="flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-amber-400 beacon-pulse"></span>
-                <span class="font-black uppercase tracking-wider text-[var(--foreground)] text-[11px]">Official Tournament 3-Day Playing Sequence</span>
+                <span class="font-black uppercase tracking-wider text-[var(--foreground)] text-[11px]">${isCodm ? 'CODM Official 7-College 3-Day Progression Roadmap' : 'Official Tournament 3-Day Playing Sequence'}</span>
               </div>
               <div class="flex items-center gap-3">
-                <span class="text-[10px] text-[var(--muted-foreground)] font-semibold hidden sm:inline">14 Total Matches · Day 1 (M1-M6) · Day 2 (M7-M12) · Day 3 (M13-M14)</span>
+                <span class="text-[10px] text-[var(--muted-foreground)] font-semibold hidden sm:inline">${isCodm ? '12 Played Series (7 Colleges · CCJPS Upper BYE · L1 BYE) · Day 1 (U1-U6) · Day 2 (L1-L5, U7) · Day 3 (L6, GF)' : '14 Total Matches · Day 1 (M1-M6) · Day 2 (M7-M12) · Day 3 (M13-M14)'}</span>
                 <button onclick="printBracketSection('full')" title="Print Full Tournament Bracket" class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-400 text-[10px] font-black transition cursor-pointer shadow-xs active:scale-95">
                   <span>🖨️</span> Print Full Bracket
                 </button>
@@ -2738,11 +3023,16 @@ Check your Browserslist config to be sure that your targets are set up correctly
               <div class="p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex flex-col justify-between space-y-1.5">
                 <div class="flex items-center justify-between">
                   <span class="px-2 py-0.5 rounded-md bg-cyan-500 text-slate-950 font-black text-[9px] uppercase tracking-wider font-sans">📅 DAY 1 · Upper Bracket</span>
-                  <span class="text-[9px] text-cyan-400 font-bold font-sans">6 Matches (BO3)</span>
+                  <span class="text-[9px] text-cyan-400 font-bold font-sans">${isCodm ? '5 Played BO3 + 1 BYE' : '6 Matches (BO3)'}</span>
                 </div>
                 <div class="text-[11px] font-bold text-[var(--foreground)] space-y-1">
-                  <div class="flex items-center gap-1.5"><span class="text-cyan-400 font-black">M1-M4:</span> Upper Quarterfinals</div>
-                  <div class="flex items-center gap-1.5"><span class="text-blue-400 font-black">M5-M6:</span> Upper Semifinals ➔ UB Finalists</div>
+                  ${isCodm ? `
+                    <div class="flex items-center gap-1.5"><span class="text-cyan-400 font-black">U1-U4:</span> Upper QFs <span class="text-[9px] font-semibold text-emerald-400 font-mono">(U1: CCJPS BYE)</span></div>
+                    <div class="flex items-center gap-1.5"><span class="text-blue-400 font-black">U5-U6:</span> Upper Semis <span class="text-[9px] font-semibold text-slate-400 font-mono">(U5: CCJPS vs Win U2)</span></div>
+                  ` : `
+                    <div class="flex items-center gap-1.5"><span class="text-cyan-400 font-black">M1-M4:</span> Upper Quarterfinals</div>
+                    <div class="flex items-center gap-1.5"><span class="text-blue-400 font-black">M5-M6:</span> Upper Semifinals ➔ UB Finalists</div>
+                  `}
                 </div>
               </div>
 
@@ -2750,11 +3040,17 @@ Check your Browserslist config to be sure that your targets are set up correctly
               <div class="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex flex-col justify-between space-y-1.5">
                 <div class="flex items-center justify-between">
                   <span class="px-2.5 py-0.5 rounded-md bg-rose-500 text-white font-black text-[9px] uppercase tracking-wider font-sans">📅 DAY 2 · Lower Bracket & UB Final</span>
-                  <span class="text-[9px] text-rose-400 font-bold font-sans">6 Matches (${currentEsport === 'codm' ? 'All BO3' : 'BO3 & BO5'})</span>
+                  <span class="text-[9px] text-rose-400 font-bold font-sans">${isCodm ? '5 Played BO3 + 1 BYE' : '6 Matches (BO3 & BO5)'}</span>
                 </div>
                 <div class="text-[11px] font-bold text-[var(--foreground)] space-y-1">
-                  <div class="flex items-center gap-1.5"><span class="text-rose-400 font-black">M7-M8:</span> Lower Round 1 · <span class="text-amber-400 font-black">M9-M10:</span> Lower QF</div>
-                  <div class="flex items-center gap-1.5"><span class="text-orange-400 font-black">M11:</span> Lower Semis · <span class="text-indigo-400 font-black">M12:</span> Upper Final <span class="text-[9px] px-1 bg-indigo-500/20 rounded text-indigo-300 font-sans font-bold">${currentEsport === 'codm' ? 'BO3' : 'BO5'}</span></div>
+                  ${isCodm ? `
+                    <div class="flex items-center gap-1.5"><span class="text-rose-400 font-black">L1-L2:</span> LB Round 1 <span class="text-[9px] font-semibold text-emerald-400 font-mono">(L1: Loser U2 BYE)</span></div>
+                    <div class="flex items-center gap-1.5"><span class="text-amber-400 font-black">L3-L4:</span> LB Quarterfinals · <span class="text-orange-400 font-black">L5:</span> LB Semifinal</div>
+                    <div class="flex items-center gap-1.5"><span class="text-indigo-400 font-black">U7:</span> Upper Final <span class="text-[9px] px-1 bg-indigo-500/20 rounded text-indigo-300 font-sans font-bold">BO3 ➔ Grand Finals</span></div>
+                  ` : `
+                    <div class="flex items-center gap-1.5"><span class="text-rose-400 font-black">M7-M8:</span> Lower Round 1 · <span class="text-amber-400 font-black">M9-M10:</span> Lower QF</div>
+                    <div class="flex items-center gap-1.5"><span class="text-orange-400 font-black">M11:</span> Lower Semis · <span class="text-indigo-400 font-black">M12:</span> Upper Final <span class="text-[9px] px-1 bg-indigo-500/20 rounded text-indigo-300 font-sans font-bold">BO5</span></div>
+                  `}
                 </div>
               </div>
 
@@ -2762,11 +3058,16 @@ Check your Browserslist config to be sure that your targets are set up correctly
               <div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex flex-col justify-between space-y-1.5">
                 <div class="flex items-center justify-between">
                   <span class="px-2.5 py-0.5 rounded-md bg-amber-500 text-slate-950 font-black text-[9px] uppercase tracking-wider font-sans">👑 DAY 3 · Championship Finals</span>
-                  <span class="text-[9px] text-amber-400 font-bold font-sans">${currentEsport === 'codm' ? '2 BO3 Series (S&D, Control, HP)' : '1 BO5 · 1 BO7'}</span>
+                  <span class="text-[9px] text-amber-400 font-bold font-sans">${isCodm ? '2 BO3 Series (S&D, Control, HP)' : '1 BO5 · 1 BO7'}</span>
                 </div>
                 <div class="text-[11px] font-bold text-[var(--foreground)] space-y-1">
-                  <div class="flex items-center gap-1.5"><span class="text-amber-400 font-black">M13:</span> Lower Bracket Final <span class="text-[9px] px-1 bg-amber-500/20 rounded text-amber-300 font-sans font-bold">${currentEsport === 'codm' ? 'BO3' : 'BO5'}</span></div>
-                  <div class="flex items-center gap-1.5"><span class="text-amber-300 font-black">👑 M14:</span> Grand Finals <span class="text-[9px] px-1 bg-amber-500/30 rounded text-amber-300 font-sans font-black">${currentEsport === 'codm' ? 'BO3' : 'BO7'}</span></div>
+                  ${isCodm ? `
+                    <div class="flex items-center gap-1.5"><span class="text-amber-400 font-black">L6:</span> Lower Final <span class="text-[9px] px-1 bg-amber-500/20 rounded text-amber-300 font-sans font-bold">BO3 ➔ Bronze Medal / GF Qualifier</span></div>
+                    <div class="flex items-center gap-1.5"><span class="text-amber-300 font-black">👑 GF:</span> Grand Championship Finals <span class="text-[9px] px-1 bg-amber-500/30 rounded text-amber-300 font-sans font-black">BO3 ➔ Gold / Silver</span></div>
+                  ` : `
+                    <div class="flex items-center gap-1.5"><span class="text-amber-400 font-black">M13:</span> Lower Bracket Final <span class="text-[9px] px-1 bg-amber-500/20 rounded text-amber-300 font-sans font-bold">BO5</span></div>
+                    <div class="flex items-center gap-1.5"><span class="text-amber-300 font-black">👑 M14:</span> Grand Finals <span class="text-[9px] px-1 bg-amber-500/30 rounded text-amber-300 font-sans font-black">BO7</span></div>
+                  `}
                 </div>
               </div>
             </div>
@@ -2816,20 +3117,21 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function renderPlayoffCard(m, subtext = '', isGrandFinal = false, s1SeedBadge = '', s2SeedBadge = '') {
       if (!m) return '';
-      const hasScores = isValidScore(m.s1) && isValidScore(m.s2);
+      const isBye = m.team2 === 'BYE';
+      const hasScores = !isBye && isValidScore(m.s1) && isValidScore(m.s2);
       const s1Num = hasScores ? Number(m.s1) : 0;
       const s2Num = hasScores ? Number(m.s2) : 0;
       const bestOfVal = getMatchBestOf(m.id, m);
       const targetWins = Math.ceil(bestOfVal / 2);
 
-      const isFinal = Boolean(m.winner);
-      const isInProgress = hasScores && !isFinal && (s1Num > 0 || s2Num > 0);
-      const t1Won = isFinal && m.winner === m.team1;
+      const isFinal = !isBye && Boolean(m.winner);
+      const isInProgress = !isBye && hasScores && !isFinal && (s1Num > 0 || s2Num > 0);
+      const t1Won = (isFinal && m.winner === m.team1) || (isBye && Boolean(m.winner && m.winner === m.team1));
       const t2Won = isFinal && m.winner === m.team2;
       const t1Leading = isInProgress && s1Num > s2Num;
       const t2Leading = isInProgress && s2Num > s1Num;
 
-      const isPlayable = Boolean(m.team1 && m.team2 && m.team1 !== 'TBD' && m.team2 !== 'TBD');
+      const isPlayable = !isBye && Boolean(m.team1 && m.team2 && m.team1 !== 'TBD' && m.team2 !== 'TBD');
 
       const seqNum = (typeof MATCH_SEQUENCES !== 'undefined' && MATCH_SEQUENCES[m.id] !== undefined) ? MATCH_SEQUENCES[m.id] : (m.seq || '');
       const dayLabel = (typeof MATCH_DAYS !== 'undefined' && MATCH_DAYS[m.id] !== undefined) ? MATCH_DAYS[m.id] : (m.day || '');
@@ -2837,21 +3139,21 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
       const cardBorder = isGrandFinal 
         ? 'border-2 border-amber-500/80 bg-gradient-to-b from-amber-500/10 via-[var(--card)] to-[var(--card)] gold-championship-card' 
-        : 'border border-[var(--border)] bg-[var(--card)] hover:border-blue-500/40';
+        : (isBye ? 'border border-amber-500/30 bg-[var(--card)]/90' : 'border border-[var(--border)] bg-[var(--card)] hover:border-blue-500/40');
 
       const getSeedBadgeHtml = (badgeStr) => {
-        if (!badgeStr) return '';
+        if (!badgeStr || currentEsport === 'codm') return '';
         return `<span class="inline-flex items-center justify-center min-w-[28px] h-6.5 sm:min-w-[32px] sm:h-7 px-1.5 rounded-lg bg-blue-600/40 border-2 border-sky-400 text-white font-mono font-black text-xs sm:text-[13px] tracking-tight shadow-md shadow-sky-500/25 shrink-0 select-none" title="Tournament Seed ${badgeStr}">${badgeStr}</span>`;
       };
 
-      const t1Idx = m.team1 ? TEAMS.findIndex(t => t && (t.name === m.team1 || (m.team1 === 'COM' && t.name === 'CMID'))) : -1;
-      const effectiveS1Badge = s1SeedBadge || (t1Idx !== -1 ? `#${t1Idx + 1}` : '');
+      const t1Idx = (m.team1 && currentEsport !== 'codm') ? TEAMS.findIndex(t => t && (t.name === m.team1 || (m.team1 === 'COM' && t.name === 'CMID'))) : -1;
+      const effectiveS1Badge = (currentEsport === 'codm') ? '' : (s1SeedBadge || (t1Idx !== -1 ? `#${t1Idx + 1}` : ''));
 
-      const t2Idx = m.team2 ? TEAMS.findIndex(t => t && (t.name === m.team2 || (m.team2 === 'COM' && t.name === 'CMID'))) : -1;
-      const effectiveS2Badge = s2SeedBadge || (t2Idx !== -1 ? `#${t2Idx + 1}` : '');
+      const t2Idx = (m.team2 && currentEsport !== 'codm') ? TEAMS.findIndex(t => t && (t.name === m.team2 || (m.team2 === 'COM' && t.name === 'CMID'))) : -1;
+      const effectiveS2Badge = (currentEsport === 'codm') ? '' : (s2SeedBadge || (t2Idx !== -1 ? `#${t2Idx + 1}` : ''));
 
       let codmModesHtml = '';
-      if (currentEsport === 'codm') {
+      if (currentEsport === 'codm' && !isBye) {
         const games = getCodmMatchGames(m);
         codmModesHtml = `
           <div class="pt-2 border-t border-[var(--border)]/60">
@@ -2894,15 +3196,17 @@ Check your Browserslist config to be sure that your targets are set up correctly
         `;
       }
 
+      const matchSeqDisplay = currentEsport === 'codm' ? `MATCH ${getMatchShortCode(m.id)}` : `MATCH #${seqNum}`;
+
       return `
         <div class="match-card ${cardBorder} rounded-2xl p-4 shadow-sm flex flex-col justify-between space-y-3 relative group">
           
           <!-- Card Header: Title & Badges with Match Sequence -->
           <div class="flex items-center justify-between gap-2">
             <div class="flex items-center gap-1.5 min-w-0">
-              <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-mono font-black ${isGrandFinal ? 'bg-amber-500 text-slate-950 font-black shadow-xs' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'} shrink-0" title="${dayLabel} · Match #${seqNum}">
+              <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-mono font-black ${isGrandFinal ? 'bg-amber-500 text-slate-950 font-black shadow-xs' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'} shrink-0" title="${dayLabel} · ${matchSeqDisplay}">
                 <span class="text-[8px] font-sans font-bold uppercase tracking-tighter opacity-80">${dayLabel} ·</span>
-                <span>MATCH #${seqNum}</span>
+                <span>${matchSeqDisplay}</span>
               </span>
               <span class="text-[11px] font-black uppercase tracking-wider text-[var(--muted-foreground)] truncate" title="${matchLabel}">
                 ${matchLabel}
@@ -2910,7 +3214,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
               <span class="text-[9px] font-black px-2 py-0.5 rounded-full ${bestOfVal === 7 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' : bestOfVal === 5 ? 'bg-purple-500/20 text-purple-400 border border-purple-500/40' : 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30'}">
-                BO${bestOfVal}
+                ${isBye ? 'BYE' : 'BO' + bestOfVal}
               </span>
               ${isPlayable ? `
                 <button onclick="openScoreModal('${m.id}')" title="Update Score" class="marshal-only px-2 py-0.5 rounded-lg text-[10px] font-black bg-amber-500/15 text-amber-400 hover:bg-amber-500 hover:text-slate-950 border border-amber-500/30 transition cursor-pointer flex items-center gap-1">
@@ -2935,36 +3239,51 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 </div>
               </div>
               <span class="text-base font-black font-mono ml-2 ${t1Won ? 'text-emerald-400' : (t1Leading ? 'text-amber-300' : 'text-[var(--foreground)]')}">
-                ${formatScore(m.s1)}
+                ${isBye ? (m.team1 ? '✓' : '-') : formatScore(m.s1)}
               </span>
             </div>
 
             <!-- Team 2 Slot -->
-            <div class="flex items-center justify-between p-2.5 rounded-xl transition ${t2Won ? 'bg-emerald-500/15 border border-emerald-500/40' : (t2Leading ? 'bg-amber-500/10 border border-amber-500/30' : 'bg-[var(--secondary)]/40 border border-[var(--border)]')}">
-              <div class="flex items-center gap-2.5 truncate">
-                ${effectiveS2Badge ? getSeedBadgeHtml(effectiveS2Badge) : ''}
-                ${renderTeamLogo(m.team2, 'w-8 h-8 sm:w-9 sm:h-9', 'rounded-lg shrink-0')}
-                <div class="truncate">
-                  <span class="text-xs font-black truncate block ${t2Won ? 'text-emerald-400' : (t2Leading ? 'text-amber-300' : 'text-[var(--foreground)]')}">
-                    ${m.team2 || '<span class="text-[var(--muted-foreground)] font-normal italic">TBD (Pending)</span>'}
-                  </span>
-                  ${m.team2 ? `<span class="text-[10px] text-[var(--muted-foreground)] block truncate leading-tight">${(DEFAULT_TEAMS.find(t => t.name === m.team2)?.mascot) || ''}</span>` : ''}
+            ${isBye ? `
+              <div class="flex items-center justify-between p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/25 transition opacity-90">
+                <div class="flex items-center gap-2.5 truncate">
+                  <span class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 font-black text-sm shrink-0">⏭️</span>
+                  <div class="truncate">
+                    <span class="text-xs font-black truncate block text-amber-400">BYE</span>
+                    <span class="text-[10px] text-[var(--muted-foreground)] block truncate leading-tight">Automatic Advance</span>
+                  </div>
                 </div>
+                <span class="text-[10px] font-mono font-black text-amber-400/90 px-2 py-0.5 rounded bg-amber-500/15 border border-amber-500/30">BYE</span>
               </div>
-              <span class="text-base font-black font-mono ml-2 ${t2Won ? 'text-emerald-400' : (t2Leading ? 'text-amber-300' : 'text-[var(--foreground)]')}">
-                ${formatScore(m.s2)}
-              </span>
-            </div>
+            ` : `
+              <div class="flex items-center justify-between p-2.5 rounded-xl transition ${t2Won ? 'bg-emerald-500/15 border border-emerald-500/40' : (t2Leading ? 'bg-amber-500/10 border border-amber-500/30' : 'bg-[var(--secondary)]/40 border border-[var(--border)]')}">
+                <div class="flex items-center gap-2.5 truncate">
+                  ${effectiveS2Badge ? getSeedBadgeHtml(effectiveS2Badge) : ''}
+                  ${renderTeamLogo(m.team2, 'w-8 h-8 sm:w-9 sm:h-9', 'rounded-lg shrink-0')}
+                  <div class="truncate">
+                    <span class="text-xs font-black truncate block ${t2Won ? 'text-emerald-400' : (t2Leading ? 'text-amber-300' : 'text-[var(--foreground)]')}">
+                      ${m.team2 || '<span class="text-[var(--muted-foreground)] font-normal italic">TBD (Pending)</span>'}
+                    </span>
+                    ${m.team2 ? `<span class="text-[10px] text-[var(--muted-foreground)] block truncate leading-tight">${(DEFAULT_TEAMS.find(t => t.name === m.team2)?.mascot) || ''}</span>` : ''}
+                  </div>
+                </div>
+                <span class="text-base font-black font-mono ml-2 ${t2Won ? 'text-emerald-400' : (t2Leading ? 'text-amber-300' : 'text-[var(--foreground)]')}">
+                  ${formatScore(m.s2)}
+                </span>
+              </div>
+            `}
           </div>
 
-          <!-- CODM 3-Game Mode Rotation Chips (if CODM) -->
+          <!-- CODM 3-Game Mode Rotation Chips (if CODM and not BYE) -->
           ${codmModesHtml}
 
           <!-- Card Footer: Subtext & Progression Action -->
           <div class="flex items-center justify-between text-[11px] pt-1 border-t border-[var(--border)]/60 text-[var(--muted-foreground)]">
             <span class="truncate max-w-[170px]" title="${subtext}">${subtext}</span>
             <div class="flex items-center gap-1.5 shrink-0">
-              ${isFinal ? `
+              ${isBye ? `
+                <span class="font-black text-amber-400 flex items-center gap-1"><span>⏭️</span> <span>ADVANCED VIA BYE</span></span>
+              ` : isFinal ? `
                 <span class="font-black text-emerald-400 flex items-center gap-1"><span>✓</span> <span>FINAL (${s1Num}-${s2Num})</span></span>
                 <button onclick="resetMatchScore('${m.id}')" title="Reset Score" class="marshal-only text-[10px] text-[var(--muted-foreground)] hover:text-rose-400 ml-1 transition cursor-pointer">Reset</button>
               ` : isInProgress ? `
@@ -2982,7 +3301,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
           </div>
 
           <!-- Quick Game-by-Game Increment Action Bar -->
-          ${isPlayable && !isFinal ? `
+          ${isPlayable && !isFinal && !isBye ? `
             <div class="marshal-only pt-1.5 flex items-center justify-between gap-1 text-[10px] border-t border-[var(--border)]/40">
               <span class="text-[var(--muted-foreground)] text-[9px] font-black uppercase tracking-wider">Apply +1:</span>
               <div class="flex items-center gap-1.5">
@@ -2996,7 +3315,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
             </div>
           ` : ''}
 
-          ${isFinal && m.winner ? `
+          ${isBye && m.winner ? `
+            <div class="pt-1 text-[10px] font-black text-amber-400 flex items-center gap-1 border-t border-[var(--border)]/40">
+              <span>⏭️ Advanced:</span> <span class="text-[var(--foreground)]">${m.winner}</span>
+            </div>
+          ` : isFinal && m.winner ? `
             <div class="pt-1 text-[10px] font-black text-emerald-400 flex items-center gap-1 border-t border-[var(--border)]/40">
               <span>🏆 Advancing:</span> <span class="text-[var(--foreground)]">${m.winner}</span>
             </div>
@@ -3082,9 +3405,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
       const getTeamObj = (name) => DEFAULT_TEAMS.find(t => t.name === name || (name === 'COM' && t.name === 'CMID')) || { full: name || 'TBD', mascot: '' };
       const getSeedBadge = (name) => {
-        if (!name) return '—';
+        if (!name || currentEsport === 'codm') return '';
         const idx = TEAMS.findIndex(t => t && (t.name === name || (name === 'COM' && t.name === 'CMID')));
-        return idx !== -1 ? '#' + (idx + 1) : '—';
+        return idx !== -1 ? '#' + (idx + 1) : '';
       };
 
       if (section === 'upper') {
@@ -3275,52 +3598,55 @@ Check your Browserslist config to be sure that your targets are set up correctly
       });
 
       const renderPrintMatch = (m) => {
-        const hasScores = m.s1 !== null && m.s2 !== null;
-        const t1Won = hasScores && m.s1 > m.s2;
-        const t2Won = hasScores && m.s2 > m.s1;
+        const isBye = Boolean(m.team2 === 'BYE' || (currentEsport === 'codm' && (m.id === 'ub_qf1' || m.id === 'lb_r1_1')));
+        const hasScores = !isBye && m.s1 !== null && m.s2 !== null;
+        const t1Won = isBye || (hasScores && m.s1 > m.s2);
+        const t2Won = !isBye && hasScores && m.s2 > m.s1;
         const t1Obj = getTeamObj(m.team1);
         const t2Obj = getTeamObj(m.team2);
-        const s1Badge = m.s1Badge || getSeedBadge(m.team1);
-        const s2Badge = m.s2Badge || getSeedBadge(m.team2);
+        const s1Badge = (currentEsport === 'codm') ? '' : (m.s1Badge || getSeedBadge(m.team1));
+        const s2Badge = (currentEsport === 'codm') ? '' : (m.s2Badge || getSeedBadge(m.team2));
         const matchDay = m.day || MATCH_DAYS[m.id] || '';
+        const matchShortCode = (currentEsport === 'codm' && typeof getMatchShortCode === 'function') ? getMatchShortCode(m.id) : ('#' + m.seq);
+        const matchSeqStr = (currentEsport === 'codm') ? `${matchDay} · MATCH ${matchShortCode}` : `${matchDay} · MATCH #${m.seq}`;
 
         return `
           <div class="print-card">
             <div class="print-card-hdr">
               <div style="display:flex; align-items:center; gap:6px;">
-                <span class="print-seq-pill">${matchDay} · MATCH #${m.seq}</span>
+                <span class="print-seq-pill">${matchSeqStr}</span>
                 <span class="print-card-title">${m.label}</span>
               </div>
-              <span class="print-bo-pill">BO${m.bestOf}</span>
+              <span class="print-bo-pill">${isBye ? 'BYE' : `BO${m.bestOf}`}</span>
             </div>
             
             <div class="print-team-row ${t1Won ? 'winner' : ''}">
               <div class="print-team-left">
-                <span class="print-seed">${s1Badge}</span>
-                ${m.team1 ? `<img src="${getTeamIcon(m.team1)}" class="print-logo" alt="${m.team1}">` : '<div class="print-logo-blank">—</div>'}
+                ${s1Badge ? `<span class="print-seed">${s1Badge}</span>` : ''}
+                ${m.team1 && m.team1 !== 'TBD' ? `<img src="${getTeamIcon(m.team1)}" class="print-logo" alt="${m.team1}">` : '<div class="print-logo-blank">—</div>'}
                 <div class="print-team-text">
                   <div class="print-team-code ${t1Won ? 'bold' : ''}">${m.team1 || 'Awaiting Opponent'}</div>
                   ${m.team1 ? `<div class="print-team-sub">${t1Obj.mascot ? t1Obj.mascot + ' · ' : ''}${t1Obj.full}</div>` : ''}
                 </div>
               </div>
-              <div class="print-score-box ${t1Won ? 'winner' : ''}">${m.s1 !== null ? m.s1 : '-'}</div>
+              <div class="print-score-box ${t1Won ? 'winner' : ''}">${isBye ? 'ADV' : (m.s1 !== null ? m.s1 : '-')}</div>
             </div>
 
             <div class="print-team-row ${t2Won ? 'winner' : ''}">
               <div class="print-team-left">
-                <span class="print-seed">${s2Badge}</span>
-                ${m.team2 ? `<img src="${getTeamIcon(m.team2)}" class="print-logo" alt="${m.team2}">` : '<div class="print-logo-blank">—</div>'}
+                ${s2Badge ? `<span class="print-seed">${s2Badge}</span>` : ''}
+                ${m.team2 && m.team2 !== 'BYE' && m.team2 !== 'TBD' ? `<img src="${getTeamIcon(m.team2)}" class="print-logo" alt="${m.team2}">` : '<div class="print-logo-blank">—</div>'}
                 <div class="print-team-text">
-                  <div class="print-team-code ${t2Won ? 'bold' : ''}">${m.team2 || 'Awaiting Opponent'}</div>
-                  ${m.team2 ? `<div class="print-team-sub">${t2Obj.mascot ? t2Obj.mascot + ' · ' : ''}${t2Obj.full}</div>` : ''}
+                  <div class="print-team-code ${t2Won ? 'bold' : ''}">${m.team2 === 'BYE' ? 'BYE (Auto-Advance)' : (m.team2 || 'Awaiting Opponent')}</div>
+                  ${m.team2 && m.team2 !== 'BYE' ? `<div class="print-team-sub">${t2Obj.mascot ? t2Obj.mascot + ' · ' : ''}${t2Obj.full}</div>` : ''}
                 </div>
               </div>
-              <div class="print-score-box ${t2Won ? 'winner' : ''}">${m.s2 !== null ? m.s2 : '-'}</div>
+              <div class="print-score-box ${t2Won ? 'winner' : ''}">${isBye ? '-' : (m.s2 !== null ? m.s2 : '-')}</div>
             </div>
 
             <div class="print-card-ftr">
               <span>${m.feeder || ''}</span>
-              <span>${hasScores ? '✓ FINAL' : m.team1 && m.team2 ? 'READY' : 'PENDING'}</span>
+              <span>${isBye ? '✓ AUTO-ADVANCED VIA BYE' : (hasScores ? '✓ FINAL' : m.team1 && m.team2 ? 'READY' : 'PENDING')}</span>
             </div>
           </div>
         `;
@@ -3493,20 +3819,34 @@ Check your Browserslist config to be sure that your targets are set up correctly
         <div class="space-y-10">
           
           <!-- Double Elim Banner & Seeding Status -->
-          <div class="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl ${isBracketSeeded ? 'bg-emerald-500/10 border border-emerald-500/30' : 'bg-amber-500/10 border border-amber-500/30'} shadow-xs">
+          <div class="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl ${isBracketSeeded || currentEsport === 'codm' ? 'bg-emerald-500/10 border border-emerald-500/30' : 'bg-amber-500/10 border border-amber-500/30'} shadow-xs">
             <div class="flex items-center gap-2.5">
-              <span class="w-3.5 h-3.5 rounded-full ${isBracketSeeded ? 'bg-emerald-400' : 'bg-amber-400'} shadow-sm beacon-pulse"></span>
+              <span class="w-3.5 h-3.5 rounded-full ${isBracketSeeded || currentEsport === 'codm' ? 'bg-emerald-400' : 'bg-amber-400'} shadow-sm beacon-pulse"></span>
               <div>
-                <h3 class="text-sm font-black uppercase tracking-wider ${isBracketSeeded ? 'text-emerald-400' : 'text-amber-400'}">
-                  8-Team Double Elimination Championship · ${isBracketSeeded ? 'Seeded & Active' : 'Default Blank Bracket'}
+                <h3 class="text-sm font-black uppercase tracking-wider ${isBracketSeeded || currentEsport === 'codm' ? 'text-emerald-400' : 'text-amber-400'}">
+                  ${currentEsport === 'codm'
+                    ? 'CODM 5v5 Multi-Player Championship · 7-College Official Draw (No Seeding)'
+                    : ('8-Team Double Elimination Championship · ' + (isBracketSeeded ? 'Seeded & Active' : 'Default Blank Bracket'))}
                 </h3>
                 <p class="text-xs text-[var(--muted-foreground)]">
-                  ${isBracketSeeded ? '3-Day Match Sequence (Day 1: M1-M6 · Day 2: M7-M12 · Day 3: M13-M14). Enter scores, quick-advance winners, or simulate.' : 'The bracket is currently blank. Populate seeds to place teams into Quarterfinals.'}
+                  ${currentEsport === 'codm'
+                    ? 'Official Draw: U1 CCJPS (BYE), U2 CBA vs CHM, U3 CLIS vs CIT, U4 COED vs CAS · CMID No Team · BO3 Multi-Player (S&D, Control, Hardpoint)'
+                    : (isBracketSeeded ? '3-Day Match Sequence (Day 1: M1-M6 · Day 2: M7-M12 · Day 3: M13-M14). Enter scores, quick-advance winners, or simulate.' : 'The bracket is currently blank. Populate seeds to place teams into Quarterfinals.')}
                 </p>
               </div>
             </div>
             <div class="flex items-center gap-2 flex-wrap">
-              ${!isBracketSeeded ? `
+              ${currentEsport === 'codm' ? `
+                <button onclick="confirmSimulateBracket()" class="admin-only flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-sm transition cursor-pointer">
+                  <span>⚡</span> Fast Sim CODM
+                </button>
+                <button onclick="confirmResetScores()" title="Reset all match scores to pending" class="admin-only px-3 py-1.5 rounded-xl border border-[var(--border)] hover:bg-[var(--secondary)] text-xs font-medium transition text-[var(--muted-foreground)] hover:text-amber-400 cursor-pointer">
+                  Reset Scores
+                </button>
+                <span class="px-2.5 py-1 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-black flex items-center gap-1">
+                  <span>🎯</span> Fixed Draw (No Seeding)
+                </span>
+              ` : (!isBracketSeeded ? `
                 <button onclick="populateSeedsToBracket()" class="admin-only flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black shadow-sm transition cursor-pointer">
                   <span>⚡</span> Populate Seeds into Bracket
                 </button>
@@ -3532,7 +3872,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 <button onclick="confirmBlankBracket()" title="Clear all teams back to default blank bracket" class="admin-only flex items-center gap-1 px-3 py-1.5 rounded-xl border border-rose-500/30 hover:bg-rose-500/10 text-rose-400 text-xs font-semibold transition cursor-pointer">
                   <span>🗑️</span> Blank Bracket
                 </button>
-              `}
+              `)}
               <button onclick="printBracketSection('full')" title="Print Full Tournament Bracket (Upper & Lower)" class="admin-only flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-400 text-xs font-black transition cursor-pointer shadow-xs active:scale-95">
                 <span>🖨️</span> Print Bracket
               </button>
@@ -3564,10 +3904,17 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   </div>
                   <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">BO3</span>
                 </div>
-                ${renderPlayoffCard(p.ub_qf1, 'Winner ➔ M5 (UB Semis) · Loser ➔ M7 (LB R1)', false, '#1', '#8')}
-                ${renderPlayoffCard(p.ub_qf2, 'Winner ➔ M5 (UB Semis) · Loser ➔ M7 (LB R1)', false, '#4', '#5')}
-                ${renderPlayoffCard(p.ub_qf3, 'Winner ➔ M6 (UB Semis) · Loser ➔ M8 (LB R1)', false, '#2', '#7')}
-                ${renderPlayoffCard(p.ub_qf4, 'Winner ➔ M6 (UB Semis) · Loser ➔ M8 (LB R1)', false, '#3', '#6')}
+                ${currentEsport === 'codm' ? `
+                  ${renderPlayoffCard(p.ub_qf1, 'CCJPS Auto-Advance ➔ U5 · BYE')}
+                  ${renderPlayoffCard(p.ub_qf2, 'Winner ➔ U5 vs CCJPS · Loser ➔ L1 (LB BYE)')}
+                  ${renderPlayoffCard(p.ub_qf3, 'Winner ➔ U6 · Loser ➔ L2')}
+                  ${renderPlayoffCard(p.ub_qf4, 'Winner ➔ U6 · Loser ➔ L2')}
+                ` : `
+                  ${renderPlayoffCard(p.ub_qf1, 'Winner ➔ M5 (UB Semis) · Loser ➔ M7 (LB R1)', false, '#1', '#8')}
+                  ${renderPlayoffCard(p.ub_qf2, 'Winner ➔ M5 (UB Semis) · Loser ➔ M7 (LB R1)', false, '#4', '#5')}
+                  ${renderPlayoffCard(p.ub_qf3, 'Winner ➔ M6 (UB Semis) · Loser ➔ M8 (LB R1)', false, '#2', '#7')}
+                  ${renderPlayoffCard(p.ub_qf4, 'Winner ➔ M6 (UB Semis) · Loser ➔ M8 (LB R1)', false, '#3', '#6')}
+                `}
               </div>
 
               <!-- Round 2: Upper Semifinals (Day 1: M5, M6) -->
@@ -3580,8 +3927,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">BO3</span>
                 </div>
                 <div class="my-auto space-y-16">
-                  ${renderPlayoffCard(p.ub_sf1, 'Winner ➔ M12 (UB Final) · Loser ➔ M10 (LB QF2)')}
-                  ${renderPlayoffCard(p.ub_sf2, 'Winner ➔ M12 (UB Final) · Loser ➔ M9 (LB QF1)')}
+                  ${currentEsport === 'codm' ? `
+                    ${renderPlayoffCard(p.ub_sf1, 'Winner ➔ U7 (UB Final) · Loser ➔ L3')}
+                    ${renderPlayoffCard(p.ub_sf2, 'Winner ➔ U7 (UB Final) · Loser ➔ L4')}
+                  ` : `
+                    ${renderPlayoffCard(p.ub_sf1, 'Winner ➔ M12 (UB Final) · Loser ➔ M10 (LB QF2)')}
+                    ${renderPlayoffCard(p.ub_sf2, 'Winner ➔ M12 (UB Final) · Loser ➔ M9 (LB QF1)')}
+                  `}
                 </div>
               </div>
 
@@ -3595,7 +3947,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">${currentEsport === 'codm' ? 'BO3' : 'BO5'}</span>
                 </div>
                 <div class="my-auto">
-                  ${renderPlayoffCard(p.ub_f, 'Winner ➔ M14 (Grand Finals) · Loser ➔ M13 (LB Final)')}
+                  ${currentEsport === 'codm'
+                    ? renderPlayoffCard(p.ub_f, 'Winner ➔ GF (Grand Finals) · Loser ➔ L6 (LB Final)')
+                    : renderPlayoffCard(p.ub_f, 'Winner ➔ M14 (Grand Finals) · Loser ➔ M13 (LB Final)')}
                 </div>
               </div>
             </div>
@@ -3609,7 +3963,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 <h3 class="text-sm font-black uppercase tracking-wider text-rose-500">Lower Bracket (Sudden Death Knockout)</h3>
               </div>
               <div class="flex items-center gap-2.5">
-                <span class="text-xs text-[var(--muted-foreground)] font-semibold hidden md:inline">Day 2 (M7-M11) · Day 3 Lower Final (M13)</span>
+                <span class="text-xs text-[var(--muted-foreground)] font-semibold hidden md:inline">${currentEsport === 'codm' ? 'Day 2 (L1-L5) · Day 3 Lower Final (L6)' : 'Day 2 (M7-M11) · Day 3 Lower Final (M13)'}</span>
                 <button onclick="printBracketSection('lower')" title="Print Lower Bracket with Match Sequences & Standings" class="admin-only flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/40 text-xs font-black transition shadow-xs cursor-pointer active:scale-95">
                   <span>🖨️</span> Print Lower Bracket
                 </button>
@@ -3626,8 +3980,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   </div>
                   <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20">BO3</span>
                 </div>
-                ${renderPlayoffCard(p.lb_r1_1, 'Winner ➔ M9 (LB QF1) · Loser Eliminated')}
-                ${renderPlayoffCard(p.lb_r1_2, 'Winner ➔ M10 (LB QF2) · Loser Eliminated')}
+                ${currentEsport === 'codm' ? `
+                  ${renderPlayoffCard(p.lb_r1_1, 'Loser U2 Auto-Advance ➔ L4 · BYE')}
+                  ${renderPlayoffCard(p.lb_r1_2, 'Winner ➔ L3 · Loser Eliminated (7th)')}
+                ` : `
+                  ${renderPlayoffCard(p.lb_r1_1, 'Winner ➔ M9 (LB QF1) · Loser Eliminated')}
+                  ${renderPlayoffCard(p.lb_r1_2, 'Winner ➔ M10 (LB QF2) · Loser Eliminated')}
+                `}
               </div>
 
               <!-- LB Quarterfinals (Day 2: M9, M10) -->
@@ -3639,8 +3998,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   </div>
                   <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20">BO3</span>
                 </div>
-                ${renderPlayoffCard(p.lb_qf1, 'Winner ➔ M11 (LB Semis) · Loser Eliminated')}
-                ${renderPlayoffCard(p.lb_qf2, 'Winner ➔ M11 (LB Semis) · Loser Eliminated')}
+                ${currentEsport === 'codm' ? `
+                  ${renderPlayoffCard(p.lb_qf1, 'Winner ➔ L5 · Loser Eliminated')}
+                  ${renderPlayoffCard(p.lb_qf2, 'Winner ➔ L5 · Loser Eliminated')}
+                ` : `
+                  ${renderPlayoffCard(p.lb_qf1, 'Winner ➔ M11 (LB Semis) · Loser Eliminated')}
+                  ${renderPlayoffCard(p.lb_qf2, 'Winner ➔ M11 (LB Semis) · Loser Eliminated')}
+                `}
               </div>
 
               <!-- LB Semifinal (Day 2: M11) -->
@@ -3653,7 +4017,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20">BO3</span>
                 </div>
                 <div class="my-auto">
-                  ${renderPlayoffCard(p.lb_sf, 'Winner ➔ M13 (LB Final) · Loser takes 4th Place')}
+                  ${currentEsport === 'codm'
+                    ? renderPlayoffCard(p.lb_sf, 'Winner ➔ L6 (LB Final) · Loser takes 4th Place')
+                    : renderPlayoffCard(p.lb_sf, 'Winner ➔ M13 (LB Final) · Loser takes 4th Place')}
                 </div>
               </div>
 
@@ -3667,7 +4033,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">${currentEsport === 'codm' ? 'First to 2' : 'First to 3'}</span>
                 </div>
                 <div class="my-auto">
-                  ${renderPlayoffCard(p.lb_f, 'Winner ➔ M14 (Grand Finals) · Loser takes 🥉 Bronze')}
+                  ${currentEsport === 'codm'
+                    ? renderPlayoffCard(p.lb_f, 'Winner ➔ GF (Grand Finals) · Loser takes 🥉 Bronze')
+                    : renderPlayoffCard(p.lb_f, 'Winner ➔ M14 (Grand Finals) · Loser takes 🥉 Bronze')}
                 </div>
               </div>
             </div>
@@ -3691,7 +4059,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
         </div>
       `;
-    }    // --- 8. SINGLE ELIMINATION VIEW ---
+    }
+
+    // --- 8. SINGLE ELIMINATION VIEW ---
     function renderSingle8PlayoffUI() {
       const container = document.getElementById('playoffBracketContainer');
       if (!container) return;
@@ -3701,20 +4071,34 @@ Check your Browserslist config to be sure that your targets are set up correctly
         <div class="space-y-10">
           
           <!-- Single Elim Banner & Seeding Status -->
-          <div class="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl ${isBracketSeeded ? 'bg-emerald-500/10 border border-emerald-500/30' : 'bg-amber-500/10 border border-amber-500/30'} shadow-xs">
+          <div class="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl ${isBracketSeeded || currentEsport === 'codm' ? 'bg-emerald-500/10 border border-emerald-500/30' : 'bg-amber-500/10 border border-amber-500/30'} shadow-xs">
             <div class="flex items-center gap-2.5">
-              <span class="w-3.5 h-3.5 rounded-full ${isBracketSeeded ? 'bg-emerald-400' : 'bg-amber-400'} shadow-sm beacon-pulse"></span>
+              <span class="w-3.5 h-3.5 rounded-full ${isBracketSeeded || currentEsport === 'codm' ? 'bg-emerald-400' : 'bg-amber-400'} shadow-sm beacon-pulse"></span>
               <div>
-                <h3 class="text-sm font-black uppercase tracking-wider ${isBracketSeeded ? 'text-emerald-400' : 'text-amber-400'}">
-                  8-Team Single Elimination Knockout · ${isBracketSeeded ? 'Seeded & Active' : 'Default Blank Bracket'}
+                <h3 class="text-sm font-black uppercase tracking-wider ${isBracketSeeded || currentEsport === 'codm' ? 'text-emerald-400' : 'text-amber-400'}">
+                  ${currentEsport === 'codm'
+                    ? 'CODM Single Elimination Knockout · 7-College Official Draw (No Seeding)'
+                    : ('8-Team Single Elimination Knockout · ' + (isBracketSeeded ? 'Seeded & Active' : 'Default Blank Bracket'))}
                 </h3>
                 <p class="text-xs text-[var(--muted-foreground)]">
-                  ${isBracketSeeded ? 'Matches seeded with sequences M1-M8. Enter scores, quick-advance winners, or simulate.' : 'The bracket is currently blank. Populate seeds to place teams into Quarterfinals.'}
+                  ${currentEsport === 'codm'
+                    ? 'Official Draw: U1 CCJPS (BYE), U2 CBA vs CHM, U3 CLIS vs CIT, U4 COED vs CAS · CMID No Team · BO3 Multi-Player'
+                    : (isBracketSeeded ? 'Matches seeded with sequences M1-M8. Enter scores, quick-advance winners, or simulate.' : 'The bracket is currently blank. Populate seeds to place teams into Quarterfinals.')}
                 </p>
               </div>
             </div>
             <div class="flex items-center gap-2 flex-wrap">
-              ${!isBracketSeeded ? `
+              ${currentEsport === 'codm' ? `
+                <button onclick="confirmSimulateBracket()" class="admin-only flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-sm transition cursor-pointer">
+                  <span>⚡</span> Fast Sim CODM
+                </button>
+                <button onclick="confirmResetScores()" title="Reset all match scores to pending" class="admin-only px-3 py-1.5 rounded-xl border border-[var(--border)] hover:bg-[var(--secondary)] text-xs font-medium transition text-[var(--muted-foreground)] hover:text-amber-400 cursor-pointer">
+                  Reset Scores
+                </button>
+                <span class="px-2.5 py-1 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-black flex items-center gap-1">
+                  <span>🎯</span> Fixed Draw (No Seeding)
+                </span>
+              ` : (!isBracketSeeded ? `
                 <button onclick="populateSeedsToBracket()" class="admin-only flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black shadow-sm transition cursor-pointer">
                   <span>⚡</span> Populate Seeds into Bracket
                 </button>
@@ -3731,7 +4115,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 <button onclick="confirmSimulateBracket()" class="admin-only flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-sm transition cursor-pointer">
                   <span>⚡</span> Simulate Bracket
                 </button>
-                <button onclick="openEditSeedsModal()" class="admin-only flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-bold transition cursor-pointer">
+                <button onclick="openEditSeedsModal()" class="admin-only flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-bold transition cursor-pointer">
                   <span>✏️</span> Edit Seeds
                 </button>
                 <button onclick="confirmResetScores()" title="Clear match scores only" class="admin-only px-3 py-1.5 rounded-xl border border-[var(--border)] hover:bg-[var(--secondary)] text-xs font-medium transition text-[var(--muted-foreground)] hover:text-amber-400 cursor-pointer">
@@ -3740,7 +4124,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 <button onclick="confirmBlankBracket()" title="Clear all teams back to default blank bracket" class="admin-only flex items-center gap-1 px-3 py-1.5 rounded-xl border border-rose-500/30 hover:bg-rose-500/10 text-rose-400 text-xs font-semibold transition cursor-pointer">
                   <span>🗑️</span> Blank Bracket
                 </button>
-              `}
+              `)}
               <button onclick="printBracketSection('single')" title="Print Single Elimination Championship Bracket" class="admin-only flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-400 text-xs font-black transition cursor-pointer shadow-xs active:scale-95">
                 <span>🖨️</span> Print Bracket
               </button>
@@ -3755,10 +4139,17 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 <span class="text-xs font-black uppercase tracking-wider text-emerald-400">Quarterfinals</span>
                 <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">BO3</span>
               </div>
-              ${renderPlayoffCard(p.s8_qf1, 'Winner ➔ M5 (Semifinal 1) · Loser Eliminated', false, '#1', '#8')}
-              ${renderPlayoffCard(p.s8_qf2, 'Winner ➔ M5 (Semifinal 1) · Loser Eliminated', false, '#4', '#5')}
-              ${renderPlayoffCard(p.s8_qf3, 'Winner ➔ M6 (Semifinal 2) · Loser Eliminated', false, '#2', '#7')}
-              ${renderPlayoffCard(p.s8_qf4, 'Winner ➔ M6 (Semifinal 2) · Loser Eliminated', false, '#3', '#6')}
+              ${currentEsport === 'codm' ? `
+                ${renderPlayoffCard(p.s8_qf1, 'CCJPS Auto-Advance ➔ U5 · BYE')}
+                ${renderPlayoffCard(p.s8_qf2, 'Winner ➔ U5 vs CCJPS · Loser Eliminated')}
+                ${renderPlayoffCard(p.s8_qf3, 'Winner ➔ U6 · Loser Eliminated')}
+                ${renderPlayoffCard(p.s8_qf4, 'Winner ➔ U6 · Loser Eliminated')}
+              ` : `
+                ${renderPlayoffCard(p.s8_qf1, 'Winner ➔ M5 (Semifinal 1) · Loser Eliminated', false, '#1', '#8')}
+                ${renderPlayoffCard(p.s8_qf2, 'Winner ➔ M5 (Semifinal 1) · Loser Eliminated', false, '#4', '#5')}
+                ${renderPlayoffCard(p.s8_qf3, 'Winner ➔ M6 (Semifinal 2) · Loser Eliminated', false, '#2', '#7')}
+                ${renderPlayoffCard(p.s8_qf4, 'Winner ➔ M6 (Semifinal 2) · Loser Eliminated', false, '#3', '#6')}
+              `}
             </div>
 
             <!-- Column 2: Semifinals -->
@@ -3768,8 +4159,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">BO3</span>
               </div>
               <div class="my-auto space-y-16">
-                ${renderPlayoffCard(p.s8_sf1, 'Winner ➔ M8 (Grand Finals) · Loser ➔ M7 (Bronze)')}
-                ${renderPlayoffCard(p.s8_sf2, 'Winner ➔ M8 (Grand Finals) · Loser ➔ M7 (Bronze)')}
+                ${currentEsport === 'codm' ? `
+                  ${renderPlayoffCard(p.s8_sf1, 'Winner ➔ GF (Grand Finals) · Loser ➔ Bronze')}
+                  ${renderPlayoffCard(p.s8_sf2, 'Winner ➔ GF (Grand Finals) · Loser ➔ Bronze')}
+                ` : `
+                  ${renderPlayoffCard(p.s8_sf1, 'Winner ➔ M8 (Grand Finals) · Loser ➔ M7 (Bronze)')}
+                  ${renderPlayoffCard(p.s8_sf2, 'Winner ➔ M8 (Grand Finals) · Loser ➔ M7 (Bronze)')}
+                `}
               </div>
             </div>
 
@@ -4113,6 +4509,71 @@ Check your Browserslist config to be sure that your targets are set up correctly
         return;
       }
       setTournamentMode('double_elim');
+
+      if (currentEsport === 'codm') {
+        // Reset scores first so we simulate a clean slate
+        for (let k in PLAYOFF_DATA) {
+          if (PLAYOFF_DATA[k]) {
+            PLAYOFF_DATA[k].s1 = null;
+            PLAYOFF_DATA[k].s2 = null;
+            PLAYOFF_DATA[k].winner = null;
+            PLAYOFF_DATA[k].loser = null;
+            if (PLAYOFF_DATA[k].games) delete PLAYOFF_DATA[k].games;
+          }
+        }
+        updatePlayoffBracket();
+
+        // 1. UB Quarterfinals (U2 CBA vs CHM, U3 CLIS vs CIT, U4 COED vs CAS). Note: U1 is CCJPS BYE
+        ['ub_qf2', 'ub_qf3', 'ub_qf4'].forEach(mKey => {
+          const sc = getRealisticScore(3);
+          setPlayoffScore(mKey, sc[0], sc[1]);
+        });
+
+        // 2. LB Round 1: L1 is Loser U2 BYE (advances to L4). L2 is Loser U3 vs Loser U4 (BO3)
+        const scLb1_2 = getRealisticScore(3);
+        setPlayoffScore('lb_r1_2', scLb1_2[0], scLb1_2[1]);
+
+        // 3. UB Semifinals: U5 CCJPS vs Winner U2, U6 Winner U3 vs Winner U4 (BO3)
+        ['ub_sf1', 'ub_sf2'].forEach(mKey => {
+          const sc = getRealisticScore(3);
+          setPlayoffScore(mKey, sc[0], sc[1]);
+        });
+
+        // 4. LB Quarterfinals: L3 Loser U5 vs Winner L2, L4 Loser U6 vs Winner L1 (BO3)
+        ['lb_qf1', 'lb_qf2'].forEach(mKey => {
+          const sc = getRealisticScore(3);
+          setPlayoffScore(mKey, sc[0], sc[1]);
+        });
+
+        // 5. UB Final: U7 Winner U5 vs Winner U6 (BO3)
+        const scUbF = getRealisticScore(3);
+        setPlayoffScore('ub_f', scUbF[0], scUbF[1]);
+
+        // 6. LB Semifinal: L5 Winner L3 vs Winner L4 (BO3)
+        const scLbSemi = getRealisticScore(3);
+        setPlayoffScore('lb_sf', scLbSemi[0], scLbSemi[1]);
+
+        // 7. LB Final: L6 Loser U7 vs Winner L5 (BO3)
+        const scLbF = getRealisticScore(3);
+        setPlayoffScore('lb_f', scLbF[0], scLbF[1]);
+
+        // 8. Grand Championship Finals: GF Winner U7 vs Winner L6 (BO3)
+        const scGf = getRealisticScore(3);
+        setPlayoffScore('gf8', scGf[0], scGf[1]);
+
+        updatePlayoffBracket();
+        savePlayoffsToStorage();
+        renderHeaderTeamBadges();
+        if (currentTab === 'teams') renderCollegeRoster();
+        if (currentTab === 'matches') renderMatchScheduleList();
+        renderLiveBroadcastHero();
+        if (isTheaterModeOpen) renderTheaterCurrentSlide();
+        pushToCloud();
+        triggerConfetti();
+        showToast('CODM 7-College Tournament simulated & synced to cloud!');
+        return;
+      }
+
       if (!isBracketSeeded) {
         populateSeedsToBracket(false);
       }
@@ -4645,15 +5106,19 @@ Check your Browserslist config to be sure that your targets are set up correctly
             const t2Won = isFinal && m.winner === m.team2;
             const t1Leading = isInProgress && s1Num > s2Num;
             const t2Leading = isInProgress && s2Num > s1Num;
-            const isPlayable = Boolean(m.team1 && m.team2 && m.team1 !== 'TBD' && m.team2 !== 'TBD');
+            const isBye = (m.team2 === 'BYE') || (currentEsport === 'codm' && (m.id === 'ub_qf1' || m.id === 'lb_r1_1'));
+            const isPlayable = !isBye && Boolean(m.team1 && m.team2 && m.team1 !== 'TBD' && m.team2 !== 'TBD');
 
             const mDay = (typeof MATCH_DAYS !== 'undefined' && MATCH_DAYS[m.id] !== undefined) ? MATCH_DAYS[m.id] : (m.day || '');
             const mSeq = (typeof MATCH_SEQUENCES !== 'undefined' && MATCH_SEQUENCES[m.id] !== undefined) ? MATCH_SEQUENCES[m.id] : (m.seq || '');
             const mLabel = (m.id && PLAYOFF_DATA[m.id] && PLAYOFF_DATA[m.id].label) ? PLAYOFF_DATA[m.id].label : (m.label || (typeof CANONICAL_LABELS !== 'undefined' ? CANONICAL_LABELS[m.id] : '') || 'Match');
             const mBestOf = getMatchBestOf(m.id, m);
 
+            const matchShortCode = (currentEsport === 'codm' && typeof getMatchShortCode === 'function') ? getMatchShortCode(m.id) : ('#' + mSeq);
+            const matchSequenceBadge = (currentEsport === 'codm') ? `${mDay} · MATCH ${matchShortCode}` : `${mDay} · MATCH #${mSeq}`;
+
             let codmModesScheduleHtml = '';
-            if (currentEsport === 'codm') {
+            if (currentEsport === 'codm' && !isBye) {
               const games = getCodmMatchGames(m);
               codmModesScheduleHtml = `
                 <div class="pt-2 border-t border-[var(--border)]/60">
@@ -4694,24 +5159,24 @@ Check your Browserslist config to be sure that your targets are set up correctly
             }
 
             return `
-              <div class="p-4 rounded-2xl bg-[var(--card)] border border-[var(--border)] shadow-xs hover:border-amber-500/40 transition flex flex-col justify-between space-y-3">
+              <div class="p-4 rounded-2xl bg-[var(--card)] border ${isBye ? 'border-amber-500/30' : 'border-[var(--border)]'} shadow-xs hover:border-amber-500/40 transition flex flex-col justify-between space-y-3">
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-2 truncate">
                     <span class="px-1.5 py-0.5 rounded-md text-[10px] font-mono font-black ${mDay === 'DAY 1' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : mDay === 'DAY 2' ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'} shrink-0">
-                      ${mDay} · MATCH #${mSeq}
+                      ${matchSequenceBadge}
                     </span>
                     <span class="text-xs font-black uppercase text-[var(--muted-foreground)] truncate">${mLabel}</span>
                   </div>
                   <div class="flex items-center gap-1.5 shrink-0">
-                    <span class="text-[9px] font-bold px-2 py-0.5 rounded-full ${mBestOf === 7 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : mBestOf === 5 ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30'}">
-                      BO${mBestOf}
+                    <span class="text-[9px] font-bold px-2 py-0.5 rounded-full ${isBye ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : (mBestOf === 7 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : mBestOf === 5 ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30')}">
+                      ${isBye ? 'BYE' : `BO${mBestOf}`}
                     </span>
                     ${isPlayable ? `
                       <button onclick="openScoreModal('${m.id}')" title="Update Score" class="marshal-only px-2 py-0.5 rounded-lg text-[10px] font-black bg-amber-500/15 text-amber-400 hover:bg-amber-500 hover:text-slate-950 border border-amber-500/30 transition cursor-pointer flex items-center gap-1">
                         <span>✏️</span> <span>Update Score</span>
                       </button>
                     ` : ''}
-                    <button onclick="printSingleMatch('${m.id}')" title="Print Match #${mSeq} Scoresheet" class="px-1.5 py-0.5 rounded-lg text-[10px] font-black bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-[var(--border)] transition cursor-pointer flex items-center gap-1">
+                    <button onclick="printSingleMatch('${m.id}')" title="Print Match ${matchShortCode} Scoresheet" class="px-1.5 py-0.5 rounded-lg text-[10px] font-black bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-[var(--border)] transition cursor-pointer flex items-center gap-1">
                       <span>🖨️</span>
                     </button>
                   </div>
@@ -4719,22 +5184,32 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
                 <div class="grid grid-cols-2 gap-3 items-center">
                   <!-- Team 1 -->
-                  <div class="flex items-center justify-between p-2 rounded-xl ${t1Won ? 'bg-emerald-500/15 border border-emerald-500/40' : (t1Leading ? 'bg-amber-500/10 border border-amber-500/30' : 'bg-[var(--secondary)]/40 border border-[var(--border)]')}">
+                  <div class="flex items-center justify-between p-2 rounded-xl ${isBye || t1Won ? 'bg-emerald-500/15 border border-emerald-500/40' : (t1Leading ? 'bg-amber-500/10 border border-amber-500/30' : 'bg-[var(--secondary)]/40 border border-[var(--border)]')}">
                     <div class="flex items-center gap-2 truncate">
                       ${renderTeamLogo(m.team1, 'w-6 h-6', 'rounded-md shrink-0')}
-                      <span class="text-xs font-black truncate ${t1Won ? 'text-emerald-400' : (t1Leading ? 'text-amber-300' : 'text-[var(--foreground)]')}">${m.team1 || 'TBD'}</span>
+                      <span class="text-xs font-black truncate ${isBye || t1Won ? 'text-emerald-400' : (t1Leading ? 'text-amber-300' : 'text-[var(--foreground)]')}">${m.team1 || 'TBD'}</span>
                     </div>
-                    <span class="text-sm font-black font-mono ${t1Won ? 'text-emerald-400' : (t1Leading ? 'text-amber-300' : 'text-[var(--foreground)]')}">${formatScore(m.s1)}</span>
+                    <span class="text-sm font-black font-mono ${isBye || t1Won ? 'text-emerald-400' : (t1Leading ? 'text-amber-300' : 'text-[var(--foreground)]')}">${isBye ? 'ADV' : formatScore(m.s1)}</span>
                   </div>
 
                   <!-- Team 2 -->
-                  <div class="flex items-center justify-between p-2 rounded-xl ${t2Won ? 'bg-emerald-500/15 border border-emerald-500/40' : (t2Leading ? 'bg-amber-500/10 border border-amber-500/30' : 'bg-[var(--secondary)]/40 border border-[var(--border)]')}">
-                    <div class="flex items-center gap-2 truncate">
-                      ${renderTeamLogo(m.team2, 'w-6 h-6', 'rounded-md shrink-0')}
-                      <span class="text-xs font-black truncate ${t2Won ? 'text-emerald-400' : (t2Leading ? 'text-amber-300' : 'text-[var(--foreground)]')}">${m.team2 || 'TBD'}</span>
+                  ${isBye ? `
+                    <div class="flex items-center justify-between p-2 rounded-xl bg-[var(--secondary)]/20 border border-dashed border-[var(--border)] opacity-70">
+                      <div class="flex items-center gap-2 truncate">
+                        <div class="w-6 h-6 rounded-md bg-[var(--secondary)] flex items-center justify-center text-[10px] text-amber-400 font-black shrink-0">⏭️</div>
+                        <span class="text-xs font-bold italic text-[var(--muted-foreground)]">BYE (Auto-Advance)</span>
+                      </div>
+                      <span class="text-sm font-black font-mono text-[var(--muted-foreground)]">-</span>
                     </div>
-                    <span class="text-sm font-black font-mono ${t2Won ? 'text-emerald-400' : (t2Leading ? 'text-amber-300' : 'text-[var(--foreground)]')}">${formatScore(m.s2)}</span>
-                  </div>
+                  ` : `
+                    <div class="flex items-center justify-between p-2 rounded-xl ${t2Won ? 'bg-emerald-500/15 border border-emerald-500/40' : (t2Leading ? 'bg-amber-500/10 border border-amber-500/30' : 'bg-[var(--secondary)]/40 border border-[var(--border)]')}">
+                      <div class="flex items-center gap-2 truncate">
+                        ${renderTeamLogo(m.team2, 'w-6 h-6', 'rounded-md shrink-0')}
+                        <span class="text-xs font-black truncate ${t2Won ? 'text-emerald-400' : (t2Leading ? 'text-amber-300' : 'text-[var(--foreground)]')}">${m.team2 || 'TBD'}</span>
+                      </div>
+                      <span class="text-sm font-black font-mono ${t2Won ? 'text-emerald-400' : (t2Leading ? 'text-amber-300' : 'text-[var(--foreground)]')}">${formatScore(m.s2)}</span>
+                    </div>
+                  `}
                 </div>
 
                 <!-- CODM Modes Breakdown if CODM -->
@@ -4743,10 +5218,12 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 <!-- Footer Status & Actions -->
                 <div class="flex items-center justify-between text-[10px] text-[var(--muted-foreground)] pt-1 border-t border-[var(--border)]/60">
                   <span class="truncate max-w-[200px]">
-                    ${isFinal ? `✓ Winner: ${m.winner}` : (isInProgress ? `In Progress · Game ${s1Num + s2Num + 1}` : (isPlayable ? 'Ready to play' : 'Awaiting teams'))}
+                    ${isBye ? (m.team1 ? `✓ Advanced: ${m.team1} to ${m.id === 'ub_qf1' ? 'Upper Semifinals (U5)' : 'Lower QF 2 (L4)'}` : 'Auto-Advance via BYE') : (isFinal ? `✓ Winner: ${m.winner}` : (isInProgress ? `In Progress · Game ${s1Num + s2Num + 1}` : (isPlayable ? 'Ready to play' : 'Awaiting teams')))}
                   </span>
                   <div class="flex items-center gap-2">
-                    ${isFinal ? `
+                    ${isBye ? `
+                      <span class="text-emerald-400 font-bold">✓ ADVANCED VIA BYE</span>
+                    ` : (isFinal ? `
                       <span class="text-emerald-400 font-bold">✓ FINAL (${s1Num}-${s2Num})</span>
                       <button onclick="resetMatchScore('${m.id}')" title="Reset Score" class="marshal-only text-[9px] hover:text-rose-400 cursor-pointer">↺</button>
                     ` : isInProgress ? `
@@ -4759,7 +5236,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                       <span class="text-amber-400 font-semibold">READY</span>
                     ` : `
                       <span class="text-slate-400/50">PENDING</span>
-                    `}
+                    `)}
                   </div>
                 </div>
 
@@ -4808,12 +5285,31 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
       const getTeamObj = (name) => DEFAULT_TEAMS.find(t => t.name === name || (name === 'COM' && t.name === 'CMID')) || { full: name || 'TBD', mascot: '' };
       const getSeedBadge = (name) => {
-        if (!name || name === 'TBD') return '—';
+        if (!name || name === 'TBD' || currentEsport === 'codm') return '';
         const idx = TEAMS.findIndex(t => t && (t.name === name || (name === 'COM' && t.name === 'CMID')));
-        return idx !== -1 ? '#' + (idx + 1) : '—';
+        return idx !== -1 ? '#' + (idx + 1) : '';
       };
       const getMatchFeeder = (m) => {
         if (m.feeder) return m.feeder;
+        if (currentEsport === 'codm') {
+          const codmFeedMap = {
+            ub_qf1: 'U1 · CCJPS BYE ➔ Auto-Advances to U5',
+            ub_qf2: 'U2 · Winner ➔ U5 · Loser ➔ L1 BYE (Auto-Advance to L4)',
+            ub_qf3: 'U3 · Winner ➔ U6 · Loser ➔ L2',
+            ub_qf4: 'U4 · Winner ➔ U6 · Loser ➔ L2',
+            ub_sf1: 'U5 · Winner ➔ U7 (UB Final) · Loser ➔ L3',
+            ub_sf2: 'U6 · Winner ➔ U7 (UB Final) · Loser ➔ L4',
+            lb_r1_1: 'L1 · Loser U2 BYE ➔ Auto-Advances to L4',
+            lb_r1_2: 'L2 · Winner ➔ L3 · Loser Eliminated (7th)',
+            lb_qf1: 'L3 · Winner ➔ L5 · Loser Eliminated (5th-6th)',
+            lb_qf2: 'L4 · Winner ➔ L5 · Loser Eliminated (5th-6th)',
+            lb_sf: 'L5 · Winner ➔ L6 (LB Final) · Loser 4th Place',
+            ub_f: 'U7 · Winner ➔ GF · Loser ➔ L6 (LB Final)',
+            lb_f: 'L6 · Winner ➔ GF · Loser 🥉 Bronze Medal',
+            gf8: 'GF · Winner 🏆 Gold Champion · Runner-up 🥈 Silver'
+          };
+          if (codmFeedMap[m.id]) return codmFeedMap[m.id];
+        }
         const feedMap = {
           ub_qf1: 'Winner ➔ M5 · Loser ➔ M7',
           ub_qf2: 'Winner ➔ M5 · Loser ➔ M7',
@@ -4877,55 +5373,59 @@ Check your Browserslist config to be sure that your targets are set up correctly
         bodyContentHtml = `
           <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; margin-bottom:14px;">
             ${list.map(m => {
-              const hasScores = m.s1 !== null && m.s2 !== null;
-              const t1Won = hasScores && m.winner === m.team1;
-              const t2Won = hasScores && m.winner === m.team2;
+              const isBye = Boolean(m.team2 === 'BYE' || (currentEsport === 'codm' && (m.id === 'ub_qf1' || m.id === 'lb_r1_1')));
+              const hasScores = !isBye && m.s1 !== null && m.s2 !== null;
+              const t1Won = isBye || (hasScores && m.winner === m.team1);
+              const t2Won = !isBye && hasScores && m.winner === m.team2;
               const t1Obj = getTeamObj(m.team1);
               const t2Obj = getTeamObj(m.team2);
               const mDay = m.day || MATCH_DAYS[m.id] || '';
               const mSeq = m.seq || MATCH_SEQUENCES[m.id] || '';
               const mBestOf = getMatchBestOf(m.id, m);
-              const s1Badge = getSeedBadge(m.team1);
-              const s2Badge = getSeedBadge(m.team2);
+              const s1Badge = (currentEsport === 'codm') ? '' : getSeedBadge(m.team1);
+              const s2Badge = (currentEsport === 'codm') ? '' : getSeedBadge(m.team2);
               const feeder = getMatchFeeder(m);
+
+              const matchShortCode = (currentEsport === 'codm' && typeof getMatchShortCode === 'function') ? getMatchShortCode(m.id) : ('#' + mSeq);
+              const seqPillText = (currentEsport === 'codm') ? `${mDay} · MATCH ${matchShortCode}` : `${mDay} · M#${mSeq}`;
 
               return `
                 <div style="border:1px solid #cbd5e1; border-radius:8px; padding:8px 10px; background:#ffffff; break-inside:avoid;">
                   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; border-bottom:1px solid #f1f5f9; padding-bottom:4px;">
                     <div style="display:flex; align-items:center; gap:6px;">
-                      <span style="background:#0f172a; color:#ffffff; font-weight:900; font-family:monospace; font-size:9px; padding:2px 5px; border-radius:4px;">${mDay} · M#${mSeq}</span>
+                      <span style="background:#0f172a; color:#ffffff; font-weight:900; font-family:monospace; font-size:9px; padding:2px 5px; border-radius:4px;">${seqPillText}</span>
                       <span style="font-size:10px; font-weight:800; text-transform:uppercase; color:#334155;">${m.label}</span>
                     </div>
-                    <span style="font-size:9px; font-weight:800; background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:1px 5px; border-radius:4px;">BO${mBestOf}</span>
+                    <span style="font-size:9px; font-weight:800; background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:1px 5px; border-radius:4px;">${isBye ? 'BYE' : `BO${mBestOf}`}</span>
                   </div>
 
                   <div style="display:flex; justify-content:space-between; align-items:center; padding:3.5px 6px; border-radius:6px; margin-bottom:4px; background:${t1Won ? '#ecfdf5' : '#f8fafc'}; border:1px solid ${t1Won ? '#10b981' : '#e2e8f0'};">
                     <div style="display:flex; align-items:center; gap:6px; overflow:hidden;">
-                      <span style="font-size:9px; font-weight:800; color:#64748b; min-width:16px;">${s1Badge}</span>
+                      ${s1Badge ? `<span style="font-size:9px; font-weight:800; color:#64748b; min-width:16px;">${s1Badge}</span>` : ''}
                       ${m.team1 && m.team1 !== 'TBD' ? `<img src="${getTeamIcon(m.team1)}" style="width:18px; height:18px; object-fit:contain; flex-shrink:0;">` : '<div style="width:18px; height:18px; background:#e2e8f0; border-radius:4px; text-align:center; font-size:9px; font-weight:bold; color:#94a3b8; line-height:18px;">—</div>'}
                       <div>
                         <div style="font-size:11px; font-weight:800; color:${t1Won ? '#047857' : '#0f172a'};">${m.team1 || 'TBD'}</div>
                         <div style="font-size:8.5px; color:#64748b; white-space:nowrap;">${t1Obj.mascot ? t1Obj.mascot + ' · ' : ''}${t1Obj.full}</div>
                       </div>
                     </div>
-                    <div style="width:20px; height:20px; border-radius:4px; background:${t1Won ? '#10b981' : '#ffffff'}; color:${t1Won ? '#ffffff' : '#0f172a'}; border:1px solid ${t1Won ? '#059669' : '#cbd5e1'}; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:900; font-family:monospace;">${m.s1 !== null ? m.s1 : '-'}</div>
+                    <div style="width:20px; height:20px; border-radius:4px; background:${t1Won ? '#10b981' : '#ffffff'}; color:${t1Won ? '#ffffff' : '#0f172a'}; border:1px solid ${t1Won ? '#059669' : '#cbd5e1'}; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:900; font-family:monospace;">${isBye ? 'ADV' : (m.s1 !== null ? m.s1 : '-')}</div>
                   </div>
 
                   <div style="display:flex; justify-content:space-between; align-items:center; padding:3.5px 6px; border-radius:6px; margin-bottom:4px; background:${t2Won ? '#ecfdf5' : '#f8fafc'}; border:1px solid ${t2Won ? '#10b981' : '#e2e8f0'};">
                     <div style="display:flex; align-items:center; gap:6px; overflow:hidden;">
-                      <span style="font-size:9px; font-weight:800; color:#64748b; min-width:16px;">${s2Badge}</span>
-                      ${m.team2 && m.team2 !== 'TBD' ? `<img src="${getTeamIcon(m.team2)}" style="width:18px; height:18px; object-fit:contain; flex-shrink:0;">` : '<div style="width:18px; height:18px; background:#e2e8f0; border-radius:4px; text-align:center; font-size:9px; font-weight:bold; color:#94a3b8; line-height:18px;">—</div>'}
+                      ${s2Badge ? `<span style="font-size:9px; font-weight:800; color:#64748b; min-width:16px;">${s2Badge}</span>` : ''}
+                      ${m.team2 && m.team2 !== 'BYE' && m.team2 !== 'TBD' ? `<img src="${getTeamIcon(m.team2)}" style="width:18px; height:18px; object-fit:contain; flex-shrink:0;">` : '<div style="width:18px; height:18px; background:#e2e8f0; border-radius:4px; text-align:center; font-size:9px; font-weight:bold; color:#94a3b8; line-height:18px;">—</div>'}
                       <div>
-                        <div style="font-size:11px; font-weight:800; color:${t2Won ? '#047857' : '#0f172a'};">${m.team2 || 'TBD'}</div>
-                        <div style="font-size:8.5px; color:#64748b; white-space:nowrap;">${t2Obj.mascot ? t2Obj.mascot + ' · ' : ''}${t2Obj.full}</div>
+                        <div style="font-size:11px; font-weight:800; color:${t2Won ? '#047857' : (isBye ? '#94a3b8' : '#0f172a')}; font-style:${isBye ? 'italic' : 'normal'};">${isBye ? 'BYE (Auto-Advance)' : (m.team2 || 'TBD')}</div>
+                        ${!isBye && m.team2 ? `<div style="font-size:8.5px; color:#64748b; white-space:nowrap;">${t2Obj.mascot ? t2Obj.mascot + ' · ' : ''}${t2Obj.full}</div>` : ''}
                       </div>
                     </div>
-                    <div style="width:20px; height:20px; border-radius:4px; background:${t2Won ? '#10b981' : '#ffffff'}; color:${t2Won ? '#ffffff' : '#0f172a'}; border:1px solid ${t2Won ? '#059669' : '#cbd5e1'}; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:900; font-family:monospace;">${m.s2 !== null ? m.s2 : '-'}</div>
+                    <div style="width:20px; height:20px; border-radius:4px; background:${t2Won ? '#10b981' : '#ffffff'}; color:${t2Won ? '#ffffff' : '#0f172a'}; border:1px solid ${t2Won ? '#059669' : '#cbd5e1'}; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:900; font-family:monospace;">${isBye ? '-' : (m.s2 !== null ? m.s2 : '-')}</div>
                   </div>
 
                   <div style="display:flex; justify-content:space-between; align-items:center; font-size:8.5px; color:#64748b; border-top:1px dashed #e2e8f0; padding-top:4px; margin-top:4px;">
                     <span>${feeder}</span>
-                    <span style="font-weight:800; color:${m.winner ? '#047857' : '#64748b'};">${m.winner ? '✓ ' + m.winner + ' (' + m.s1 + '-' + m.s2 + ')' : (m.team1 && m.team2 && m.team1 !== 'TBD' && m.team2 !== 'TBD' ? 'READY' : 'AWAITING')}</span>
+                    <span style="font-weight:800; color:${m.winner || isBye ? '#047857' : '#64748b'};">${isBye ? '✓ ADVANCED VIA BYE' : (m.winner ? '✓ ' + m.winner + ' (' + m.s1 + '-' + m.s2 + ')' : (m.team1 && m.team2 && m.team1 !== 'TBD' && m.team2 !== 'TBD' ? 'READY' : 'AWAITING'))}</span>
                   </div>
                 </div>
               `;
@@ -4952,22 +5452,28 @@ Check your Browserslist config to be sure that your targets are set up correctly
             </thead>
             <tbody>
               ${list.map(m => {
+                const isBye = Boolean(m.team2 === 'BYE' || (currentEsport === 'codm' && (m.id === 'ub_qf1' || m.id === 'lb_r1_1')));
                 const s = MATCH_SEQUENCES[m.id] || m.seq || '-';
                 const d = m.day || MATCH_DAYS[m.id] || '';
                 const bo = getMatchBestOf(m.id, m);
-                const t1Won = Boolean(m.winner && m.winner === m.team1);
-                const t2Won = Boolean(m.winner && m.winner === m.team2);
+                const t1Won = isBye || Boolean(m.winner && m.winner === m.team1);
+                const t2Won = !isBye && Boolean(m.winner && m.winner === m.team2);
                 const t1Obj = getTeamObj(m.team1);
                 const t2Obj = getTeamObj(m.team2);
-                const s1Badge = getSeedBadge(m.team1);
-                const s2Badge = getSeedBadge(m.team2);
+                const s1Badge = (currentEsport === 'codm') ? '' : getSeedBadge(m.team1);
+                const s2Badge = (currentEsport === 'codm') ? '' : getSeedBadge(m.team2);
                 const feeder = getMatchFeeder(m);
 
+                const matchShortCode = (currentEsport === 'codm' && typeof getMatchShortCode === 'function') ? getMatchShortCode(m.id) : ('#' + s);
+                const seqColText = (currentEsport === 'codm') ? `<span style="color:#0284c7; font-size:8.5px;">${d}</span> · MATCH ${matchShortCode}` : `<span style="color:#0284c7; font-size:8.5px;">${d}</span> · M#${s}`;
+
                 const t1Logo = m.team1 && m.team1 !== 'TBD' ? `<img src="${getTeamIcon(m.team1)}" style="width:16px; height:16px; object-fit:contain; flex-shrink:0;">` : '';
-                const t2Logo = m.team2 && m.team2 !== 'TBD' ? `<img src="${getTeamIcon(m.team2)}" style="width:16px; height:16px; object-fit:contain; flex-shrink:0;">` : '';
+                const t2Logo = m.team2 && m.team2 !== 'BYE' && m.team2 !== 'TBD' ? `<img src="${getTeamIcon(m.team2)}" style="width:16px; height:16px; object-fit:contain; flex-shrink:0;">` : '';
 
                 let scoreCellHtml = '';
-                if (isBlank) {
+                if (isBye) {
+                  scoreCellHtml = `<span style="font-weight:900; font-family:monospace; font-size:11px; color:#047857;">ADV</span>`;
+                } else if (isBlank) {
                   scoreCellHtml = `
                     <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
                       <div style="font-family:monospace; font-weight:900; font-size:11px;">[ &nbsp; ] - [ &nbsp; ]</div>
@@ -4983,7 +5489,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 }
 
                 let winnerCellHtml = '';
-                if (isBlank) {
+                if (isBye) {
+                  winnerCellHtml = `<strong style="color:#047857;">✓ ${m.team1 || 'ADV'} (BYE)</strong>`;
+                } else if (isBlank) {
                   winnerCellHtml = `<span style="color:#64748b; font-size:8.5px;">[ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ]</span>`;
                 } else {
                   winnerCellHtml = `<strong style="color:${m.winner ? '#047857' : '#64748b'};">${m.winner ? '✓ ' + m.winner : '<span style="font-weight:normal; font-size:8.5px;">Pending</span>'}</strong>`;
@@ -4992,15 +5500,15 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 return `
                   <tr style="${t1Won || t2Won ? 'background:#fbfdfc;' : ''}">
                     <td style="font-weight:900; font-family:monospace; white-space:nowrap;">
-                      <span style="color:#0284c7; font-size:8.5px;">${d}</span> · M#${s}
+                      ${seqColText}
                     </td>
                     <td style="font-weight:800; font-size:9.5px; text-transform:uppercase; color:#0f172a;">${m.label}</td>
                     <td style="text-align:center; font-weight:800; font-size:8.5px;">
-                      <span style="background:#f1f5f9; border:1px solid #cbd5e1; padding:1px 4px; border-radius:3px;">BO${bo}</span>
+                      <span style="background:#f1f5f9; border:1px solid #cbd5e1; padding:1px 4px; border-radius:3px;">${isBye ? 'BYE' : `BO${bo}`}</span>
                     </td>
                     <td>
                       <div style="display:flex; align-items:center; gap:5px; overflow:hidden;">
-                        <span style="font-size:8.5px; font-weight:800; color:#64748b; min-width:14px;">${s1Badge}</span>
+                        ${s1Badge ? `<span style="font-size:8.5px; font-weight:800; color:#64748b; min-width:14px;">${s1Badge}</span>` : ''}
                         ${t1Logo}
                         <div>
                           <strong style="font-size:10px; ${t1Won ? 'color:#047857;' : ''}">${m.team1 || 'TBD'}</strong>
@@ -5011,11 +5519,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     <td style="text-align:center; vertical-align:middle;">${scoreCellHtml}</td>
                     <td>
                       <div style="display:flex; align-items:center; gap:5px; overflow:hidden;">
-                        <span style="font-size:8.5px; font-weight:800; color:#64748b; min-width:14px;">${s2Badge}</span>
+                        ${s2Badge ? `<span style="font-size:8.5px; font-weight:800; color:#64748b; min-width:14px;">${s2Badge}</span>` : ''}
                         ${t2Logo}
                         <div>
-                          <strong style="font-size:10px; ${t2Won ? 'color:#047857;' : ''}">${m.team2 || 'TBD'}</strong>
-                          <div style="font-size:8px; color:#64748b; white-space:nowrap;">${t2Obj.mascot ? t2Obj.mascot + ' · ' : ''}${t2Obj.full}</div>
+                          <strong style="font-size:10px; ${t2Won ? 'color:#047857;' : (isBye ? 'color:#94a3b8; font-style:italic;' : '')}">${isBye ? 'BYE (Auto-Advance)' : (m.team2 || 'TBD')}</strong>
+                          ${!isBye && m.team2 ? `<div style="font-size:8px; color:#64748b; white-space:nowrap;">${t2Obj.mascot ? t2Obj.mascot + ' · ' : ''}${t2Obj.full}</div>` : ''}
                         </div>
                       </div>
                     </td>
@@ -5159,6 +5667,106 @@ Check your Browserslist config to be sure that your targets are set up correctly
     function renderCollegeRoster() {
       const container = document.getElementById('collegeRosterContainer');
       if (!container) return;
+
+      const titleEl = document.getElementById('collegeRosterHeaderTitle');
+      const subEl = document.getElementById('collegeRosterHeaderSubtitle');
+      const actionsEl = document.getElementById('collegeRosterAdminActions');
+
+      if (currentEsport === 'codm') {
+        if (titleEl) titleEl.innerText = '7 Official Competing Colleges · Fixed Draw (No Seeding)';
+        if (subEl) subEl.innerText = 'CODM 5v5 Multi-Player Intramurals · CCJPS Upper Bracket BYE · CMID Did Not Field a Team';
+        if (actionsEl) {
+          actionsEl.innerHTML = `
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold">
+              <span>🎯</span> Official CODM Draw (No Seeding · Fixed Bracket)
+            </span>
+            <button onclick="resetTournamentScores()" class="px-3 py-1.5 rounded-xl border border-rose-500/30 hover:bg-rose-500/10 text-rose-400 text-xs font-bold transition cursor-pointer flex items-center gap-1">
+              <span>🔄</span> Reset Scores
+            </button>
+          `;
+        }
+
+        const codmMatchesMap = {
+          CCJPS: { chip: '⏭️ U1 BYE', matchText: 'Upper Bracket QF 1 (U1) · BYE ➔ Auto-Advances to U5' },
+          CBA:   { chip: '⚔️ U2 vs CHM', matchText: 'Upper Bracket QF 2 (U2) vs CHM (BO3)' },
+          CHM:   { chip: '⚔️ U2 vs CBA', matchText: 'Upper Bracket QF 2 (U2) vs CBA (BO3)' },
+          CLIS:  { chip: '⚔️ U3 vs CIT', matchText: 'Upper Bracket QF 3 (U3) vs CIT (BO3)' },
+          CIT:   { chip: '⚔️ U3 vs CLIS', matchText: 'Upper Bracket QF 3 (U3) vs CLIS (BO3)' },
+          COED:  { chip: '⚔️ U4 vs CAS', matchText: 'Upper Bracket QF 4 (U4) vs CAS (BO3)' },
+          CAS:   { chip: '⚔️ U4 vs COED', matchText: 'Upper Bracket QF 4 (U4) vs COED (BO3)' }
+        };
+
+        container.innerHTML = DEFAULT_TEAMS.map((college) => {
+          if (college.name === 'CMID' || college.id === 'cmid') {
+            return `
+              <div class="p-5 rounded-2xl bg-slate-900/40 border border-rose-500/30 shadow-xs flex flex-col justify-between space-y-4 opacity-80">
+                <div class="flex items-start justify-between">
+                  <span class="px-2.5 py-1 rounded-xl bg-rose-500/15 text-rose-400 border border-rose-500/40 text-[10px] font-black uppercase tracking-wider">
+                    ❌ No Team in CODM
+                  </span>
+                  ${renderTeamLogo(college.name, 'w-14 h-14 grayscale opacity-40', 'rounded-2xl border-2 border-rose-500/20 shadow-sm')}
+                </div>
+                <div>
+                  <div class="text-base font-black text-slate-400 line-through">${college.name}</div>
+                  <div class="text-xs text-[var(--muted-foreground)] font-medium mt-0.5">${college.full}</div>
+                  <div class="text-xs font-bold text-rose-400/90 mt-2">Status: Did Not Field a Team</div>
+                </div>
+                <div class="pt-3 border-t border-[var(--border)] text-[11px] text-[var(--muted-foreground)] leading-relaxed">
+                  <span class="font-bold text-rose-400">Not Participating:</span> CMID did not field a team in CODM Multi-Player. Bracket operates with 7 colleges & Upper Bracket BYE for CCJPS.
+                </div>
+              </div>
+            `;
+          }
+
+          const mInfo = codmMatchesMap[college.name] || { chip: 'CODM 5v5', matchText: 'Official Competitor' };
+
+          return `
+            <div class="p-5 rounded-2xl bg-[var(--card)] border border-[var(--border)] shadow-xs hover:border-amber-500/50 transition flex flex-col justify-between space-y-4">
+              <div class="flex items-start justify-between">
+                <span class="px-2.5 py-1 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 text-[10px] font-mono font-black uppercase tracking-wider">
+                  ${mInfo.chip}
+                </span>
+                ${renderTeamLogo(college.name, 'w-14 h-14', 'rounded-2xl border-2 border-[var(--border)] shadow-sm')}
+              </div>
+              <div>
+                <div class="text-base font-black text-[var(--foreground)]">${college.name}</div>
+                <div class="text-xs text-[var(--muted-foreground)] font-medium mt-0.5">${college.full}</div>
+                <div class="text-xs font-bold text-amber-500 mt-2">Mascot: ${college.mascot || 'Team'}</div>
+              </div>
+              
+              <div class="pt-3 border-t border-[var(--border)] flex items-center justify-between text-[11px]">
+                <span class="text-[10px] text-[var(--muted-foreground)] font-bold uppercase">Draw:</span>
+                <span class="font-bold text-amber-400">Fixed Tournament Draw</span>
+              </div>
+
+              <div class="text-[10px] text-[var(--foreground)] font-medium">
+                ${mInfo.matchText}
+              </div>
+            </div>
+          `;
+        }).join('');
+        return;
+      }
+
+      // MLBB Mode (8 colleges with seeds)
+      if (titleEl) titleEl.innerText = '8 Official Competing Colleges';
+      if (subEl) subEl.innerText = 'Tournament Seeding Draw (#1 through #8) and college rosters';
+      if (actionsEl) {
+        actionsEl.innerHTML = `
+          <button onclick="populateSeedsToBracket()" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black shadow-md transition cursor-pointer flex items-center gap-1.5">
+            <span>⚡</span> Populate Seeds into Bracket
+          </button>
+          <button onclick="openEditSeedsModal()" class="px-3.5 py-2 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-black transition cursor-pointer flex items-center gap-1.5">
+            <span>✏️</span> Edit Seedings Manually
+          </button>
+          <button onclick="shuffleAndPopulateBracket()" class="px-3 py-2 rounded-xl border border-[var(--border)] hover:bg-[var(--secondary)] text-[var(--foreground)] text-xs font-bold transition cursor-pointer flex items-center gap-1.5">
+            <span>🎲</span> Shuffle & Seed
+          </button>
+          <button onclick="confirmBlankBracket()" class="px-3 py-2 rounded-xl border border-rose-500/30 hover:bg-rose-500/10 text-rose-400 text-xs font-semibold transition cursor-pointer flex items-center gap-1">
+            <span>🗑️</span> Blank Bracket
+          </button>
+        `;
+      }
 
       container.innerHTML = DEFAULT_TEAMS.map((college) => {
         const seedIdx = TEAMS.findIndex(t => t && (t.id === college.id || t.name === college.name));
@@ -5709,7 +6317,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function renderStageCard(m, label, formatBadge, isCompact = false) {
       if (!m) return '';
-      const hasScores = m.s1 !== null && m.s2 !== null;
+      const isBye = Boolean(m.team2 === 'BYE' || (currentEsport === 'codm' && (m.id === 'ub_qf1' || m.id === 'lb_r1_1')));
+      const hasScores = !isBye && m.s1 !== null && m.s2 !== null;
       const isFinal = Boolean(m.winner);
       const t1Won = isFinal && m.winner === m.team1;
       const t2Won = isFinal && m.winner === m.team2;
@@ -5718,6 +6327,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const dayLabel = MATCH_DAYS[m.id] !== undefined ? MATCH_DAYS[m.id] : (m.day || '');
       const bestOfVal = getMatchBestOf(m.id, m);
       const targetWins = Math.ceil(bestOfVal / 2);
+
+      const matchShortCode = (currentEsport === 'codm' && typeof getMatchShortCode === 'function') ? getMatchShortCode(m.id) : ('#' + seqNum);
+      const matchBadgeStr = (currentEsport === 'codm') ? `${dayLabel} · MATCH ${matchShortCode}` : `${dayLabel} · M#${seqNum}`;
 
       const t1Obj = DEFAULT_TEAMS.find(t => t.name === m.team1 || (m.team1 === 'COM' && t.name === 'CMID'));
       const t2Obj = DEFAULT_TEAMS.find(t => t.name === m.team2 || (m.team2 === 'COM' && t.name === 'CMID'));
@@ -5730,7 +6342,16 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const gapClass = isCompact ? 'space-y-0.5' : 'space-y-1.5';
 
       let statusFooter = '';
-      if (isFinal) {
+      if (isBye) {
+        statusFooter = `
+          <div class="flex items-center justify-between pt-0.5 border-t border-white/10 ${isCompact ? 'text-[9px] sm:text-[10px]' : 'text-[11px]'} font-bold">
+            <span class="text-amber-400 font-black flex items-center gap-1 truncate">
+              <span>⏭️</span> <span class="truncate">${m.team1 ? `ADVANCED: ${m.team1}` : 'ADVANCED VIA BYE'}</span>
+            </span>
+            <span class="text-slate-400 font-mono font-bold text-[9px] sm:text-[10px] bg-slate-800/80 px-1.5 py-0.2 rounded border border-slate-700/60 shrink-0">AUTO-ADVANCE</span>
+          </div>
+        `;
+      } else if (isFinal) {
         statusFooter = `
           <div class="flex items-center justify-between pt-0.5 border-t border-white/10 ${isCompact ? 'text-[9px] sm:text-[10px]' : 'text-[11px]'} font-bold">
             <span class="text-emerald-400 font-black flex items-center gap-1 truncate">
@@ -5761,14 +6382,22 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
       const cardBorder = hasScores && !isFinal
         ? 'border-2 border-amber-500/80 shadow-xl shadow-amber-500/20 ring-1 ring-amber-400/40'
-        : (isFinal ? 'border-2 border-slate-700/80 shadow-lg' : 'border-2 border-slate-800/90 shadow-md');
+        : (isBye ? 'border-2 border-amber-500/40 shadow-md' : (isFinal ? 'border-2 border-slate-700/80 shadow-lg' : 'border-2 border-slate-800/90 shadow-md'));
 
       const renderTeamRow = (code, teamObj, isWinner, isLeader, scoreVal, otherScoreVal) => {
         let rowBg = 'bg-slate-950/80 border border-slate-800/90';
         let scoreBg = 'bg-slate-950 text-slate-400 border border-slate-800';
         let nameColor = 'text-white';
 
-        if (isWinner) {
+        if (code === 'BYE') {
+          rowBg = 'bg-slate-950/40 border border-dashed border-slate-800 opacity-60';
+          scoreBg = 'bg-slate-950 text-slate-600 border border-slate-800';
+          nameColor = 'text-slate-400 italic';
+        } else if (isBye && code === m.team1) {
+          rowBg = 'bg-emerald-950/60 border-2 border-emerald-500/80 shadow-md shadow-emerald-950/40';
+          scoreBg = 'bg-emerald-500 text-slate-950 font-black shadow-lg shadow-emerald-500/40 ring-1 ring-emerald-300';
+          nameColor = 'text-emerald-300';
+        } else if (isWinner) {
           rowBg = 'bg-emerald-950/60 border-2 border-emerald-500/80 shadow-md shadow-emerald-950/40';
           scoreBg = 'bg-emerald-500 text-slate-950 font-black shadow-lg shadow-emerald-500/40 ring-1 ring-emerald-300';
           nameColor = 'text-emerald-300';
@@ -5785,7 +6414,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
         const mascotText = teamObj?.mascot ? `${teamObj.mascot}` : '';
         const collegeText = teamObj?.full ? `${teamObj.full}` : '';
-        const teamIdx = code ? TEAMS.findIndex(t => t && (t.name === code || (code === 'COM' && t.name === 'CMID'))) : -1;
+        const teamIdx = (code && currentEsport !== 'codm') ? TEAMS.findIndex(t => t && (t.name === code || (code === 'COM' && t.name === 'CMID'))) : -1;
         const seedBadgeText = teamIdx !== -1 ? `#${teamIdx + 1}` : '';
         const seedBadgeHtml = seedBadgeText ? `
           <span class="inline-flex items-center justify-center ${isCompact ? 'min-w-[24px] h-6 px-1 text-[11px]' : 'min-w-[28px] h-7 px-1.5 text-xs sm:text-[13px]'} rounded-lg bg-blue-600/40 border-2 border-sky-400 text-white font-mono font-black tracking-tight shadow-md shadow-sky-500/25 shrink-0 select-none">
@@ -5793,19 +6422,22 @@ Check your Browserslist config to be sure that your targets are set up correctly
           </span>
         ` : '';
 
+        const displayCode = code === 'BYE' ? 'BYE (Auto-Advance)' : (code || 'TBD');
+        const displayScore = isBye ? (code === m.team1 ? 'ADV' : '-') : (scoreVal !== null ? scoreVal : '-');
+
         if (isCompact) {
           return `
             <div class="flex items-center justify-between px-2 py-1 rounded-lg ${rowBg} transition-all">
               <div class="flex items-center gap-2 sm:gap-2.5 truncate">
                 ${seedBadgeHtml}
-                ${code ? renderTeamLogo(code, logoSize, 'rounded-lg shadow-sm shrink-0') : `<div class="${logoSize} rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs text-slate-400 shadow-sm shrink-0">?</div>`}
+                ${code && code !== 'BYE' ? renderTeamLogo(code, logoSize, 'rounded-lg shadow-sm shrink-0') : (code === 'BYE' ? `<div class="${logoSize} rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center font-bold text-xs text-amber-400 shadow-sm shrink-0">⏭️</div>` : `<div class="${logoSize} rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs text-slate-400 shadow-sm shrink-0">?</div>`)}
                 <div class="flex items-center gap-1.5 sm:gap-2 truncate">
-                  <span class="${nameSize} tracking-wide ${nameColor} truncate">${code || 'TBD'}</span>
-                  ${isWinner ? '<span class="text-[8px] sm:text-[9px] px-1 sm:px-1.5 py-0.2 rounded bg-emerald-500/30 text-emerald-300 font-black border border-emerald-500/40 shrink-0">WINNER 🏆</span>' : ''}
+                  <span class="${nameSize} tracking-wide ${nameColor} truncate">${displayCode}</span>
+                  ${isWinner || (isBye && code === m.team1) ? '<span class="text-[8px] sm:text-[9px] px-1 sm:px-1.5 py-0.2 rounded bg-emerald-500/30 text-emerald-300 font-black border border-emerald-500/40 shrink-0">WINNER 🏆</span>' : ''}
                 </div>
               </div>
               <div class="${scoreBoxSize} rounded-lg flex items-center justify-center shrink-0 ${scoreBg}">
-                ${scoreVal !== null ? scoreVal : '-'}
+                ${displayScore}
               </div>
             </div>
           `;
@@ -5815,21 +6447,21 @@ Check your Browserslist config to be sure that your targets are set up correctly
           <div class="flex items-center justify-between p-2 sm:p-2.5 rounded-xl ${rowBg} transition-all">
             <div class="flex items-center gap-2.5 sm:gap-3.5 truncate">
               ${seedBadgeHtml}
-              ${code ? renderTeamLogo(code, logoSize, 'rounded-xl shadow-md shrink-0') : `<div class="${logoSize} rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs text-slate-400 shadow-sm shrink-0">?</div>`}
+              ${code && code !== 'BYE' ? renderTeamLogo(code, logoSize, 'rounded-xl shadow-md shrink-0') : (code === 'BYE' ? `<div class="${logoSize} rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center font-bold text-xs text-amber-400 shadow-sm shrink-0">⏭️</div>` : `<div class="${logoSize} rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs text-slate-400 shadow-sm shrink-0">?</div>`)}
               <div class="truncate leading-tight">
                 <div class="flex items-center gap-1.5 sm:gap-2">
-                  <span class="${nameSize} tracking-wide ${nameColor} truncate">${code || 'TBD'}</span>
-                  ${isWinner ? '<span class="text-[9px] sm:text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/30 text-emerald-300 font-black border border-emerald-500/40 shrink-0">WINNER 🏆</span>' : ''}
+                  <span class="${nameSize} tracking-wide ${nameColor} truncate">${displayCode}</span>
+                  ${isWinner || (isBye && code === m.team1) ? '<span class="text-[9px] sm:text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/30 text-emerald-300 font-black border border-emerald-500/40 shrink-0">WINNER 🏆</span>' : ''}
                 </div>
-                ${code ? `
+                ${code && code !== 'BYE' ? `
                   <div class="text-[10px] sm:text-[11px] text-slate-300 font-semibold truncate mt-0.5">
                     ${mascotText ? `<span class="text-amber-400 font-black">${mascotText}</span> · ` : ''}${collegeText}
                   </div>
-                ` : '<div class="text-[10px] text-slate-400 font-medium">Awaiting match progression</div>'}
+                ` : (code === 'BYE' ? '<div class="text-[10px] text-slate-500 font-medium">Automatic bye advancement</div>' : '<div class="text-[10px] text-slate-400 font-medium">Awaiting match progression</div>')}
               </div>
             </div>
             <div class="${scoreBoxSize} rounded-xl font-mono font-black flex items-center justify-center shrink-0 ${scoreBg}">
-              ${scoreVal !== null ? scoreVal : '-'}
+              ${displayScore}
             </div>
           </div>
         `;
@@ -5840,14 +6472,14 @@ Check your Browserslist config to be sure that your targets are set up correctly
           <div class="flex items-center justify-between gap-1.5 pb-0.5 border-b border-white/10">
             <div class="flex items-center gap-1.5 truncate">
               <span class="px-1.5 sm:px-2 py-0.2 rounded text-[10px] sm:text-[11px] font-mono font-black bg-amber-500/20 text-amber-300 border border-amber-500/40 shrink-0 shadow-xs">
-                ${dayLabel} · M#${seqNum}
+                ${matchBadgeStr}
               </span>
               <span class="${isCompact ? 'text-[11px]' : 'text-[11px] sm:text-xs'} font-black uppercase tracking-wider text-slate-200 truncate">
                 ${label || m.label}
               </span>
             </div>
-            <span class="text-[10px] sm:text-xs font-black px-2 py-0.2 rounded-full ${formatBadge || 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'} shrink-0 shadow-xs">
-              BO${bestOfVal}
+            <span class="text-[10px] sm:text-xs font-black px-2 py-0.2 rounded-full ${isBye ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : (formatBadge || 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40')} shrink-0 shadow-xs">
+              ${isBye ? 'BYE' : `BO${bestOfVal}`}
             </span>
           </div>
 
