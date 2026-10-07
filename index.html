@@ -5663,37 +5663,183 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
       if (isTournamentConcluded) {
         const champion = gfMatch.winner;
-        const runnerUp = gfMatch.winner === gfMatch.team1 ? gfMatch.team2 : gfMatch.team1;
+        let runnerUp = gfMatch.loser || (gfMatch.winner === gfMatch.team1 ? gfMatch.team2 : gfMatch.team1);
+        if (!runnerUp || runnerUp === 'null' || runnerUp === 'undefined') {
+          runnerUp = (gfMatch.team1 && gfMatch.team1 !== champion && gfMatch.team1 !== 'null' ? gfMatch.team1 : (gfMatch.team2 && gfMatch.team2 !== champion && gfMatch.team2 !== 'null' ? gfMatch.team2 : 'Runner-Up'));
+        }
+        if (!runnerUp || runnerUp === 'null' || runnerUp === 'undefined') runnerUp = 'Runner-Up';
+
+        const gfBestOf = gfMatch.bestOf || (tournamentMode === 'double_elim' ? 7 : 5);
+        const gfWinScore = Math.ceil(gfBestOf / 2);
+        const champScore = champion === gfMatch.team2
+          ? (isValidScore(gfMatch.s2) ? Number(gfMatch.s2) : gfWinScore)
+          : (isValidScore(gfMatch.s1) ? Number(gfMatch.s1) : gfWinScore);
+        const runnerScore = champion === gfMatch.team2
+          ? (isValidScore(gfMatch.s1) ? Number(gfMatch.s1) : 0)
+          : (isValidScore(gfMatch.s2) ? Number(gfMatch.s2) : 0);
+
+        const champObj = DEFAULT_TEAMS.find(t => t.name === champion || (champion === 'COM' && t.name === 'CMID')) || {};
+        const runnerObj = DEFAULT_TEAMS.find(t => t.name === runnerUp || (runnerUp === 'COM' && t.name === 'CMID')) || {};
+
+        const gfDay = (typeof MATCH_DAYS !== 'undefined' && MATCH_DAYS[gfKey] !== undefined) ? MATCH_DAYS[gfKey] : (gfMatch.day || 'DAY 3');
+        const gfSeq = (typeof MATCH_SEQUENCES !== 'undefined' && MATCH_SEQUENCES[gfKey] !== undefined) ? MATCH_SEQUENCES[gfKey] : (gfMatch.seq || (tournamentMode === 'double_elim' ? '14' : '8'));
+
         container.innerHTML = `
-          <div class="p-6 rounded-3xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-amber-600/20 border-2 border-amber-500/50 shadow-xl gold-championship-card text-center relative overflow-hidden">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-6 max-w-5xl mx-auto">
-              <div class="flex items-center gap-4">
-                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center text-3xl sm:text-4xl shadow-lg shrink-0">
-                  🏆
-                </div>
-                <div class="text-left">
-                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500 text-slate-950">
-                    Official Tournament Champion
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-4 items-stretch">
+            
+            <!-- HERO CARD 1: 👑 TOURNAMENT CHAMPION GLORY CARD - 7 cols on lg -->
+            <div class="lg:col-span-7 p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-amber-500/15 via-[var(--card)] to-amber-600/15 border-2 border-amber-500/60 shadow-xl gold-championship-card flex flex-col justify-between relative overflow-hidden">
+              <!-- Header -->
+              <div class="flex items-center justify-between gap-2 border-b border-amber-500/30 pb-2.5">
+                <div class="flex items-center gap-2">
+                  <span class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950 text-[11px] font-black uppercase tracking-wider shadow-sm">
+                    <span>👑</span> CHAMPION
                   </span>
-                  <h2 class="text-2xl sm:text-3xl font-black text-amber-400 uppercase mt-1 tracking-tight">
-                    ${champion}
-                  </h2>
-                  <p class="text-xs text-[var(--muted-foreground)] font-bold">
-                    Grand Championship Finals Victor · TAGOLOAN COMMUNITY COLLEGE Intramurals 2026
-                  </p>
+                  <span class="text-xs font-mono font-bold text-amber-400">
+                    GRAND FINALS VICTOR
+                  </span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    GOLD 🥇
+                  </span>
+                  <button onclick="triggerConfetti()" class="admin-only px-2 py-0.5 rounded-lg bg-amber-500/20 hover:bg-amber-500 text-amber-400 hover:text-slate-950 font-black text-[10px] border border-amber-500/30 transition cursor-pointer">
+                    🎉 Confetti
+                  </button>
                 </div>
               </div>
-              <div class="flex items-center gap-4">
-                <div class="text-right">
-                  <div class="text-[10px] font-bold text-[var(--muted-foreground)] uppercase">Runner-Up</div>
-                  <div class="text-sm font-black text-[var(--foreground)]">${runnerUp || 'TBD'}</div>
-                  <div class="text-xs font-mono font-bold text-amber-500/90 mt-0.5">Series Final: ${gfMatch.s1} - ${gfMatch.s2}</div>
+
+              <!-- Champion Showcase Content -->
+              <div class="py-3">
+                <div class="flex items-center justify-between gap-3 sm:gap-4">
+                  <!-- Champion Info -->
+                  <div class="flex items-center gap-3 sm:gap-3.5 min-w-0">
+                    <div class="w-13 h-13 sm:w-16 sm:h-16 rounded-2xl bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center text-3xl sm:text-4xl shadow-md shrink-0">
+                      🏆
+                    </div>
+                    <div class="min-w-0">
+                      <span class="text-[10px] font-black uppercase tracking-wider text-amber-400 block">
+                        Official Tournament Champion
+                      </span>
+                      <h2 class="text-xl sm:text-2xl font-black text-[var(--foreground)] uppercase truncate">
+                        ${champion}
+                      </h2>
+                      <div class="text-[11px] text-[var(--muted-foreground)] font-semibold truncate">
+                        ${champObj.full || 'Tagoloan Community College'} ${champObj.mascot ? '· ' + champObj.mascot : ''}
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Score Centerpiece (Final Series Score) -->
+                  <div class="flex flex-col items-end shrink-0 px-3 py-1.5 rounded-2xl bg-[var(--card-surface)] border border-amber-500/30 shadow-inner">
+                    <div class="flex items-center gap-2 text-xl sm:text-2xl font-mono font-black text-amber-400">
+                      <span>${champScore}</span>
+                      <span class="text-slate-500 text-sm">-</span>
+                      <span class="text-slate-400">${runnerScore}</span>
+                    </div>
+                    <span class="text-[8px] uppercase tracking-wider font-extrabold text-[var(--muted-foreground)] mt-0.5">
+                      Grand Final Series
+                    </span>
+                  </div>
                 </div>
-                <button onclick="triggerConfetti()" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs shadow-md transition cursor-pointer flex items-center gap-1.5 active:scale-95">
-                  <span>🎉</span> <span>Confetti</span>
-                </button>
+              </div>
+
+              <!-- Footer -->
+              <div class="pt-2.5 border-t border-amber-500/20 flex items-center justify-between text-xs text-[var(--muted-foreground)]">
+                <div class="text-[10px] sm:text-[11px] font-medium flex items-center gap-1.5 text-amber-400/90 truncate">
+                  <span>✨</span> <span class="truncate">TAGOLOAN COMMUNITY COLLEGE · Intramurals 2026</span>
+                </div>
+                <div class="text-[10px] font-bold text-slate-300 flex items-center gap-1 shrink-0">
+                  <span>🥈 Runner-Up:</span> <span class="text-[var(--foreground)]">${runnerUp || 'TBD'}</span>
+                </div>
               </div>
             </div>
+
+            <!-- RIGHT COLUMN: Stack of 2 Smaller Cards (Recent Match: Grand Finals & Next: Ceremony) - 5 cols on lg -->
+            <div class="lg:col-span-5 flex flex-col sm:grid sm:grid-cols-2 lg:flex lg:flex-col gap-3 justify-between">
+              
+              <!-- RECENT MATCH (Small Compact Card: Grand Finals) -->
+              <div class="p-3 sm:p-3.5 rounded-2xl bg-[var(--card)] border border-emerald-500/30 hover:border-emerald-500/50 transition shadow-xs recent-match-card flex flex-col justify-between">
+                <!-- Header -->
+                <div class="flex items-center justify-between gap-1 border-b border-[var(--border)] pb-1.5 text-[10px]">
+                  <div class="flex items-center gap-1.5 truncate">
+                    <span class="flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[10px] font-black uppercase tracking-wider shrink-0">
+                      <span>⏪</span> RECENT
+                    </span>
+                    <span class="font-mono font-bold text-emerald-400 truncate">
+                      ${gfDay} · #${gfSeq}
+                    </span>
+                  </div>
+                  <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[var(--secondary)] text-[var(--muted-foreground)] shrink-0">
+                    BO${gfBestOf} · FINAL
+                  </span>
+                </div>
+
+                <!-- Matchup Rows -->
+                <div class="py-1.5 space-y-1">
+                  <div class="flex items-center justify-between text-xs px-2 py-0.5 rounded-lg bg-emerald-500/15 font-black text-emerald-400 border border-emerald-500/30">
+                    <div class="flex items-center gap-2 truncate">
+                      ${renderTeamLogo(champion, 'w-5 h-5', 'rounded shrink-0')}
+                      <span class="truncate">${champion}</span>
+                      <span class="text-[8px] px-1 py-0.2 rounded bg-emerald-500/25 text-emerald-300 font-bold uppercase">WIN</span>
+                    </div>
+                    <span class="font-mono font-black ml-2 text-sm">${champScore}</span>
+                  </div>
+                  <div class="flex items-center justify-between text-xs px-2 py-0.5 rounded-lg text-[var(--muted-foreground)] opacity-75">
+                    <div class="flex items-center gap-2 truncate">
+                      ${renderTeamLogo(runnerUp, 'w-5 h-5', 'rounded shrink-0')}
+                      <span class="truncate">${runnerUp}</span>
+                    </div>
+                    <span class="font-mono font-black ml-2 text-sm">${runnerScore}</span>
+                  </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="pt-1 border-t border-[var(--border)]/60 flex items-center justify-between text-[10px] text-[var(--muted-foreground)]">
+                  <span class="truncate font-semibold text-emerald-400 flex items-center gap-1">
+                    <span>🏆</span> <span class="truncate">${champion} Gold Champion</span>
+                  </span>
+                  <span class="text-[9px] font-mono text-[var(--muted-foreground)]">Grand Finals</span>
+                </div>
+              </div>
+
+              <!-- NEXT / CEREMONY (Small Compact Card) -->
+              <div class="p-3 sm:p-3.5 rounded-2xl bg-[var(--card)] border border-amber-500/30 hover:border-amber-500/50 transition shadow-xs flex flex-col justify-between">
+                <!-- Header -->
+                <div class="flex items-center justify-between gap-1 border-b border-[var(--border)] pb-1.5 text-[10px]">
+                  <div class="flex items-center gap-1.5 truncate">
+                    <span class="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[10px] font-black uppercase tracking-wider shrink-0">
+                      🏅 PODIUM
+                    </span>
+                    <span class="font-mono font-bold text-amber-400 truncate">
+                      CEREMONY
+                    </span>
+                  </div>
+                  <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[var(--secondary)] text-[var(--muted-foreground)] shrink-0">
+                    CONCLUDED
+                  </span>
+                </div>
+
+                <!-- Ceremony Content -->
+                <div class="py-2 flex items-center justify-between gap-2 px-1 text-xs">
+                  <div class="flex items-center gap-1.5 font-bold text-amber-400 truncate">
+                    <span>🥇</span> <span class="truncate">${champion}</span>
+                  </div>
+                  <div class="text-[10px] text-slate-400 font-bold">➔</div>
+                  <div class="flex items-center gap-1.5 font-bold text-slate-300 truncate">
+                    <span>🥈</span> <span class="truncate">${runnerUp}</span>
+                  </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="pt-1 border-t border-[var(--border)]/60 flex items-center justify-between text-[10px] text-[var(--muted-foreground)]">
+                  <span class="truncate text-[9px] font-mono text-amber-400">All Matches Completed</span>
+                  <span class="text-[9px] font-bold text-slate-400 shrink-0">See Podium Below ↓</span>
+                </div>
+              </div>
+
+            </div>
+
           </div>
         `;
         return;
