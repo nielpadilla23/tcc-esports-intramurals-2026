@@ -5783,17 +5783,24 @@ Check your Browserslist config to be sure that your targets are set up correctly
     // --- 14. REAL-TIME CLOUD SYNC (FIREBASE REALTIME DATABASE) ---
     // When a Firebase URL is set here, all devices (spectator phones, marshal PCs, projector screens)
     // automatically sync in real-time (<100ms) with zero configuration required by visitors.
-    const DEFAULT_FIREBASE_DB_URL = '';
+    const DEFAULT_FIREBASE_DB_URL = 'https://tccesports-4c88d-default-rtdb.asia-southeast1.firebasedatabase.app';
     let firebaseDbRef = null;
     let isCloudSyncConnected = false;
     let cloudChannelKey = 'tcc_tournament_2026';
 
     function initCloudSync() {
       let savedConfig = null;
+      let isDisabled = false;
       try {
+        isDisabled = localStorage.getItem('tcc_firebase_disabled_v1') === 'true';
         savedConfig = localStorage.getItem('tcc_firebase_config_v1');
         cloudChannelKey = localStorage.getItem('tcc_firebase_channel_v1') || 'tcc_tournament_2026';
       } catch(e) {}
+
+      if (isDisabled) {
+        updateCloudStatusBadge(false, 'Cloud: Local');
+        return;
+      }
 
       const activeConfig = savedConfig || (typeof DEFAULT_FIREBASE_DB_URL !== 'undefined' && DEFAULT_FIREBASE_DB_URL.trim() ? DEFAULT_FIREBASE_DB_URL.trim() : null);
 
@@ -5849,7 +5856,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         if (configStr.trim().startsWith('{')) {
           configObj = JSON.parse(configStr);
         } else {
-          configObj = { databaseURL: configStr.trim() };
+          configObj = { databaseURL: configStr.trim().replace(/\/+$/, '') };
         }
 
         let app = null;
@@ -5869,6 +5876,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
             handleCloudSyncUpdate(val);
           } else if (isAdmin) {
             // New empty room - push existing local data up to cloud
+            pushToCloud();
+          } else if (PLAYOFF_DATA && Object.keys(PLAYOFF_DATA).length > 0) {
             pushToCloud();
           }
         });
@@ -5956,7 +5965,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       if (modal) {
         modal.classList.remove('hidden');
         try {
-          const savedConfig = localStorage.getItem('tcc_firebase_config_v1') || '';
+          const savedConfig = localStorage.getItem('tcc_firebase_config_v1') || (typeof DEFAULT_FIREBASE_DB_URL !== 'undefined' ? DEFAULT_FIREBASE_DB_URL : '') || '';
           const savedChannel = localStorage.getItem('tcc_firebase_channel_v1') || 'tcc_tournament_2026';
           if (channelInput) channelInput.value = savedChannel;
           if (savedConfig.trim().startsWith('{')) {
@@ -5989,6 +5998,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         return;
       }
 
+      try { localStorage.removeItem('tcc_firebase_disabled_v1'); } catch(e) {}
       connectToFirebase(configToUse, channelVal, true);
       pushToCloud();
       closeCloudSyncModal();
@@ -6002,6 +6012,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       firebaseDbRef = null;
       try {
         localStorage.removeItem('tcc_firebase_config_v1');
+        localStorage.setItem('tcc_firebase_disabled_v1', 'true');
       } catch(e) {}
       updateCloudStatusBadge(false, 'Cloud: Local');
       alert('Cloud sync disconnected. App running in local offline mode.');
