@@ -1367,13 +1367,34 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function getCodmMatchGames(m) {
       if (!m) return [];
-      if (m.games && Array.isArray(m.games) && m.games.length === 3) {
-        return m.games;
-      }
       const s1 = (m.s1 !== null && m.s1 !== undefined && m.s1 !== '') ? Number(m.s1) : 0;
       const s2 = (m.s2 !== null && m.s2 !== undefined && m.s2 !== '') ? Number(m.s2) : 0;
       const t1 = m.team1 || 'Team 1';
       const t2 = m.team2 || 'Team 2';
+
+      if (m.games && Array.isArray(m.games) && m.games.length === 3) {
+        // Validate Game 3 status based on the first 2 games
+        const w1First2 = (m.games[0].winner === t1 ? 1 : 0) + (m.games[1].winner === t1 ? 1 : 0);
+        const w2First2 = (m.games[0].winner === t2 ? 1 : 0) + (m.games[1].winner === t2 ? 1 : 0);
+
+        if (w1First2 >= 2 || w2First2 >= 2) {
+          m.games[2].winner = null;
+          m.games[2].s1 = null;
+          m.games[2].s2 = null;
+          m.games[2].status = 'not_needed';
+        } else if (w1First2 === 1 && w2First2 === 1) {
+          if (m.games[2].winner) {
+            m.games[2].status = 'completed';
+          } else {
+            m.games[2].status = 'live';
+          }
+        } else {
+          if (!m.games[2].winner) {
+            m.games[2].status = 'pending';
+          }
+        }
+        return m.games;
+      }
 
       const games = [
         { gameNum: 1, mode: 'Search and Destroy', shortName: 'S&D', icon: '💣', winner: null, s1: null, s2: null, status: 'pending' },
@@ -1543,20 +1564,39 @@ Check your Browserslist config to be sure that your targets are set up correctly
         games[gameIdx].status = 'pending';
       }
 
-      // Calculate new series score
-      let w1 = 0, w2 = 0;
-      if (games[0].winner === t1) w1++; else if (games[0].winner === t2) w2++;
-      if (games[1].winner === t1) w1++; else if (games[1].winner === t2) w2++;
-      if (w1 < 2 && w2 < 2 && games[2].winner === t1) w1++;
-      else if (w1 < 2 && w2 < 2 && games[2].winner === t2) w2++;
+      // 1. Evaluate results of the first 2 games
+      let first2_w1 = 0, first2_w2 = 0;
+      if (games[0].winner === t1) first2_w1++; else if (games[0].winner === t2) first2_w2++;
+      if (games[1].winner === t1) first2_w1++; else if (games[1].winner === t2) first2_w2++;
 
-      // If one team reached 2 wins, Game 3 is not needed
-      if (w1 >= 2 || w2 >= 2) {
+      // 2. Determine Game 3 status based on the first 2 games
+      if (first2_w1 >= 2 || first2_w2 >= 2) {
+        // One team won BOTH Game 1 and Game 2 (2-0 sweep): Game 3 is truly not needed!
         games[2].winner = null;
+        games[2].s1 = null;
+        games[2].s2 = null;
         games[2].status = 'not_needed';
-      } else if (w1 === 1 && w2 === 1) {
-        if (!games[2].winner) games[2].status = 'live';
+      } else if (first2_w1 === 1 && first2_w2 === 1) {
+        // Tied 1-1 after Game 1 and Game 2: Game 3 IS NEEDED!
+        if (games[2].winner) {
+          games[2].status = 'completed';
+        } else {
+          games[2].status = 'live';
+        }
+      } else {
+        // Series in progress (e.g. 1-0 or 0-1 or 0-0): Game 3 is pending
+        games[2].winner = null;
+        games[2].s1 = null;
+        games[2].s2 = null;
+        games[2].status = 'pending';
       }
+
+      // 3. Calculate total series score across all 3 games
+      let w1 = 0, w2 = 0;
+      games.forEach(g => {
+        if (g.winner === t1) w1++;
+        else if (g.winner === t2) w2++;
+      });
 
       match.games = games;
 
