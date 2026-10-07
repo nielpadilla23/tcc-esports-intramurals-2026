@@ -382,10 +382,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
           
           <div class="relative z-10 flex items-center justify-between">
             <span class="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-amber-500/20 text-yellow-400 border border-yellow-500/30 shadow-inner">
-              🎯 5v5 Tactical FPS
+              🎯 5v5 Multi-Player (MP)
             </span>
-            <span class="text-[10px] font-mono font-bold text-slate-400 bg-white/5 px-2.5 py-1 rounded-lg border border-white/10">
-              Double Elimination
+            <span class="text-[10px] font-mono font-bold text-amber-300 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">
+              Double Elim · BO3
             </span>
           </div>
 
@@ -399,8 +399,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
               <span>Call of Duty: Mobile</span>
             </h3>
             <p class="text-xs text-slate-400 leading-relaxed font-medium">
-              Hardpoint, Search & Destroy, and Control matches across 8 College Teams. Includes BO3/BO5 live scoring and theater mode wall stage feed.
+              Multi-Player Double Elimination tournament. All matches are Best-of-3 (BO3) across 3 distinct competitive game modes: Search and Destroy, Control, and Hardpoint.
             </p>
+            <div class="flex items-center gap-1.5 pt-1 flex-wrap text-[10px] font-bold">
+              <span class="px-2 py-0.5 rounded-md bg-rose-500/15 border border-rose-500/30 text-rose-300 font-mono">💣 G1: Search & Destroy</span>
+              <span class="px-2 py-0.5 rounded-md bg-blue-500/15 border border-blue-500/30 text-blue-300 font-mono">🎮 G2: Control</span>
+              <span class="px-2 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-300 font-mono">📍 G3: Hardpoint</span>
+            </div>
           </div>
 
           <!-- Card CTA Button -->
@@ -836,6 +841,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
       <!-- Live Series Status Banner -->
       <div id="modalStatusBanner" class="p-2.5 rounded-xl bg-[var(--secondary)]/60 border border-[var(--border)] text-xs font-bold text-center">
         <!-- Injected via updateModalPreview() -->
+      </div>
+
+      <!-- CODM 3-Game Mode Breakdown Section (Visible when currentEsport === 'codm') -->
+      <div id="modalCodmModesContainer" class="hidden space-y-2">
+        <!-- Injected via renderModalCodmModes() -->
       </div>
 
       <!-- Teams Score Adjusters -->
@@ -1298,12 +1308,226 @@ Check your Browserslist config to be sure that your targets are set up correctly
         badgeText: 'E-Sports: Call of Duty: Mobile',
         subtitle: 'TAGOLOAN COMMUNITY COLLEGE · INTRAMURALS 2026',
         stageTitle: 'E-Sports: Call of Duty: Mobile',
-        tagline: '5v5 Tactical Championship',
+        tagline: '5v5 Multi-Player (BO3: S&D, Control, Hardpoint)',
         icon: '🎯',
         color: '#eab308',
         getLogo: function(theme) { return theme === 'light' ? CODM_LOGO_LIGHT : CODM_LOGO_DARK; }
       }
     };
+
+    const CODM_GAME_MODES = [
+      {
+        gameNum: 1,
+        name: 'Search and Destroy',
+        shortName: 'S&D',
+        icon: '💣',
+        badgeClass: 'bg-rose-500/20 text-rose-400 border border-rose-500/30',
+        scoreUnit: 'Rounds',
+        targetScore: 7,
+        desc: 'First to 7 Rounds (Attack & Defend)',
+        color: '#ef4444'
+      },
+      {
+        gameNum: 2,
+        name: 'Control',
+        shortName: 'Control',
+        icon: '🎮',
+        badgeClass: 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
+        scoreUnit: 'Rounds',
+        targetScore: 3,
+        desc: 'First to 3 Rounds (Zones A & B)',
+        color: '#3b82f6'
+      },
+      {
+        gameNum: 3,
+        name: 'Hardpoint',
+        shortName: 'Hardpoint',
+        icon: '📍',
+        badgeClass: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
+        scoreUnit: 'Points',
+        targetScore: 250,
+        desc: 'First to 250 Points (Decider Match)',
+        color: '#eab308'
+      }
+    ];
+
+    function getMatchBestOf(matchKey, matchObj) {
+      if (currentEsport === 'codm') {
+        return 3; // CODM Multi-Player double elimination is strictly BO3
+      }
+      if (matchObj && matchObj.bestOf) return matchObj.bestOf;
+      if (typeof MATCH_BEST_OF !== 'undefined' && MATCH_BEST_OF[matchKey] !== undefined) {
+        return MATCH_BEST_OF[matchKey];
+      }
+      return 3;
+    }
+
+    function getCodmMatchGames(m) {
+      if (!m) return [];
+      if (m.games && Array.isArray(m.games) && m.games.length === 3) {
+        return m.games;
+      }
+      const s1 = (m.s1 !== null && m.s1 !== undefined && m.s1 !== '') ? Number(m.s1) : 0;
+      const s2 = (m.s2 !== null && m.s2 !== undefined && m.s2 !== '') ? Number(m.s2) : 0;
+      const t1 = m.team1 || 'Team 1';
+      const t2 = m.team2 || 'Team 2';
+
+      const games = [
+        { gameNum: 1, mode: 'Search and Destroy', shortName: 'S&D', icon: '💣', winner: null, s1: null, s2: null, status: 'pending' },
+        { gameNum: 2, mode: 'Control', shortName: 'Control', icon: '🎮', winner: null, s1: null, s2: null, status: 'pending' },
+        { gameNum: 3, mode: 'Hardpoint', shortName: 'Hardpoint', icon: '📍', winner: null, s1: null, s2: null, status: 'pending' }
+      ];
+
+      if (s1 === 0 && s2 === 0) {
+        if (m.s1 !== null && m.s2 !== null) games[0].status = 'live';
+        return games;
+      }
+
+      if (s1 === 2 && s2 === 0) {
+        games[0].winner = t1; games[0].status = 'completed'; games[0].s1 = 7; games[0].s2 = 4;
+        games[1].winner = t1; games[1].status = 'completed'; games[1].s1 = 3; games[1].s2 = 1;
+        games[2].status = 'not_needed';
+      } else if (s1 === 0 && s2 === 2) {
+        games[0].winner = t2; games[0].status = 'completed'; games[0].s1 = 4; games[0].s2 = 7;
+        games[1].winner = t2; games[1].status = 'completed'; games[1].s1 = 1; games[1].s2 = 3;
+        games[2].status = 'not_needed';
+      } else if (s1 === 2 && s2 === 1) {
+        games[0].winner = t1; games[0].status = 'completed'; games[0].s1 = 7; games[0].s2 = 5;
+        games[1].winner = t2; games[1].status = 'completed'; games[1].s1 = 1; games[1].s2 = 3;
+        games[2].winner = t1; games[2].status = 'completed'; games[2].s1 = 250; games[2].s2 = 210;
+      } else if (s1 === 1 && s2 === 2) {
+        games[0].winner = t2; games[0].status = 'completed'; games[0].s1 = 5; games[0].s2 = 7;
+        games[1].winner = t1; games[1].status = 'completed'; games[1].s1 = 3; games[1].s2 = 2;
+        games[2].winner = t2; games[2].status = 'completed'; games[2].s1 = 210; games[2].s2 = 250;
+      } else if (s1 === 1 && s2 === 0) {
+        games[0].winner = t1; games[0].status = 'completed'; games[0].s1 = 7; games[0].s2 = 3;
+        games[1].status = 'live';
+      } else if (s1 === 0 && s2 === 1) {
+        games[0].winner = t2; games[0].status = 'completed'; games[0].s1 = 3; games[0].s2 = 7;
+        games[1].status = 'live';
+      } else if (s1 === 1 && s2 === 1) {
+        games[0].winner = t1; games[0].status = 'completed'; games[0].s1 = 7; games[0].s2 = 4;
+        games[1].winner = t2; games[1].status = 'completed'; games[1].s1 = 1; games[1].s2 = 3;
+        games[2].status = 'live';
+      }
+
+      return games;
+    }
+
+    function renderModalCodmModes(match) {
+      const container = document.getElementById('modalCodmModesContainer');
+      if (!container || !match) return;
+
+      const games = getCodmMatchGames(match);
+      const t1 = match.team1 || 'Team 1';
+      const t2 = match.team2 || 'Team 2';
+
+      container.innerHTML = `
+        <div class="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-amber-400 uppercase tracking-wide flex items-center gap-1.5">
+              <span>🎯</span> <span>CODM BO3 Game Modes Rotation</span>
+            </span>
+            <span class="text-[10px] font-mono text-[var(--muted-foreground)]">Click winning team per mode</span>
+          </div>
+
+          <div class="space-y-2">
+            ${games.map((g, idx) => {
+              const isT1 = g.winner === t1;
+              const isT2 = g.winner === t2;
+              const isNotNeeded = g.status === 'not_needed';
+
+              return `
+                <div class="p-2.5 rounded-xl ${isNotNeeded ? 'bg-black/20 opacity-60 border border-white/5' : 'bg-[var(--card)] border border-[var(--border)]'} flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="w-7 h-7 rounded-lg ${idx === 0 ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : (idx === 1 ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30')} flex items-center justify-center text-xs shrink-0">
+                      ${g.icon}
+                    </span>
+                    <div class="truncate">
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-xs font-black text-[var(--foreground)]">Game ${g.gameNum}: ${g.mode}</span>
+                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded ${idx === 0 ? 'bg-rose-500/10 text-rose-400' : (idx === 1 ? 'bg-blue-500/10 text-blue-400' : 'bg-amber-500/10 text-amber-400')} uppercase font-mono">${g.shortName}</span>
+                      </div>
+                      <span class="text-[10px] text-[var(--muted-foreground)] block truncate">${idx === 0 ? 'First to 7 Rounds' : (idx === 1 ? 'First to 3 Rounds' : 'First to 250 Points (Decider)')}</span>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-1 shrink-0">
+                    ${isNotNeeded ? `
+                      <span class="text-[10px] text-slate-500 font-bold px-2 py-1 rounded-lg bg-white/5">Not Needed</span>
+                    ` : `
+                      <button type="button" onclick="setModalCodmGameWinner(${idx}, 1)" class="px-2 py-1 rounded-lg text-xs font-black transition cursor-pointer ${isT1 ? 'bg-emerald-500 text-slate-950 shadow-sm ring-2 ring-emerald-300' : 'bg-[var(--secondary)] text-[var(--foreground)] hover:bg-emerald-500/20 hover:text-emerald-300'}">
+                        ${isT1 ? '✓ ' : ''}${t1}
+                      </button>
+                      <button type="button" onclick="setModalCodmGameWinner(${idx}, 2)" class="px-2 py-1 rounded-lg text-xs font-black transition cursor-pointer ${isT2 ? 'bg-emerald-500 text-slate-950 shadow-sm ring-2 ring-emerald-300' : 'bg-[var(--secondary)] text-[var(--foreground)] hover:bg-emerald-500/20 hover:text-emerald-300'}">
+                        ${isT2 ? '✓ ' : ''}${t2}
+                      </button>
+                      <button type="button" onclick="setModalCodmGameWinner(${idx}, 0)" class="px-1.5 py-1 rounded-lg text-[10px] text-[var(--muted-foreground)] hover:text-rose-400 transition cursor-pointer" title="Clear Game Winner">
+                        ✕
+                      </button>
+                    `}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function setModalCodmGameWinner(gameIdx, teamSlot) {
+      if (!activeModalMatchKey) return;
+      const match = PLAYOFF_DATA[activeModalMatchKey];
+      if (!match) return;
+
+      const games = getCodmMatchGames(match);
+      const t1 = match.team1 || 'Team 1';
+      const t2 = match.team2 || 'Team 2';
+
+      if (teamSlot === 1) {
+        games[gameIdx].winner = t1;
+        games[gameIdx].status = 'completed';
+        if (gameIdx === 0) { games[gameIdx].s1 = 7; games[gameIdx].s2 = 4; }
+        else if (gameIdx === 1) { games[gameIdx].s1 = 3; games[gameIdx].s2 = 1; }
+        else if (gameIdx === 2) { games[gameIdx].s1 = 250; games[gameIdx].s2 = 180; }
+      } else if (teamSlot === 2) {
+        games[gameIdx].winner = t2;
+        games[gameIdx].status = 'completed';
+        if (gameIdx === 0) { games[gameIdx].s1 = 4; games[gameIdx].s2 = 7; }
+        else if (gameIdx === 1) { games[gameIdx].s1 = 1; games[gameIdx].s2 = 3; }
+        else if (gameIdx === 2) { games[gameIdx].s1 = 180; games[gameIdx].s2 = 250; }
+      } else {
+        games[gameIdx].winner = null;
+        games[gameIdx].s1 = null;
+        games[gameIdx].s2 = null;
+        games[gameIdx].status = 'pending';
+      }
+
+      // Calculate new series score
+      let w1 = 0, w2 = 0;
+      if (games[0].winner === t1) w1++; else if (games[0].winner === t2) w2++;
+      if (games[1].winner === t1) w1++; else if (games[1].winner === t2) w2++;
+      if (w1 < 2 && w2 < 2 && games[2].winner === t1) w1++;
+      else if (w1 < 2 && w2 < 2 && games[2].winner === t2) w2++;
+
+      // If one team reached 2 wins, Game 3 is not needed
+      if (w1 >= 2 || w2 >= 2) {
+        games[2].winner = null;
+        games[2].status = 'not_needed';
+      } else if (w1 === 1 && w2 === 1) {
+        if (!games[2].winner) games[2].status = 'live';
+      }
+
+      match.games = games;
+
+      const inp1 = document.getElementById('modalScore1');
+      const inp2 = document.getElementById('modalScore2');
+      if (inp1) inp1.value = w1;
+      if (inp2) inp2.value = w2;
+
+      updateModalPreview();
+      renderModalCodmModes(match);
+    }
 
     let currentEsport = localStorage.getItem('tcc_current_esport_v1') || 'mlbb';
 
@@ -1481,6 +1705,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
     }
 
     function createInitialPlayoffTemplate() {
+      const isCodm = currentEsport === 'codm';
       return {
         ub_qf1: { id: 'ub_qf1', seq: 1, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 1 (#1 vs #8)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
         ub_qf2: { id: 'ub_qf2', seq: 2, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 2 (#4 vs #5)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
@@ -1489,7 +1714,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
         ub_sf1: { id: 'ub_sf1', seq: 5, day: 'DAY 1', label: 'Upper Bracket Semifinal 1', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
         ub_sf2: { id: 'ub_sf2', seq: 6, day: 'DAY 1', label: 'Upper Bracket Semifinal 2', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-        ub_f: { id: 'ub_f', seq: 12, day: 'DAY 2', label: 'Upper Bracket Final (BO5)', bestOf: 5, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+        ub_f: { id: 'ub_f', seq: 12, day: 'DAY 2', label: isCodm ? 'Upper Bracket Final (BO3)' : 'Upper Bracket Final (BO5)', bestOf: isCodm ? 3 : 5, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
 
         lb_r1_1: { id: 'lb_r1_1', seq: 7, day: 'DAY 2', label: 'Lower Bracket Round 1 (QF1 Loser vs QF2 Loser)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
         lb_r1_2: { id: 'lb_r1_2', seq: 8, day: 'DAY 2', label: 'Lower Bracket Round 1 (QF3 Loser vs QF4 Loser)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
@@ -1498,9 +1723,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
         lb_qf2: { id: 'lb_qf2', seq: 10, day: 'DAY 2', label: 'Lower Bracket Quarterfinal 2', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
 
         lb_sf: { id: 'lb_sf', seq: 11, day: 'DAY 2', label: 'Lower Bracket Semifinal', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-        lb_f: { id: 'lb_f', seq: 13, day: 'DAY 3', label: 'Lower Bracket Final (BO5)', bestOf: 5, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+        lb_f: { id: 'lb_f', seq: 13, day: 'DAY 3', label: isCodm ? 'Lower Bracket Final (BO3)' : 'Lower Bracket Final (BO5)', bestOf: isCodm ? 3 : 5, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
 
-        gf8: { id: 'gf8', seq: 14, day: 'DAY 3', label: 'Grand Championship Finals (BO7)', bestOf: 7, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+        gf8: { id: 'gf8', seq: 14, day: 'DAY 3', label: isCodm ? 'Grand Championship Finals (BO3)' : 'Grand Championship Finals (BO7)', bestOf: isCodm ? 3 : 7, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
 
         s8_qf1: { id: 's8_qf1', seq: 1, day: 'DAY 1', label: 'Quarterfinal 1 (#1 vs #8)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
         s8_qf2: { id: 's8_qf2', seq: 2, day: 'DAY 1', label: 'Quarterfinal 2 (#4 vs #5)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
@@ -1508,8 +1733,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
         s8_qf4: { id: 's8_qf4', seq: 4, day: 'DAY 1', label: 'Quarterfinal 4 (#3 vs #6)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
         s8_sf1: { id: 's8_sf1', seq: 5, day: 'DAY 2', label: 'Semifinal 1', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
         s8_sf2: { id: 's8_sf2', seq: 6, day: 'DAY 2', label: 'Semifinal 2', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-        s8_bronze: { id: 's8_bronze', seq: 7, day: 'DAY 3', label: 'Bronze Medal Match (BO5)', bestOf: 5, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-        s8_gf: { id: 's8_gf', seq: 8, day: 'DAY 3', label: 'Grand Championship Finals (BO7)', bestOf: 7, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null }
+        s8_bronze: { id: 's8_bronze', seq: 7, day: 'DAY 3', label: isCodm ? 'Bronze Medal Match (BO3)' : 'Bronze Medal Match (BO5)', bestOf: isCodm ? 3 : 5, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+        s8_gf: { id: 's8_gf', seq: 8, day: 'DAY 3', label: isCodm ? 'Grand Championship Finals (BO3)' : 'Grand Championship Finals (BO7)', bestOf: isCodm ? 3 : 7, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null }
       };
     }
 
@@ -1564,13 +1789,34 @@ Check your Browserslist config to be sure that your targets are set up correctly
               PLAYOFF_DATA[k].s2 = parsed[k].s2;
               PLAYOFF_DATA[k].winner = parsed[k].winner === 'COM' ? 'CMID' : parsed[k].winner;
               PLAYOFF_DATA[k].loser = parsed[k].loser === 'COM' ? 'CMID' : parsed[k].loser;
+              if (parsed[k].games) {
+                PLAYOFF_DATA[k].games = parsed[k].games;
+              } else if (currentEsport === 'codm') {
+                PLAYOFF_DATA[k].games = getCodmMatchGames(PLAYOFF_DATA[k]);
+              }
             }
           }
         } catch(e) {}
       }
 
       // Apply canonical sequences, days, and bestOf rules
-      const CANONICAL_LABELS = {
+      const CANONICAL_LABELS = currentEsport === 'codm' ? {
+        ub_qf1: 'Upper Bracket Quarterfinal 1 (#1 vs #8)',
+        ub_qf2: 'Upper Bracket Quarterfinal 2 (#4 vs #5)',
+        ub_qf3: 'Upper Bracket Quarterfinal 3 (#2 vs #7)',
+        ub_qf4: 'Upper Bracket Quarterfinal 4 (#3 vs #6)',
+        ub_sf1: 'Upper Bracket Semifinal 1',
+        ub_sf2: 'Upper Bracket Semifinal 2',
+        ub_f: 'Upper Bracket Final (BO3)',
+        lb_r1_1: 'Lower Bracket Round 1 (QF1 Loser vs QF2 Loser)',
+        lb_r1_2: 'Lower Bracket Round 1 (QF3 Loser vs QF4 Loser)',
+        lb_qf1: 'Lower Bracket Quarterfinal 1',
+        lb_qf2: 'Lower Bracket Quarterfinal 2',
+        lb_sf: 'Lower Bracket Semifinal',
+        lb_f: 'Lower Bracket Final (BO3)',
+        gf8: 'Grand Championship Finals (BO3)',
+        s8_gf: 'Grand Championship Finals (BO3)',
+      } : {
         ub_qf1: 'Upper Bracket Quarterfinal 1 (#1 vs #8)',
         ub_qf2: 'Upper Bracket Quarterfinal 2 (#4 vs #5)',
         ub_qf3: 'Upper Bracket Quarterfinal 3 (#2 vs #7)',
@@ -1590,12 +1836,15 @@ Check your Browserslist config to be sure that your targets are set up correctly
       for (let k in PLAYOFF_DATA) {
         if (MATCH_SEQUENCES[k] !== undefined) PLAYOFF_DATA[k].seq = MATCH_SEQUENCES[k];
         if (MATCH_DAYS[k] !== undefined) PLAYOFF_DATA[k].day = MATCH_DAYS[k];
-        if (MATCH_BEST_OF[k] !== undefined) PLAYOFF_DATA[k].bestOf = MATCH_BEST_OF[k];
+        PLAYOFF_DATA[k].bestOf = getMatchBestOf(k);
         if (CANONICAL_LABELS[k] !== undefined) PLAYOFF_DATA[k].label = CANONICAL_LABELS[k];
         if (PLAYOFF_DATA[k].team1 === 'COM') PLAYOFF_DATA[k].team1 = 'CMID';
         if (PLAYOFF_DATA[k].team2 === 'COM') PLAYOFF_DATA[k].team2 = 'CMID';
         if (PLAYOFF_DATA[k].winner === 'COM') PLAYOFF_DATA[k].winner = 'CMID';
         if (PLAYOFF_DATA[k].loser === 'COM') PLAYOFF_DATA[k].loser = 'CMID';
+        if (currentEsport === 'codm' && !PLAYOFF_DATA[k].games) {
+          PLAYOFF_DATA[k].games = getCodmMatchGames(PLAYOFF_DATA[k]);
+        }
       }
       normalizeAllPlayoffData();
     }
@@ -1767,8 +2016,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       if (!m.loser || m.loser === 'undefined' || m.loser === 'null') m.loser = null;
 
       if (k) {
-        if (typeof MATCH_BEST_OF !== 'undefined' && MATCH_BEST_OF[k] !== undefined) m.bestOf = MATCH_BEST_OF[k];
-        else if (!m.bestOf) m.bestOf = 3;
+        m.bestOf = getMatchBestOf(k, m);
 
         if (typeof MATCH_SEQUENCES !== 'undefined' && MATCH_SEQUENCES[k] !== undefined) m.seq = MATCH_SEQUENCES[k];
         else if (!m.seq) m.seq = 1;
@@ -1776,8 +2024,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         if (typeof MATCH_DAYS !== 'undefined' && MATCH_DAYS[k] !== undefined) m.day = MATCH_DAYS[k];
         else if (!m.day) m.day = 'DAY 1';
 
-        if (typeof CANONICAL_LABELS !== 'undefined' && CANONICAL_LABELS[k] !== undefined) m.label = CANONICAL_LABELS[k];
-        else if (!m.label) m.label = 'Match';
+        m.label = getMatchCanonicalLabel(k);
       }
       return m;
     }
@@ -1869,22 +2116,34 @@ Check your Browserslist config to be sure that your targets are set up correctly
       if (tournamentMode === 'double_elim') {
         if (btnDouble) btnDouble.className = 'px-3 py-1.5 rounded-lg text-xs font-black transition bg-amber-500 text-white shadow-xs cursor-pointer flex items-center gap-1';
         if (btnSingle) btnSingle.className = 'px-3 py-1.5 rounded-lg text-xs font-black transition text-[var(--muted-foreground)] hover:text-[var(--foreground)] cursor-pointer flex items-center gap-1';
-        if (simText) simText.innerText = 'Simulate Double Elim';
-        if (theaterBadge) theaterBadge.innerText = 'Double Elimination';
+        if (simText) simText.innerText = currentEsport === 'codm' ? 'Simulate Double Elim (CODM)' : 'Simulate Double Elim';
+        if (theaterBadge) theaterBadge.innerText = currentEsport === 'codm' ? 'Double Elim · BO3 MP' : 'Double Elimination';
 
-        if (mTitle) mTitle.innerText = '14 Series (Double Elim)';
-        if (mDesc) mDesc.innerText = 'Upper & Lower Brackets (Double Life)';
-        if (rTitle) rTitle.innerText = 'BO5 UB & LB Finals · BO7 Grand Finals';
+        if (currentEsport === 'codm') {
+          if (mTitle) mTitle.innerText = '14 Series (Multi-Player Double Elim)';
+          if (mDesc) mDesc.innerText = '3 Games: Search & Destroy · Control · Hardpoint';
+          if (rTitle) rTitle.innerText = 'All Series BO3 · First to 2 Wins (S&D, Control, HP)';
+        } else {
+          if (mTitle) mTitle.innerText = '14 Series (Double Elim)';
+          if (mDesc) mDesc.innerText = 'Upper & Lower Brackets (Double Life)';
+          if (rTitle) rTitle.innerText = 'BO5 UB & LB Finals · BO7 Grand Finals';
+        }
         if (headerSub) headerSub.innerText = 'TAGOLOAN COMMUNITY COLLEGE · INTRAMURALS 2026';
       } else {
         if (btnDouble) btnDouble.className = 'px-3 py-1.5 rounded-lg text-xs font-black transition text-[var(--muted-foreground)] hover:text-[var(--foreground)] cursor-pointer flex items-center gap-1';
         if (btnSingle) btnSingle.className = 'px-3 py-1.5 rounded-lg text-xs font-black transition bg-emerald-600 text-white shadow-xs cursor-pointer flex items-center gap-1';
-        if (simText) simText.innerText = 'Simulate Single Elim';
-        if (theaterBadge) theaterBadge.innerText = 'Single Elimination';
+        if (simText) simText.innerText = currentEsport === 'codm' ? 'Simulate Single Elim (CODM)' : 'Simulate Single Elim';
+        if (theaterBadge) theaterBadge.innerText = currentEsport === 'codm' ? 'Single Elim · BO3 MP' : 'Single Elimination';
 
-        if (mTitle) mTitle.innerText = '8 Series (Single Elim)';
-        if (mDesc) mDesc.innerText = 'Quarterfinals to Grand Championship Knockout';
-        if (rTitle) rTitle.innerText = 'BO5 Bronze Match · BO7 Grand Finals';
+        if (currentEsport === 'codm') {
+          if (mTitle) mTitle.innerText = '8 Series (Multi-Player Single Elim)';
+          if (mDesc) mDesc.innerText = '3 Games: Search & Destroy · Control · Hardpoint';
+          if (rTitle) rTitle.innerText = 'All Series BO3 · First to 2 Wins (S&D, Control, HP)';
+        } else {
+          if (mTitle) mTitle.innerText = '8 Series (Single Elim)';
+          if (mDesc) mDesc.innerText = 'Quarterfinals to Grand Championship Knockout';
+          if (rTitle) rTitle.innerText = 'BO5 Bronze Match · BO7 Grand Finals';
+        }
         if (headerSub) headerSub.innerText = 'TAGOLOAN COMMUNITY COLLEGE · INTRAMURALS 2026';
       }
       updateProgressMetrics();
@@ -2245,12 +2504,65 @@ Check your Browserslist config to be sure that your targets are set up correctly
       }).join('');
     }
 
+    function getMatchCanonicalLabel(matchKey) {
+      const isCodm = currentEsport === 'codm';
+      const labels = isCodm ? {
+        ub_qf1: 'Upper Bracket Quarterfinal 1 (#1 vs #8)',
+        ub_qf2: 'Upper Bracket Quarterfinal 2 (#4 vs #5)',
+        ub_qf3: 'Upper Bracket Quarterfinal 3 (#2 vs #7)',
+        ub_qf4: 'Upper Bracket Quarterfinal 4 (#3 vs #6)',
+        ub_sf1: 'Upper Bracket Semifinal 1',
+        ub_sf2: 'Upper Bracket Semifinal 2',
+        ub_f: 'Upper Bracket Final (BO3)',
+        lb_r1_1: 'Lower Bracket Round 1 (QF1 Loser vs QF2 Loser)',
+        lb_r1_2: 'Lower Bracket Round 1 (QF3 Loser vs QF4 Loser)',
+        lb_qf1: 'Lower Bracket Quarterfinal 1',
+        lb_qf2: 'Lower Bracket Quarterfinal 2',
+        lb_sf: 'Lower Bracket Semifinal',
+        lb_f: 'Lower Bracket Final (BO3)',
+        gf8: 'Grand Championship Finals (BO3)',
+        s8_qf1: 'Quarterfinal 1 (#1 vs #8)',
+        s8_qf2: 'Quarterfinal 2 (#4 vs #5)',
+        s8_qf3: 'Quarterfinal 3 (#2 vs #7)',
+        s8_qf4: 'Quarterfinal 4 (#3 vs #6)',
+        s8_sf1: 'Semifinal 1',
+        s8_sf2: 'Semifinal 2',
+        s8_bronze: 'Bronze Medal Match (BO3)',
+        s8_gf: 'Grand Championship Finals (BO3)'
+      } : {
+        ub_qf1: 'Upper Bracket Quarterfinal 1 (#1 vs #8)',
+        ub_qf2: 'Upper Bracket Quarterfinal 2 (#4 vs #5)',
+        ub_qf3: 'Upper Bracket Quarterfinal 3 (#2 vs #7)',
+        ub_qf4: 'Upper Bracket Quarterfinal 4 (#3 vs #6)',
+        ub_sf1: 'Upper Bracket Semifinal 1',
+        ub_sf2: 'Upper Bracket Semifinal 2',
+        ub_f: 'Upper Bracket Final (BO5)',
+        lb_r1_1: 'Lower Bracket Round 1 (QF1 Loser vs QF2 Loser)',
+        lb_r1_2: 'Lower Bracket Round 1 (QF3 Loser vs QF4 Loser)',
+        lb_qf1: 'Lower Bracket Quarterfinal 1',
+        lb_qf2: 'Lower Bracket Quarterfinal 2',
+        lb_sf: 'Lower Bracket Semifinal',
+        lb_f: 'Lower Bracket Final (BO5)',
+        gf8: 'Grand Championship Finals (BO7)',
+        s8_qf1: 'Quarterfinal 1 (#1 vs #8)',
+        s8_qf2: 'Quarterfinal 2 (#4 vs #5)',
+        s8_qf3: 'Quarterfinal 3 (#2 vs #7)',
+        s8_qf4: 'Quarterfinal 4 (#3 vs #6)',
+        s8_sf1: 'Semifinal 1',
+        s8_sf2: 'Semifinal 2',
+        s8_bronze: 'Bronze Medal Match (BO5)',
+        s8_gf: 'Grand Championship Finals (BO7)'
+      };
+      return labels[matchKey] || 'Match';
+    }
+
     function updatePlayoffBracket() {
       // Force canonical match sequence numbers, days, and bestOf rules
       for (let k in PLAYOFF_DATA) {
         if (MATCH_SEQUENCES[k] !== undefined) PLAYOFF_DATA[k].seq = MATCH_SEQUENCES[k];
         if (MATCH_DAYS[k] !== undefined) PLAYOFF_DATA[k].day = MATCH_DAYS[k];
-        if (MATCH_BEST_OF[k] !== undefined) PLAYOFF_DATA[k].bestOf = MATCH_BEST_OF[k];
+        PLAYOFF_DATA[k].bestOf = getMatchBestOf(k, PLAYOFF_DATA[k]);
+        PLAYOFF_DATA[k].label = getMatchCanonicalLabel(k);
       }
       const s1 = TEAMS[0]?.name || null;
       const s2 = TEAMS[1]?.name || null;
@@ -2377,24 +2689,24 @@ Check your Browserslist config to be sure that your targets are set up correctly
               <!-- Day 2 Group -->
               <div class="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex flex-col justify-between space-y-1.5">
                 <div class="flex items-center justify-between">
-                  <span class="px-2 py-0.5 rounded-md bg-rose-500 text-white font-black text-[9px] uppercase tracking-wider font-sans">📅 DAY 2 · Lower Bracket & UB Final</span>
-                  <span class="text-[9px] text-rose-400 font-bold font-sans">6 Matches (BO3)</span>
+                  <span class="px-2.5 py-0.5 rounded-md bg-rose-500 text-white font-black text-[9px] uppercase tracking-wider font-sans">📅 DAY 2 · Lower Bracket & UB Final</span>
+                  <span class="text-[9px] text-rose-400 font-bold font-sans">6 Matches (${currentEsport === 'codm' ? 'All BO3' : 'BO3 & BO5'})</span>
                 </div>
                 <div class="text-[11px] font-bold text-[var(--foreground)] space-y-1">
-                  <div class="flex items-center gap-1.5"><div class="flex items-center gap-1.5"><span class="text-rose-400 font-black">M7-M8:</span> Lower Round 1 · <span class="text-amber-400 font-black">M9-M10:</span> Lower QF</div></div>
-                  <div class="flex items-center gap-1.5"><span class="text-orange-400 font-black">M11:</span> Lower Semis · <span class="text-indigo-400 font-black">M12:</span> Upper Final <span class="text-[9px] px-1 bg-indigo-500/20 rounded text-indigo-300 font-sans font-bold">BO5</span></div>
+                  <div class="flex items-center gap-1.5"><span class="text-rose-400 font-black">M7-M8:</span> Lower Round 1 · <span class="text-amber-400 font-black">M9-M10:</span> Lower QF</div>
+                  <div class="flex items-center gap-1.5"><span class="text-orange-400 font-black">M11:</span> Lower Semis · <span class="text-indigo-400 font-black">M12:</span> Upper Final <span class="text-[9px] px-1 bg-indigo-500/20 rounded text-indigo-300 font-sans font-bold">${currentEsport === 'codm' ? 'BO3' : 'BO5'}</span></div>
                 </div>
               </div>
 
               <!-- Day 3 Group -->
               <div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex flex-col justify-between space-y-1.5">
                 <div class="flex items-center justify-between">
-                  <span class="px-2 py-0.5 rounded-md bg-amber-500 text-slate-950 font-black text-[9px] uppercase tracking-wider font-sans">👑 DAY 3 · Championship Finals</span>
-                  <span class="text-[9px] text-amber-400 font-bold font-sans">1 BO5 · 1 BO7</span>
+                  <span class="px-2.5 py-0.5 rounded-md bg-amber-500 text-slate-950 font-black text-[9px] uppercase tracking-wider font-sans">👑 DAY 3 · Championship Finals</span>
+                  <span class="text-[9px] text-amber-400 font-bold font-sans">${currentEsport === 'codm' ? '2 BO3 Series (S&D, Control, HP)' : '1 BO5 · 1 BO7'}</span>
                 </div>
                 <div class="text-[11px] font-bold text-[var(--foreground)] space-y-1">
-                  <div class="flex items-center gap-1.5"><span class="text-amber-400 font-black">M13:</span> Lower Bracket Final <span class="text-[9px] px-1 bg-amber-500/20 rounded text-amber-300 font-sans font-bold">BO5</span></div>
-                  <div class="flex items-center gap-1.5"><span class="text-amber-300 font-black">👑 M14:</span> Grand Finals <span class="text-[9px] px-1 bg-amber-500/30 rounded text-amber-300 font-sans font-black">BO7</span></div>
+                  <div class="flex items-center gap-1.5"><span class="text-amber-400 font-black">M13:</span> Lower Bracket Final <span class="text-[9px] px-1 bg-amber-500/20 rounded text-amber-300 font-sans font-bold">${currentEsport === 'codm' ? 'BO3' : 'BO5'}</span></div>
+                  <div class="flex items-center gap-1.5"><span class="text-amber-300 font-black">👑 M14:</span> Grand Finals <span class="text-[9px] px-1 bg-amber-500/30 rounded text-amber-300 font-sans font-black">${currentEsport === 'codm' ? 'BO3' : 'BO7'}</span></div>
                 </div>
               </div>
             </div>
@@ -2429,12 +2741,12 @@ Check your Browserslist config to be sure that your targets are set up correctly
               <span class="text-[var(--muted-foreground)] shrink-0 font-bold">➔</span>
               <div class="px-2.5 py-1 rounded-lg bg-amber-600/15 border border-amber-600/30 text-amber-500 shrink-0 font-bold">
                 <span class="font-sans text-[8px] uppercase tracking-tighter opacity-80 block font-semibold">3rd Place Match</span>
-                🥉 M7: Bronze Match (BO5)
+                🥉 M7: Bronze Match (${currentEsport === 'codm' ? 'BO3' : 'BO5'})
               </div>
               <span class="text-[var(--muted-foreground)] shrink-0 font-bold">➔</span>
               <div class="px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-500/25 to-yellow-500/25 border border-amber-500/50 text-amber-300 shrink-0 font-black">
                 <span class="font-sans text-[8px] uppercase tracking-tighter opacity-80 block font-semibold">Grand Championship</span>
-                👑 M8: Grand Finals (BO7)
+                👑 M8: Grand Finals (${currentEsport === 'codm' ? 'BO3' : 'BO7'})
               </div>
             </div>
           </div>
@@ -2447,7 +2759,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const hasScores = isValidScore(m.s1) && isValidScore(m.s2);
       const s1Num = hasScores ? Number(m.s1) : 0;
       const s2Num = hasScores ? Number(m.s2) : 0;
-      const bestOfVal = (typeof MATCH_BEST_OF !== 'undefined' && MATCH_BEST_OF[m.id] !== undefined) ? MATCH_BEST_OF[m.id] : (m.bestOf || 3);
+      const bestOfVal = getMatchBestOf(m.id, m);
       const targetWins = Math.ceil(bestOfVal / 2);
 
       const isFinal = Boolean(m.winner);
@@ -2477,6 +2789,50 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
       const t2Idx = m.team2 ? TEAMS.findIndex(t => t && (t.name === m.team2 || (m.team2 === 'COM' && t.name === 'CMID'))) : -1;
       const effectiveS2Badge = s2SeedBadge || (t2Idx !== -1 ? `#${t2Idx + 1}` : '');
+
+      let codmModesHtml = '';
+      if (currentEsport === 'codm') {
+        const games = getCodmMatchGames(m);
+        codmModesHtml = `
+          <div class="pt-2 border-t border-[var(--border)]/60">
+            <div class="flex items-center justify-between text-[10px] mb-1.5 font-bold">
+              <span class="flex items-center gap-1 text-amber-400 font-black uppercase tracking-wider text-[9px]">
+                <span>🎯</span> <span>BO3 Modes:</span>
+              </span>
+              <span class="text-[9px] text-[var(--muted-foreground)] font-mono">1: S&D · 2: Control · 3: Hardpoint</span>
+            </div>
+            <div class="grid grid-cols-3 gap-1.5">
+              ${games.map(g => {
+                const isWon = Boolean(g.winner);
+                const isNotNeeded = g.status === 'not_needed';
+                const isLive = g.status === 'live';
+
+                let bgClass = 'bg-[var(--secondary)]/40 border border-[var(--border)] text-[var(--muted-foreground)]';
+                let statusText = isNotNeeded ? 'Not Needed' : (isLive ? '<span class="text-amber-400 font-bold beacon-pulse">Live</span>' : 'Pending');
+
+                if (isWon) {
+                  bgClass = 'bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 font-black';
+                  statusText = `<span class="truncate max-w-[55px] inline-block font-black text-emerald-300">${g.winner}</span>`;
+                } else if (isNotNeeded) {
+                  bgClass = 'bg-black/20 border border-white/5 text-slate-500 opacity-60';
+                } else if (isLive) {
+                  bgClass = 'bg-amber-500/15 border border-amber-500/40 text-amber-300 font-black';
+                }
+
+                return `
+                  <div class="p-1.5 rounded-xl ${bgClass} text-center flex flex-col items-center justify-between gap-0.5 text-[9px]" title="Game ${g.gameNum}: ${g.mode}">
+                    <span class="font-mono font-black flex items-center gap-0.5 text-[8.5px] uppercase tracking-tighter">
+                      <span>${g.icon}</span> <span>G${g.gameNum}</span>
+                    </span>
+                    <span class="text-[8.5px] font-bold text-[var(--foreground)] truncate w-full" title="${g.mode}">${g.shortName}</span>
+                    <span class="text-[8.5px] font-mono leading-none mt-0.5">${statusText}</span>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }
 
       return `
         <div class="match-card ${cardBorder} rounded-2xl p-4 shadow-sm flex flex-col justify-between space-y-3 relative group">
@@ -2541,6 +2897,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
             </div>
           </div>
 
+          <!-- CODM 3-Game Mode Rotation Chips (if CODM) -->
+          ${codmModesHtml}
+
           <!-- Card Footer: Subtext & Progression Action -->
           <div class="flex items-center justify-between text-[11px] pt-1 border-t border-[var(--border)]/60 text-[var(--muted-foreground)]">
             <span class="truncate max-w-[170px]" title="${subtext}">${subtext}</span>
@@ -2551,7 +2910,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
               ` : isInProgress ? `
                 <span class="font-black text-amber-400 flex items-center gap-1.5">
                   <span class="w-1.5 h-1.5 rounded-full bg-red-400 beacon-pulse"></span>
-                  <span>GAME ${s1Num + s2Num + 1} (${s1Num}-${s2Num})</span>
+                  <span>GAME ${s1Num + s2Num + 1} (${s1Num}-${s2Num})${currentEsport === 'codm' && CODM_GAME_MODES[s1Num + s2Num] ? ' · ' + CODM_GAME_MODES[s1Num + s2Num].shortName : ''}</span>
                 </span>
                 <button onclick="resetMatchScore('${m.id}')" title="Reset Score" class="admin-only text-[10px] text-[var(--muted-foreground)] hover:text-rose-400 ml-1 transition cursor-pointer">Reset</button>
               ` : isPlayable ? `
@@ -2692,8 +3051,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
             ]
           },
           {
-            title: 'Round 3: Upper Bracket Final (Day 2 · BO5)',
-            format: 'BO5',
+            title: currentEsport === 'codm' ? 'Round 3: Upper Bracket Final (Day 2 · BO3)' : 'Round 3: Upper Bracket Final (Day 2 · BO5)',
+            format: currentEsport === 'codm' ? 'BO3' : 'BO5',
             matches: [
               { ...p.ub_f, seq: 12, day: 'DAY 2', feeder: 'Winner ➔ M14 (Grand Finals) · Loser ➔ M13 (LB Final)' }
             ]
@@ -2737,8 +3096,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
             ]
           },
           {
-            title: 'LB Final (Day 3 · BO5)',
-            format: 'BO5',
+            title: currentEsport === 'codm' ? 'LB Final (Day 3 · BO3)' : 'LB Final (Day 3 · BO5)',
+            format: currentEsport === 'codm' ? 'BO3' : 'BO5',
             matches: [
               { ...p.lb_f, seq: 13, day: 'DAY 3', feeder: 'Winner ➔ M14 (Grand Finals) · Loser takes 🥉 Bronze' }
             ]
@@ -2776,10 +3135,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
             ]
           },
           {
-            title: 'Finals (Day 3 · BO5 & BO7)',
-            format: 'BO5 & BO7',
+            title: currentEsport === 'codm' ? 'Finals (Day 3 · All BO3)' : 'Finals (Day 3 · BO5 & BO7)',
+            format: currentEsport === 'codm' ? 'BO3' : 'BO5 & BO7',
             matches: [
-              { ...p.s8_gf, seq: 8, day: 'DAY 3', feeder: 'Winner takes 🏆 Gold Championship' },
+              { ...p.s8_gf, seq: 8, day: 'DAY 3', feeder: currentEsport === 'codm' ? 'Winner takes 🏆 Gold Championship' : 'Winner takes 🏆 Gold Championship' },
               { ...p.s8_bronze, seq: 7, day: 'DAY 3', feeder: 'Winner takes 🥉 Bronze Medal (3rd Place)' }
             ]
           }
@@ -2814,7 +3173,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
           },
           {
             title: '📅 DAY 2 · Lower Bracket & Upper Final (M7-M12)',
-            format: 'BO3 & BO5',
+            format: currentEsport === 'codm' ? 'BO3' : 'BO3 & BO5',
             matches: [
               { ...p.lb_r1_1, seq: 7, day: 'DAY 2', feeder: 'Winner ➔ M9 · Loser Out' },
               { ...p.lb_r1_2, seq: 8, day: 'DAY 2', feeder: 'Winner ➔ M10 · Loser Out' },
@@ -2825,11 +3184,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
             ]
           },
           {
-            title: '👑 DAY 3 · Championship Finals (M13 BO5 · M14 BO7)',
-            format: 'BO5 & BO7',
+            title: currentEsport === 'codm' ? '👑 DAY 3 · Championship Finals (All BO3 · S&D, Control, HP)' : '👑 DAY 3 · Championship Finals (M13 BO5 · M14 BO7)',
+            format: currentEsport === 'codm' ? 'BO3' : 'BO5 & BO7',
             matches: [
               { ...p.lb_f, seq: 13, day: 'DAY 3', feeder: 'Winner ➔ M14 · Loser 🥉' },
-              { ...p.gf8, seq: 14, day: 'DAY 3', feeder: 'First to 4 wins takes 🏆 Gold' }
+              { ...p.gf8, seq: 14, day: 'DAY 3', feeder: currentEsport === 'codm' ? 'First to 2 wins takes 🏆 Gold' : 'First to 4 wins takes 🏆 Gold' }
             ]
           }
         ];
@@ -3026,79 +3385,6 @@ Check your Browserslist config to be sure that your targets are set up correctly
     <div>Official Result Verified: <strong>[ &nbsp; ] YES &nbsp; [ &nbsp; ] PENDING</strong></div>
   </div>
 
-  <!-- Esport Selection Modal (Choose MLBB / CODM) -->
-  <div id="esportSelectorModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden select-none transition-all duration-200">
-    <div class="bg-[var(--card)] border border-[var(--border)] rounded-3xl max-w-lg w-full p-6 shadow-2xl relative space-y-5 animate-in fade-in zoom-in-95 duration-200">
-      
-      <!-- Modal Header -->
-      <div class="flex items-center justify-between pb-3 border-b border-[var(--border)]">
-        <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 text-lg shadow-inner">
-            🎮
-          </div>
-          <div>
-            <h3 class="text-base font-black text-[var(--foreground)] tracking-tight">Select E-Sports Tournament</h3>
-            <p class="text-[11px] text-[var(--muted-foreground)] font-semibold">TCC Intramurals 2026 Championship</p>
-          </div>
-        </div>
-        <button onclick="closeEsportSelectorModal()" class="w-8 h-8 rounded-xl bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-[var(--muted-foreground)] hover:text-[var(--foreground)] font-black text-sm flex items-center justify-center transition cursor-pointer" title="Close">✕</button>
-      </div>
-
-      <!-- Description Banner -->
-      <p class="text-xs text-[var(--muted-foreground)]">
-        Choose which esports event to track and manage. Each esport features its own dedicated bracket, college rosters, match scoring, and live standings.
-      </p>
-
-      <!-- 2 Cards: MLBB & CODM -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        
-        <!-- Option 1: Mobile Legends Bang Bang -->
-        <div id="modalCardMLBB" onclick="switchEsport('mlbb'); closeEsportSelectorModal();" class="p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-4 hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden group bg-[var(--card)]">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">⚔️ MOBA</span>
-            <span id="modalActiveTagMLBB" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full hidden">ACTIVE</span>
-          </div>
-          <div class="h-16 flex items-center justify-center py-1">
-            <img id="modalLogoMLBB" src="" alt="MLBB" class="max-h-full max-w-full object-contain filter drop-shadow">
-          </div>
-          <div>
-            <h4 class="text-sm font-black text-[var(--foreground)]">Mobile Legends</h4>
-            <p class="text-[10px] text-[var(--muted-foreground)] font-semibold mt-0.5">Bang Bang · 5v5 MOBA</p>
-          </div>
-          <div id="modalBtnMLBB" class="w-full py-2 rounded-xl text-xs font-black text-center transition">
-            Select MLBB
-          </div>
-        </div>
-
-        <!-- Option 2: Call of Duty: Mobile -->
-        <div id="modalCardCODM" onclick="switchEsport('codm'); closeEsportSelectorModal();" class="p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-4 hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden group bg-[var(--card)]">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black px-2 py-0.5 rounded-full bg-amber-500/20 text-yellow-400 border border-yellow-500/30">🎯 FPS</span>
-            <span id="modalActiveTagCODM" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full hidden">ACTIVE</span>
-          </div>
-          <div class="h-16 flex items-center justify-center py-1">
-            <img id="modalLogoCODM" src="" alt="CODM" class="max-h-full max-w-full object-contain filter drop-shadow">
-          </div>
-          <div>
-            <h4 class="text-sm font-black text-[var(--foreground)]">Call of Duty</h4>
-            <p class="text-[10px] text-[var(--muted-foreground)] font-semibold mt-0.5">Mobile · 5v5 Tactical</p>
-          </div>
-          <div id="modalBtnCODM" class="w-full py-2 rounded-xl text-xs font-black text-center transition">
-            Select CODM
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Footer Note -->
-      <div class="pt-2 border-t border-[var(--border)]/60 flex items-center justify-between text-[11px] text-[var(--muted-foreground)]">
-        <span>Table Marshals & Viewers can switch anytime</span>
-        <button onclick="closeEsportSelectorModal()" class="font-bold text-amber-400 hover:underline cursor-pointer">Done</button>
-      </div>
-
-    </div>
-  </div>
-
 </body>
 </html>`;
 
@@ -3244,9 +3530,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 <div class="flex items-center justify-between pb-1 border-b border-[var(--border)]">
                   <div class="flex items-center gap-1.5">
                     <span class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-indigo-500/20 text-indigo-300">DAY 2</span>
-                    <span class="text-xs font-black uppercase tracking-wider text-indigo-400">Upper Bracket Final</span>
+                    <span class="text-xs font-black uppercase tracking-wider text-indigo-400">${currentEsport === 'codm' ? 'Upper Bracket Final (BO3)' : 'Upper Bracket Final'}</span>
                   </div>
-                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">BO5</span>
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">${currentEsport === 'codm' ? 'BO3' : 'BO5'}</span>
                 </div>
                 <div class="my-auto">
                   ${renderPlayoffCard(p.ub_f, 'Winner ➔ M14 (Grand Finals) · Loser ➔ M13 (LB Final)')}
@@ -3316,9 +3602,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 <div class="flex items-center justify-between pb-1 border-b border-[var(--border)]">
                   <div class="flex items-center gap-1.5">
                     <span class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-amber-500/20 text-amber-300">DAY 3</span>
-                    <span class="text-xs font-black uppercase tracking-wider text-amber-400">LB Final (BO5)</span>
+                    <span class="text-xs font-black uppercase tracking-wider text-amber-400">${currentEsport === 'codm' ? 'LB Final (BO3)' : 'LB Final (BO5)'}</span>
                   </div>
-                  <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">First to 3</span>
+                  <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">${currentEsport === 'codm' ? 'First to 2' : 'First to 3'}</span>
                 </div>
                 <div class="my-auto">
                   ${renderPlayoffCard(p.lb_f, 'Winner ➔ M14 (Grand Finals) · Loser takes 🥉 Bronze')}
@@ -3327,20 +3613,20 @@ Check your Browserslist config to be sure that your targets are set up correctly
             </div>
           </div>
 
-          <!-- GRAND CHAMPIONSHIP FINALS (Day 3: M14, BO7) -->
+          <!-- GRAND CHAMPIONSHIP FINALS (Day 3: M14) -->
           <div class="pt-8 border-t border-[var(--border)] max-w-xl mx-auto">
             <div class="text-center mb-4 space-y-1">
               <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-black uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/40">
                 👑 DAY 3 · Grand Championship Series
               </span>
               <h3 class="text-xl sm:text-2xl font-black text-[var(--foreground)] tracking-tight">
-                Grand Finals (Best-of-7)
+                ${currentEsport === 'codm' ? 'Grand Championship Finals (BO3)' : 'Grand Finals (Best-of-7)'}
               </h3>
               <p class="text-xs text-[var(--muted-foreground)]">
-                Winner takes 🏆 Gold Medal & Trophy · Runner-up takes 🥈 Silver Medal
+                ${currentEsport === 'codm' ? 'Multi-Player BO3 Rotation: Search and Destroy · Control · Hardpoint' : 'Winner takes 🏆 Gold Medal & Trophy · Runner-up takes 🥈 Silver Medal'}
               </p>
             </div>
-            ${renderPlayoffCard(p.gf8, 'First to 4 wins takes 🏆 Gold Championship', true)}
+            ${renderPlayoffCard(p.gf8, currentEsport === 'codm' ? 'First to 2 wins takes 🏆 Gold Championship' : 'First to 4 wins takes 🏆 Gold Championship', true)}
           </div>
 
         </div>
@@ -3431,16 +3717,16 @@ Check your Browserslist config to be sure that your targets are set up correctly
             <div class="space-y-6 flex flex-col justify-center py-2">
               <div>
                 <div class="text-xs font-bold text-amber-500 uppercase tracking-wider mb-2 flex items-center justify-between">
-                  <span>👑 Grand Championship Finals (BO7)</span>
-                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 font-black">First to 4</span>
+                  <span>👑 Grand Championship Finals (${currentEsport === 'codm' ? 'BO3' : 'BO7'})</span>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 font-black">First to ${currentEsport === 'codm' ? 2 : 4}</span>
                 </div>
-                ${renderPlayoffCard(p.s8_gf, 'First to 4 wins takes 🏆 Gold Championship · Runner-up 🥈 Silver', true)}
+                ${renderPlayoffCard(p.s8_gf, currentEsport === 'codm' ? 'First to 2 wins takes 🏆 Gold Championship · Runner-up 🥈 Silver' : 'First to 4 wins takes 🏆 Gold Championship · Runner-up 🥈 Silver', true)}
               </div>
 
               <div>
                 <div class="text-xs font-bold text-amber-600 uppercase tracking-wider mb-2 flex items-center justify-between">
-                  <span>🥉 Battle for 3rd Place (BO5)</span>
-                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-700/20 text-amber-400 border border-amber-700/30 font-bold">First to 3</span>
+                  <span>🥉 Battle for 3rd Place (${currentEsport === 'codm' ? 'BO3' : 'BO5'})</span>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-700/20 text-amber-400 border border-amber-700/30 font-bold">First to ${currentEsport === 'codm' ? 2 : 3}</span>
                 </div>
                 ${renderPlayoffCard(p.s8_bronze, 'Winner takes 🥉 Bronze Medal (3rd Place)')}
               </div>
@@ -3790,20 +4076,20 @@ Check your Browserslist config to be sure that your targets are set up correctly
         setPlayoffScore(mKey, sc[0], sc[1]);
       });
 
-      // UB Final (1 match, BO5)
-      const scUbF = getRealisticScore(5);
+      // UB Final (1 match, BO3 for CODM, BO5 for MLBB)
+      const scUbF = getRealisticScore(currentEsport === 'codm' ? 3 : 5);
       setPlayoffScore('ub_f', scUbF[0], scUbF[1]);
 
       // LB Semifinal (1 match, BO3)
       const scLbSemi = getRealisticScore(3);
       setPlayoffScore('lb_sf', scLbSemi[0], scLbSemi[1]);
 
-      // LB Final (1 match, BO5)
-      const scLbF = getRealisticScore(5);
+      // LB Final (1 match, BO3 for CODM, BO5 for MLBB)
+      const scLbF = getRealisticScore(currentEsport === 'codm' ? 3 : 5);
       setPlayoffScore('lb_f', scLbF[0], scLbF[1]);
 
-      // Grand Championship Finals (1 match, BO7)
-      const scGf = getRealisticScore(7);
+      // Grand Championship Finals (1 match, BO3 for CODM, BO7 for MLBB)
+      const scGf = getRealisticScore(currentEsport === 'codm' ? 3 : 7);
       setPlayoffScore('gf8', scGf[0], scGf[1]);
 
       updatePlayoffBracket();
@@ -3840,12 +4126,12 @@ Check your Browserslist config to be sure that your targets are set up correctly
         setPlayoffScore(mKey, sc[0], sc[1]);
       });
 
-      // Bronze Match (1 match, BO5)
-      const scBronze = getRealisticScore(5);
+      // Bronze Match (1 match, BO3 for CODM, BO5 for MLBB)
+      const scBronze = getRealisticScore(currentEsport === 'codm' ? 3 : 5);
       setPlayoffScore('s8_bronze', scBronze[0], scBronze[1]);
 
-      // Grand Championship Finals (1 match, BO7)
-      const scGf = getRealisticScore(7);
+      // Grand Championship Finals (1 match, BO3 for CODM, BO7 for MLBB)
+      const scGf = getRealisticScore(currentEsport === 'codm' ? 3 : 7);
       setPlayoffScore('s8_gf', scGf[0], scGf[1]);
 
       updatePlayoffBracket();
@@ -3899,7 +4185,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const match = PLAYOFF_DATA[matchKey];
       if (!match || !match.team1 || !match.team2) return;
 
-      const bestOf = MATCH_BEST_OF[matchKey] !== undefined ? MATCH_BEST_OF[matchKey] : (match.bestOf || 3);
+      const bestOf = getMatchBestOf(matchKey, match);
       const targetWins = Math.ceil(bestOf / 2);
 
       let s1 = match.s1 !== null ? match.s1 : 0;
@@ -3942,7 +4228,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       showToast(`Score updated (${s1} - ${s2})`);
     }
 
-    function setPlayoffScore(matchKey, s1, s2) {
+    function setPlayoffScore(matchKey, s1, s2, games = null) {
       if (!canScore()) {
         showToast('🔒 Please log in as Admin or Table Marshal to update scores.');
         return;
@@ -3952,8 +4238,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
       match.s1 = s1;
       match.s2 = s2;
+      if (games !== null) {
+        match.games = games;
+      } else if (currentEsport === 'codm') {
+        match.games = getCodmMatchGames(match);
+      }
 
-      const bestOf = MATCH_BEST_OF[matchKey] !== undefined ? MATCH_BEST_OF[matchKey] : (match.bestOf || 3);
+      const bestOf = getMatchBestOf(matchKey, match);
       const targetWins = Math.ceil(bestOf / 2);
 
       if (s1 !== null && s2 !== null) {
@@ -3990,6 +4281,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         match.s2 = null;
         match.winner = null;
         match.loser = null;
+        if (match.games) delete match.games;
       }
       savePlayoffsToStorage();
       updatePlayoffBracket();
@@ -4137,7 +4429,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
         for (let k in PLAYOFF_DATA) {
           if (MATCH_SEQUENCES[k] !== undefined) PLAYOFF_DATA[k].seq = MATCH_SEQUENCES[k];
           if (MATCH_DAYS[k] !== undefined) PLAYOFF_DATA[k].day = MATCH_DAYS[k];
-          if (MATCH_BEST_OF[k] !== undefined) PLAYOFF_DATA[k].bestOf = MATCH_BEST_OF[k];
+          PLAYOFF_DATA[k].bestOf = getMatchBestOf(k, PLAYOFF_DATA[k]);
+          PLAYOFF_DATA[k].label = getMatchCanonicalLabel(k);
           if (PLAYOFF_DATA[k].team1 === 'COM') PLAYOFF_DATA[k].team1 = 'CMID';
           if (PLAYOFF_DATA[k].team2 === 'COM') PLAYOFF_DATA[k].team2 = 'CMID';
           if (PLAYOFF_DATA[k].winner === 'COM') PLAYOFF_DATA[k].winner = 'CMID';
@@ -4290,7 +4583,48 @@ Check your Browserslist config to be sure that your targets are set up correctly
             const mDay = (typeof MATCH_DAYS !== 'undefined' && MATCH_DAYS[m.id] !== undefined) ? MATCH_DAYS[m.id] : (m.day || '');
             const mSeq = (typeof MATCH_SEQUENCES !== 'undefined' && MATCH_SEQUENCES[m.id] !== undefined) ? MATCH_SEQUENCES[m.id] : (m.seq || '');
             const mLabel = (m.id && PLAYOFF_DATA[m.id] && PLAYOFF_DATA[m.id].label) ? PLAYOFF_DATA[m.id].label : (m.label || (typeof CANONICAL_LABELS !== 'undefined' ? CANONICAL_LABELS[m.id] : '') || 'Match');
-            const mBestOf = (typeof MATCH_BEST_OF !== 'undefined' && MATCH_BEST_OF[m.id] !== undefined) ? MATCH_BEST_OF[m.id] : (m.bestOf || 3);
+            const mBestOf = getMatchBestOf(m.id, m);
+
+            let codmModesScheduleHtml = '';
+            if (currentEsport === 'codm') {
+              const games = getCodmMatchGames(m);
+              codmModesScheduleHtml = `
+                <div class="pt-2 border-t border-[var(--border)]/60">
+                  <div class="flex items-center justify-between text-[10px] mb-1 font-bold">
+                    <span class="text-amber-400 font-black uppercase tracking-wider text-[9px] flex items-center gap-1">
+                      <span>🎯</span> <span>BO3 Modes:</span>
+                    </span>
+                    <span class="text-[9px] text-[var(--muted-foreground)] font-mono">1: S&D · 2: Control · 3: Hardpoint</span>
+                  </div>
+                  <div class="grid grid-cols-3 gap-1.5">
+                    ${games.map(g => {
+                      const isWon = Boolean(g.winner);
+                      const isNotNeeded = g.status === 'not_needed';
+                      const isLive = g.status === 'live';
+                      let bgClass = 'bg-[var(--secondary)]/40 border border-[var(--border)] text-[var(--muted-foreground)]';
+                      let statusText = isNotNeeded ? 'Not Needed' : (isLive ? '<span class="text-amber-400 font-bold beacon-pulse">Live</span>' : 'Pending');
+                      if (isWon) {
+                        bgClass = 'bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 font-black';
+                        statusText = `<span class="truncate max-w-[55px] inline-block font-black text-emerald-300">${g.winner}</span>`;
+                      } else if (isNotNeeded) {
+                        bgClass = 'bg-black/20 border border-white/5 text-slate-500 opacity-60';
+                      } else if (isLive) {
+                        bgClass = 'bg-amber-500/15 border border-amber-500/40 text-amber-300 font-black';
+                      }
+                      return `
+                        <div class="p-1.5 rounded-xl ${bgClass} text-center flex flex-col items-center justify-between gap-0.5 text-[9px]" title="Game ${g.gameNum}: ${g.mode}">
+                          <span class="font-mono font-black flex items-center gap-0.5 text-[8.5px] uppercase tracking-tighter">
+                            <span>${g.icon}</span> <span>G${g.gameNum}</span>
+                          </span>
+                          <span class="text-[8.5px] font-bold text-[var(--foreground)] truncate w-full" title="${g.mode}">${g.shortName}</span>
+                          <span class="text-[8.5px] font-mono leading-none mt-0.5">${statusText}</span>
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+              `;
+            }
 
             return `
               <div class="p-4 rounded-2xl bg-[var(--card)] border border-[var(--border)] shadow-xs hover:border-amber-500/40 transition flex flex-col justify-between space-y-3">
@@ -4335,6 +4669,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     <span class="text-sm font-black font-mono ${t2Won ? 'text-emerald-400' : (t2Leading ? 'text-amber-300' : 'text-[var(--foreground)]')}">${formatScore(m.s2)}</span>
                   </div>
                 </div>
+
+                <!-- CODM Modes Breakdown if CODM -->
+                ${codmModesScheduleHtml}
 
                 <!-- Footer Status & Actions -->
                 <div class="flex items-center justify-between text-[10px] text-[var(--muted-foreground)] pt-1 border-t border-[var(--border)]/60">
@@ -4480,7 +4817,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
               const t2Obj = getTeamObj(m.team2);
               const mDay = m.day || MATCH_DAYS[m.id] || '';
               const mSeq = m.seq || MATCH_SEQUENCES[m.id] || '';
-              const mBestOf = m.bestOf || MATCH_BEST_OF[m.id] || 3;
+              const mBestOf = getMatchBestOf(m.id, m);
               const s1Badge = getSeedBadge(m.team1);
               const s2Badge = getSeedBadge(m.team2);
               const feeder = getMatchFeeder(m);
@@ -4550,7 +4887,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
               ${list.map(m => {
                 const s = MATCH_SEQUENCES[m.id] || m.seq || '-';
                 const d = m.day || MATCH_DAYS[m.id] || '';
-                const bo = m.bestOf || MATCH_BEST_OF[m.id] || 3;
+                const bo = getMatchBestOf(m.id, m);
                 const t1Won = Boolean(m.winner && m.winner === m.team1);
                 const t2Won = Boolean(m.winner && m.winner === m.team2);
                 const t1Obj = getTeamObj(m.team1);
@@ -4676,79 +5013,6 @@ Check your Browserslist config to be sure that your targets are set up correctly
     <div>Head Committee: <span class="sig-line"></span></div>
     <div>Table Marshal: <span class="sig-line"></span></div>
     <div>Official Result Verified: <strong>[ &nbsp; ] APPROVED &nbsp; [ &nbsp; ] PENDING</strong></div>
-  </div>
-
-  <!-- Esport Selection Modal (Choose MLBB / CODM) -->
-  <div id="esportSelectorModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden select-none transition-all duration-200">
-    <div class="bg-[var(--card)] border border-[var(--border)] rounded-3xl max-w-lg w-full p-6 shadow-2xl relative space-y-5 animate-in fade-in zoom-in-95 duration-200">
-      
-      <!-- Modal Header -->
-      <div class="flex items-center justify-between pb-3 border-b border-[var(--border)]">
-        <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 text-lg shadow-inner">
-            🎮
-          </div>
-          <div>
-            <h3 class="text-base font-black text-[var(--foreground)] tracking-tight">Select E-Sports Tournament</h3>
-            <p class="text-[11px] text-[var(--muted-foreground)] font-semibold">TCC Intramurals 2026 Championship</p>
-          </div>
-        </div>
-        <button onclick="closeEsportSelectorModal()" class="w-8 h-8 rounded-xl bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-[var(--muted-foreground)] hover:text-[var(--foreground)] font-black text-sm flex items-center justify-center transition cursor-pointer" title="Close">✕</button>
-      </div>
-
-      <!-- Description Banner -->
-      <p class="text-xs text-[var(--muted-foreground)]">
-        Choose which esports event to track and manage. Each esport features its own dedicated bracket, college rosters, match scoring, and live standings.
-      </p>
-
-      <!-- 2 Cards: MLBB & CODM -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        
-        <!-- Option 1: Mobile Legends Bang Bang -->
-        <div id="modalCardMLBB" onclick="switchEsport('mlbb'); closeEsportSelectorModal();" class="p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-4 hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden group bg-[var(--card)]">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">⚔️ MOBA</span>
-            <span id="modalActiveTagMLBB" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full hidden">ACTIVE</span>
-          </div>
-          <div class="h-16 flex items-center justify-center py-1">
-            <img id="modalLogoMLBB" src="" alt="MLBB" class="max-h-full max-w-full object-contain filter drop-shadow">
-          </div>
-          <div>
-            <h4 class="text-sm font-black text-[var(--foreground)]">Mobile Legends</h4>
-            <p class="text-[10px] text-[var(--muted-foreground)] font-semibold mt-0.5">Bang Bang · 5v5 MOBA</p>
-          </div>
-          <div id="modalBtnMLBB" class="w-full py-2 rounded-xl text-xs font-black text-center transition">
-            Select MLBB
-          </div>
-        </div>
-
-        <!-- Option 2: Call of Duty: Mobile -->
-        <div id="modalCardCODM" onclick="switchEsport('codm'); closeEsportSelectorModal();" class="p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-4 hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden group bg-[var(--card)]">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black px-2 py-0.5 rounded-full bg-amber-500/20 text-yellow-400 border border-yellow-500/30">🎯 FPS</span>
-            <span id="modalActiveTagCODM" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full hidden">ACTIVE</span>
-          </div>
-          <div class="h-16 flex items-center justify-center py-1">
-            <img id="modalLogoCODM" src="" alt="CODM" class="max-h-full max-w-full object-contain filter drop-shadow">
-          </div>
-          <div>
-            <h4 class="text-sm font-black text-[var(--foreground)]">Call of Duty</h4>
-            <p class="text-[10px] text-[var(--muted-foreground)] font-semibold mt-0.5">Mobile · 5v5 Tactical</p>
-          </div>
-          <div id="modalBtnCODM" class="w-full py-2 rounded-xl text-xs font-black text-center transition">
-            Select CODM
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Footer Note -->
-      <div class="pt-2 border-t border-[var(--border)]/60 flex items-center justify-between text-[11px] text-[var(--muted-foreground)]">
-        <span>Table Marshals & Viewers can switch anytime</span>
-        <button onclick="closeEsportSelectorModal()" class="font-bold text-amber-400 hover:underline cursor-pointer">Done</button>
-      </div>
-
-    </div>
   </div>
 
 </body>
@@ -4888,7 +5152,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const s2 = document.getElementById('modalScore2');
       const presets = document.getElementById('modalPresetsContainer');
 
-      const bestOf = MATCH_BEST_OF[matchKey] !== undefined ? MATCH_BEST_OF[matchKey] : (match.bestOf || 3);
+      const bestOf = getMatchBestOf(matchKey, match);
       const targetWins = Math.ceil(bestOf / 2);
 
       if (title) title.innerText = `Update Series Score · Match #${match.seq}`;
@@ -4964,6 +5228,16 @@ Check your Browserslist config to be sure that your targets are set up correctly
         `;
       }
 
+      const codmContainer = document.getElementById('modalCodmModesContainer');
+      if (codmContainer) {
+        if (currentEsport === 'codm') {
+          codmContainer.classList.remove('hidden');
+          renderModalCodmModes(match);
+        } else {
+          codmContainer.classList.add('hidden');
+        }
+      }
+
       updateModalPreview();
       if (modal) modal.classList.remove('hidden');
     }
@@ -4973,7 +5247,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const match = PLAYOFF_DATA[activeModalMatchKey];
       if (!match) return;
 
-      const bestOf = MATCH_BEST_OF[activeModalMatchKey] !== undefined ? MATCH_BEST_OF[activeModalMatchKey] : (match.bestOf || 3);
+      const bestOf = getMatchBestOf(activeModalMatchKey, match);
       const targetWins = Math.ceil(bestOf / 2);
 
       const inp = document.getElementById(slot === 1 ? 'modalScore1' : 'modalScore2');
@@ -4983,6 +5257,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
       val = Math.max(0, Math.min(targetWins, val + delta));
       inp.value = val;
 
+      if (currentEsport === 'codm') {
+        const s1Current = parseInt(document.getElementById('modalScore1')?.value || '0', 10);
+        const s2Current = parseInt(document.getElementById('modalScore2')?.value || '0', 10);
+        match.games = getCodmMatchGames({ team1: match.team1, team2: match.team2, s1: s1Current, s2: s2Current });
+        renderModalCodmModes(match);
+      }
+
       updateModalPreview();
     }
 
@@ -4991,6 +5272,15 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const inp2 = document.getElementById('modalScore2');
       if (inp1) inp1.value = s1;
       if (inp2) inp2.value = s2;
+
+      if (activeModalMatchKey && currentEsport === 'codm') {
+        const match = PLAYOFF_DATA[activeModalMatchKey];
+        if (match) {
+          match.games = getCodmMatchGames({ team1: match.team1, team2: match.team2, s1, s2 });
+          renderModalCodmModes(match);
+        }
+      }
+
       updateModalPreview();
     }
 
@@ -4999,7 +5289,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const match = PLAYOFF_DATA[activeModalMatchKey];
       if (!match) return;
 
-      const bestOf = MATCH_BEST_OF[activeModalMatchKey] !== undefined ? MATCH_BEST_OF[activeModalMatchKey] : (match.bestOf || 3);
+      const bestOf = getMatchBestOf(activeModalMatchKey, match);
       const targetWins = Math.ceil(bestOf / 2);
 
       const s1Val = parseInt(document.getElementById('modalScore1')?.value || '0', 10);
@@ -5047,9 +5337,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const s1 = parseInt(s1Val, 10);
       const s2 = parseInt(s2Val, 10);
 
-      setPlayoffScore(activeModalMatchKey, s1, s2);
       const match = PLAYOFF_DATA[activeModalMatchKey];
-      if (match.winner) {
+      const games = (currentEsport === 'codm' && match && match.games) ? match.games : null;
+      setPlayoffScore(activeModalMatchKey, s1, s2, games);
+      if (match && match.winner) {
         showToast(`🎉 Match #${match.seq} Finalized: ${match.winner} wins (${s1} - ${s2})!`);
       } else {
         showToast(`Score updated: ${match.team1} (${s1}) vs ${match.team2} (${s2}) · Series In Progress`);
@@ -5323,7 +5614,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
       const seqNum = MATCH_SEQUENCES[m.id] !== undefined ? MATCH_SEQUENCES[m.id] : (m.seq || '');
       const dayLabel = MATCH_DAYS[m.id] !== undefined ? MATCH_DAYS[m.id] : (m.day || '');
-      const bestOfVal = MATCH_BEST_OF[m.id] !== undefined ? MATCH_BEST_OF[m.id] : (m.bestOf || 3);
+      const bestOfVal = getMatchBestOf(m.id, m);
       const targetWins = Math.ceil(bestOfVal / 2);
 
       const t1Obj = DEFAULT_TEAMS.find(t => t.name === m.team1 || (m.team1 === 'COM' && t.name === 'CMID'));
@@ -5721,7 +6012,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
           id: k,
           seq: MATCH_SEQUENCES[k] !== undefined ? MATCH_SEQUENCES[k] : m.seq,
           day: MATCH_DAYS[k] !== undefined ? MATCH_DAYS[k] : m.day,
-          bestOf: MATCH_BEST_OF[k] !== undefined ? MATCH_BEST_OF[k] : (m.bestOf || 3)
+          bestOf: getMatchBestOf(k, m)
         };
       }).filter(Boolean);
 
@@ -6656,7 +6947,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const liveId = liveMatch.id || '';
       const liveDay = (typeof MATCH_DAYS !== 'undefined' && MATCH_DAYS[liveId] !== undefined) ? MATCH_DAYS[liveId] : (liveMatch.day || 'DAY 1');
       const liveSeq = (typeof MATCH_SEQUENCES !== 'undefined' && MATCH_SEQUENCES[liveId] !== undefined) ? MATCH_SEQUENCES[liveId] : (liveMatch.seq || '1');
-      const liveBestOf = (typeof MATCH_BEST_OF !== 'undefined' && MATCH_BEST_OF[liveId] !== undefined) ? MATCH_BEST_OF[liveId] : (liveMatch.bestOf || 3);
+      const liveBestOf = getMatchBestOf(liveId, liveMatch);
       const liveLabel = (liveMatch.label && liveMatch.label !== 'undefined') ? liveMatch.label : ((typeof CANONICAL_LABELS !== 'undefined' && CANONICAL_LABELS[liveId]) ? CANONICAL_LABELS[liveId] : 'Current Match');
 
       const liveTeam1 = (liveMatch.team1 && liveMatch.team1 !== 'null' && liveMatch.team1 !== 'undefined') ? liveMatch.team1 : 'TBD';
@@ -6671,7 +6962,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const upNextId = upNextMatch ? (upNextMatch.id || '') : '';
       const upNextDay = upNextMatch ? ((typeof MATCH_DAYS !== 'undefined' && MATCH_DAYS[upNextId] !== undefined) ? MATCH_DAYS[upNextId] : (upNextMatch.day || '')) : '';
       const upNextSeq = upNextMatch ? ((typeof MATCH_SEQUENCES !== 'undefined' && MATCH_SEQUENCES[upNextId] !== undefined) ? MATCH_SEQUENCES[upNextId] : (upNextMatch.seq || '')) : '';
-      const upNextBestOf = upNextMatch ? ((typeof MATCH_BEST_OF !== 'undefined' && MATCH_BEST_OF[upNextId] !== undefined) ? MATCH_BEST_OF[upNextId] : (upNextMatch.bestOf || 3)) : 3;
+      const upNextBestOf = upNextMatch ? getMatchBestOf(upNextId, upNextMatch) : 3;
       const upNextLabel = upNextMatch ? ((upNextMatch.label && upNextMatch.label !== 'undefined') ? upNextMatch.label : ((typeof CANONICAL_LABELS !== 'undefined' && CANONICAL_LABELS[upNextId]) ? CANONICAL_LABELS[upNextId] : 'Next Match')) : '';
 
       const upNextTeam1 = (upNextMatch && upNextMatch.team1 && upNextMatch.team1 !== 'null' && upNextMatch.team1 !== 'undefined') ? upNextMatch.team1 : 'TBD';
@@ -6680,7 +6971,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const recentId = recentMatch ? (recentMatch.id || '') : '';
       const recentDay = recentMatch ? ((typeof MATCH_DAYS !== 'undefined' && MATCH_DAYS[recentId] !== undefined) ? MATCH_DAYS[recentId] : (recentMatch.day || '')) : '';
       const recentSeq = recentMatch ? ((typeof MATCH_SEQUENCES !== 'undefined' && MATCH_SEQUENCES[recentId] !== undefined) ? MATCH_SEQUENCES[recentId] : (recentMatch.seq || '')) : '';
-      const recentBestOf = recentMatch ? ((typeof MATCH_BEST_OF !== 'undefined' && MATCH_BEST_OF[recentId] !== undefined) ? MATCH_BEST_OF[recentId] : (recentMatch.bestOf || 3)) : 3;
+      const recentBestOf = recentMatch ? getMatchBestOf(recentId, recentMatch) : 3;
       const recentLabel = recentMatch ? ((recentMatch.label && recentMatch.label !== 'undefined') ? recentMatch.label : ((typeof CANONICAL_LABELS !== 'undefined' && CANONICAL_LABELS[recentId]) ? CANONICAL_LABELS[recentId] : 'Recent Match')) : 'Recent Match';
       const recentTeam1 = (recentMatch && recentMatch.team1 && recentMatch.team1 !== 'null') ? recentMatch.team1 : 'TBD';
       const recentTeam2 = (recentMatch && recentMatch.team2 && recentMatch.team2 !== 'null') ? recentMatch.team2 : 'TBD';
@@ -6711,8 +7002,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   BO${liveBestOf}
                 </span>
                 ${liveInProgress ? `
-                  <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                    GAME ${liveGameNum}
+                  <span class="text-[10px] font-black px-2 py-0.5 rounded-full ${currentEsport === 'codm' ? 'bg-amber-500/25 text-amber-300 border border-amber-500/40' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'} flex items-center gap-1">
+                    ${currentEsport === 'codm' && CODM_GAME_MODES[liveGameNum - 1] ? `${CODM_GAME_MODES[liveGameNum - 1].icon} ${CODM_GAME_MODES[liveGameNum - 1].shortName}` : `GAME ${liveGameNum}`}
                   </span>
                 ` : `
                   <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-400 border border-cyan-500/30">
@@ -6764,6 +7055,33 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 </div>
               </div>
             </div>
+
+            <!-- CODM 3-Game Mode Rotation Chips on Live Stage (if CODM) -->
+            ${currentEsport === 'codm' ? `
+              <div class="px-2 pb-2.5 pt-1.5 border-t border-[var(--border)]/50">
+                <div class="flex items-center justify-between text-[9px] mb-1 font-bold text-[var(--muted-foreground)]">
+                  <span class="text-amber-400 font-black uppercase tracking-wider flex items-center gap-1">
+                    <span>🎯</span> <span>BO3 Modes:</span>
+                  </span>
+                  <span class="font-mono">1: S&D · 2: Control · 3: Hardpoint</span>
+                </div>
+                <div class="grid grid-cols-3 gap-1.5 text-center font-mono text-[9px]">
+                  ${getCodmMatchGames(liveMatch).map((g, idx) => {
+                    const isWon = Boolean(g.winner);
+                    const isNotNeeded = g.status === 'not_needed';
+                    const isLive = g.status === 'live' || (liveInProgress && liveGameNum === (idx + 1));
+                    let bg = isWon ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300 font-black' : (isLive ? 'bg-amber-500/20 border-amber-500/40 text-amber-300 font-black beacon-pulse' : (isNotNeeded ? 'bg-black/20 border-white/5 text-slate-500 opacity-60' : 'bg-white/5 border-white/10 text-[var(--muted-foreground)]'));
+                    return `
+                      <div class="p-1 rounded-lg border ${bg} flex items-center justify-center gap-1 truncate" title="Game ${g.gameNum}: ${g.mode}">
+                        <span>${g.icon}</span>
+                        <span class="truncate font-bold">${g.shortName}</span>
+                        ${isWon ? `<span class="text-[8px] font-black text-emerald-300">(${g.winner})</span>` : ''}
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+            ` : ''}
 
             <!-- Live Controls Footer -->
             <div class="pt-2.5 border-t border-[var(--border)] flex items-center justify-between text-xs">
