@@ -238,8 +238,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
       display: none !important;
     }
 
-    /* 2. Table Marshal Mode: Hide admin-only structural/destructive tools */
-    body.role-marshal .admin-only {
+    /* 2. Table Marshal Mode: Hide admin-only tools, metrics, roadmap, live stage, and data management */
+    body.role-marshal .admin-only,
+    body.role-marshal .viewer-hide {
       display: none !important;
     }
 
@@ -323,13 +324,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
           <span>⚡</span> <span id="simulateBtnText">Simulate Double Elim</span>
         </button>
 
-        <!-- Live Stage Screen (Theater Mode - Hidden for Viewers) -->
-        <button onclick="openTheaterMode()" title="Full screen projector / LED wall stage mode" class="viewer-hide flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-black shadow-md shadow-purple-600/20 transition cursor-pointer">
+        <!-- Live Stage Screen (Theater Mode - Admin Only) -->
+        <button onclick="openTheaterMode()" title="Full screen projector / LED wall stage mode" class="admin-only flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-black shadow-md shadow-purple-600/20 transition cursor-pointer">
           <span>📺</span> Live Stage
         </button>
 
-        <!-- Cloud Sync Badge & Config Modal Trigger (Hidden for Viewers) -->
-        <button id="cloudSyncStatusBadge" onclick="openCloudSyncModal()" title="Real-Time Cloud Synchronization Status (Firebase Realtime Database)" class="viewer-hide flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[var(--border)] hover:bg-[var(--secondary)] text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition cursor-pointer">
+        <!-- Cloud Sync Badge & Config Modal Trigger (Admin Only) -->
+        <button id="cloudSyncStatusBadge" onclick="openCloudSyncModal()" title="Real-Time Cloud Synchronization Status (Firebase Realtime Database)" class="admin-only flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[var(--border)] hover:bg-[var(--secondary)] text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition cursor-pointer">
           <span id="cloudSyncIcon">☁️</span> <span id="cloudStatusText" class="hidden sm:inline">Cloud: Local</span>
         </button>
 
@@ -345,8 +346,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
           </div>
         </div>
 
-        <!-- Data Import/Export Menu (Hidden for Viewers) -->
-        <div class="viewer-hide relative inline-block text-left">
+        <!-- Data Import/Export Menu (Admin Only) -->
+        <div class="admin-only relative inline-block text-left">
           <button onclick="toggleDataMenu()" class="px-2.5 py-1.5 rounded-xl border border-[var(--border)] hover:bg-[var(--secondary)] text-xs font-bold transition text-[var(--foreground)] cursor-pointer flex items-center gap-1" title="Data Backup / Restore">
             <span>💾</span> Data
           </button>
@@ -377,8 +378,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
     <!-- Real-Time Esports Broadcast Hero: LIVE NOW & UP NEXT -->
     <div id="liveBroadcastHeroContainer" class="w-full"></div>
 
-    <!-- Overview Metrics Cards (Esports Broadcast Stat Tickers - Hidden for Viewers) -->
-    <div class="viewer-hide grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Overview Metrics Cards (Esports Broadcast Stat Tickers - Admin Only) -->
+    <div class="admin-only grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       
       <!-- Metric 1: Format -->
       <div class="p-4 rounded-2xl bg-[var(--card)] border border-[var(--border)] shadow-xs flex flex-col justify-between">
@@ -432,11 +433,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     </div>
 
-    <!-- Official Tournament 3-Day Match Sequence Roadmap Container (Hidden for Viewers) -->
-    <div id="tournamentRoadmapContainer" class="viewer-hide"></div>
+    <!-- Official Tournament 3-Day Match Sequence Roadmap Container (Admin Only) -->
+    <div id="tournamentRoadmapContainer" class="admin-only"></div>
 
-    <!-- Main Navigation Tabs (Hidden for Viewers: Viewers Stay Focused on Live Match & Bracket) -->
-    <div class="viewer-hide flex items-center gap-2 border-b border-[var(--border)] pb-3 overflow-x-auto text-sm font-black">
+    <!-- Main Navigation Tabs (Admin Only) -->
+    <div class="admin-only flex items-center gap-2 border-b border-[var(--border)] pb-3 overflow-x-auto text-sm font-black">
       <button id="tab-bracket" onclick="switchTab('bracket')" class="px-4 py-2 rounded-xl bg-[var(--card)] border border-amber-500/40 text-amber-400 shadow-sm shrink-0 flex items-center gap-2 cursor-pointer font-black transition">
         <span>🏆</span> Tournament Bracket
       </button>
@@ -2556,7 +2557,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   <span>🗑️</span> Blank Bracket
                 </button>
               `}
-              <button onclick="printBracketSection('full')" title="Print Full Tournament Bracket (Upper & Lower)" class="viewer-hide flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-400 text-xs font-black transition cursor-pointer shadow-xs active:scale-95">
+              <button onclick="printBracketSection('full')" title="Print Full Tournament Bracket (Upper & Lower)" class="admin-only flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-400 text-xs font-black transition cursor-pointer shadow-xs active:scale-95">
                 <span>🖨️</span> Print Bracket
               </button>
             </div>
@@ -2571,7 +2572,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
               </div>
               <div class="flex items-center gap-2.5">
                 <span class="text-xs text-[var(--muted-foreground)] font-semibold hidden md:inline">Day 1 (M1-M6) · Day 2 Upper Final (M12)</span>
-                <button onclick="printBracketSection('upper')" title="Print Upper Bracket with Match Sequences & Standings" class="viewer-hide flex items-center gap-1.5 px-3 py-1 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/40 text-xs font-black transition shadow-xs cursor-pointer active:scale-95">
+                <button onclick="printBracketSection('upper')" title="Print Upper Bracket with Match Sequences & Standings" class="admin-only flex items-center gap-1.5 px-3 py-1 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/40 text-xs font-black transition shadow-xs cursor-pointer active:scale-95">
                   <span>🖨️</span> Print Upper Bracket
                 </button>
               </div>
@@ -2633,7 +2634,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
               </div>
               <div class="flex items-center gap-2.5">
                 <span class="text-xs text-[var(--muted-foreground)] font-semibold hidden md:inline">Day 2 (M7-M11) · Day 3 Lower Final (M13)</span>
-                <button onclick="printBracketSection('lower')" title="Print Lower Bracket with Match Sequences & Standings" class="viewer-hide flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/40 text-xs font-black transition shadow-xs cursor-pointer active:scale-95">
+                <button onclick="printBracketSection('lower')" title="Print Lower Bracket with Match Sequences & Standings" class="admin-only flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/40 text-xs font-black transition shadow-xs cursor-pointer active:scale-95">
                   <span>🖨️</span> Print Lower Bracket
                 </button>
               </div>
@@ -2764,7 +2765,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   <span>🗑️</span> Blank Bracket
                 </button>
               `}
-              <button onclick="printBracketSection('single')" title="Print Single Elimination Championship Bracket" class="viewer-hide flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-400 text-xs font-black transition cursor-pointer shadow-xs active:scale-95">
+              <button onclick="printBracketSection('single')" title="Print Single Elimination Championship Bracket" class="admin-only flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-400 text-xs font-black transition cursor-pointer shadow-xs active:scale-95">
                 <span>🖨️</span> Print Bracket
               </button>
             </div>
@@ -4481,6 +4482,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
     }
 
     function openTheaterMode() {
+      if (!isAdmin()) {
+        showToast('🔒 Live Stage is restricted to Tournament Admins.');
+        return;
+      }
       const overlay = document.getElementById('theaterModeOverlay');
       if (!overlay) return;
       overlay.classList.remove('hidden');
@@ -6297,8 +6302,17 @@ Check your Browserslist config to be sure that your targets are set up correctly
         document.body.classList.add('role-admin', 'admin-mode');
       } else if (currentUserRole === 'marshal') {
         document.body.classList.add('role-marshal');
+        if (typeof isTheaterModeOpen !== 'undefined' && isTheaterModeOpen) {
+          closeTheaterMode();
+        }
+        if (typeof currentTab !== 'undefined' && currentTab !== 'bracket') {
+          switchTab('bracket');
+        }
       } else {
         document.body.classList.add('role-viewer', 'spectator-mode');
+        if (typeof isTheaterModeOpen !== 'undefined' && isTheaterModeOpen) {
+          closeTheaterMode();
+        }
         if (typeof currentTab !== 'undefined' && currentTab !== 'bracket') {
           switchTab('bracket');
         }
