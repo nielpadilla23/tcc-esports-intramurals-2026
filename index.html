@@ -1502,11 +1502,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
       renderHeaderTeamBadges();
       if (currentTab === 'teams') renderCollegeRoster();
       if (currentTab === 'matches') renderMatchScheduleList();
+      renderLiveBroadcastHero();
       if (isTheaterModeOpen) renderTheaterCurrentSlide();
+      pushToCloud();
       closeEditSeedsModal();
 
       const count = TEAMS.filter(Boolean).length;
-      showToast(count > 0 ? `Saved ${count} team seedings to bracket!` : 'Saved (all seeds blank).');
+      showToast(count > 0 ? `Saved ${count} team seedings to bracket & cloud!` : 'Saved (all seeds blank).');
     }
 
     function shuffleTeamDraw() {
@@ -1518,7 +1520,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
       TEAMS = shuffled;
       isBracketSeeded = true;
       saveTeamsAndApply();
-      showToast('Seeding shuffled for all 8 colleges!');
+      renderLiveBroadcastHero();
+      pushToCloud();
+      showToast('Seeding shuffled & synchronized to cloud!');
     }
 
     function renderHeaderTeamBadges() {
@@ -3060,7 +3064,16 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const scGf = getRealisticScore(7);
       setPlayoffScore('gf8', scGf[0], scGf[1]);
 
+      updatePlayoffBracket();
+      savePlayoffsToStorage();
+      renderHeaderTeamBadges();
+      if (currentTab === 'teams') renderCollegeRoster();
+      if (currentTab === 'matches') renderMatchScheduleList();
+      renderLiveBroadcastHero();
+      if (isTheaterModeOpen) renderTheaterCurrentSlide();
+      pushToCloud();
       triggerConfetti();
+      showToast('Double elimination tournament simulated & synced to cloud!');
     }
 
     function simulateSingleElimination() {
@@ -3089,7 +3102,16 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const scGf = getRealisticScore(7);
       setPlayoffScore('s8_gf', scGf[0], scGf[1]);
 
+      updatePlayoffBracket();
+      savePlayoffsToStorage();
+      renderHeaderTeamBadges();
+      if (currentTab === 'teams') renderCollegeRoster();
+      if (currentTab === 'matches') renderMatchScheduleList();
+      renderLiveBroadcastHero();
+      if (isTheaterModeOpen) renderTheaterCurrentSlide();
+      pushToCloud();
       triggerConfetti();
+      showToast('Single elimination tournament simulated & synced to cloud!');
     }
 
     function getRealisticScore(bestOf) {
@@ -3282,9 +3304,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
       renderHeaderTeamBadges();
       if (currentTab === 'teams') renderCollegeRoster();
       if (currentTab === 'matches') renderMatchScheduleList();
+      renderLiveBroadcastHero();
       if (isTheaterModeOpen) renderTheaterCurrentSlide();
       pushToCloud();
-      showToast('Bracket & seeds reset to default blank state.');
+      showToast('Bracket & seeds reset to default blank state & synced to cloud.');
     }
 
     function shuffleAndPopulateBracket() {
@@ -3304,8 +3327,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
       renderHeaderTeamBadges();
       if (currentTab === 'teams') renderCollegeRoster();
       if (currentTab === 'matches') renderMatchScheduleList();
+      renderLiveBroadcastHero();
       if (isTheaterModeOpen) renderTheaterCurrentSlide();
-      showToast('Seeding shuffled & populated into bracket!');
+      pushToCloud();
+      showToast('Seeding shuffled & populated into bracket & cloud!');
     }
 
     function resetTournamentScores() {
@@ -3320,10 +3345,12 @@ Check your Browserslist config to be sure that your targets are set up correctly
       });
       try { localStorage.removeItem('mlbb_playoff_data_v9'); } catch(e) {}
       updatePlayoffBracket();
+      renderHeaderTeamBadges();
       if (currentTab === 'matches') renderMatchScheduleList();
+      renderLiveBroadcastHero();
       if (isTheaterModeOpen) renderTheaterCurrentSlide();
       pushToCloud();
-      showToast('Match scores cleared.');
+      showToast('Match scores cleared & synced to cloud.');
     }
 
     function savePlayoffsToStorage() {
@@ -6004,19 +6031,61 @@ Check your Browserslist config to be sure that your targets are set up correctly
           if (select) select.value = tournamentMode;
           updateTournamentModeUI();
         }
-        if (data.TEAMS && Array.isArray(data.TEAMS)) {
-          TEAMS = data.TEAMS;
-        }
-        if (data.PLAYOFF_DATA && typeof data.PLAYOFF_DATA === 'object') {
-          for (let k in data.PLAYOFF_DATA) {
-            if (!PLAYOFF_DATA[k]) PLAYOFF_DATA[k] = {};
-            Object.assign(PLAYOFF_DATA[k], data.PLAYOFF_DATA[k]);
+        if (data.TEAMS !== undefined) {
+          let rawTeams = [];
+          if (Array.isArray(data.TEAMS)) {
+            rawTeams = data.TEAMS;
+          } else if (data.TEAMS && typeof data.TEAMS === 'object') {
+            rawTeams = Object.keys(data.TEAMS).sort((a,b)=>Number(a)-Number(b)).map(k => data.TEAMS[k]);
+          }
+          TEAMS = [null, null, null, null, null, null, null, null];
+          for (let i = 0; i < 8; i++) {
+            const item = rawTeams[i];
+            if (item && item.id && item.id !== 'BLANK' && item.name) {
+              TEAMS[i] = item;
+            } else {
+              TEAMS[i] = null;
+            }
           }
         }
+
+        if (data.isBracketSeeded !== undefined) {
+          isBracketSeeded = Boolean(data.isBracketSeeded);
+        } else {
+          isBracketSeeded = TEAMS.some(t => t !== null);
+        }
+
+        if (data.PLAYOFF_DATA && typeof data.PLAYOFF_DATA === 'object') {
+          for (let k in PLAYOFF_DATA) {
+            const remoteMatch = data.PLAYOFF_DATA[k];
+            if (remoteMatch) {
+              PLAYOFF_DATA[k].team1 = remoteMatch.team1 ? remoteMatch.team1 : null;
+              PLAYOFF_DATA[k].team2 = remoteMatch.team2 ? remoteMatch.team2 : null;
+              PLAYOFF_DATA[k].s1 = (remoteMatch.s1 !== undefined && remoteMatch.s1 !== -1 && remoteMatch.s1 !== null && remoteMatch.s1 !== '') ? Number(remoteMatch.s1) : null;
+              PLAYOFF_DATA[k].s2 = (remoteMatch.s2 !== undefined && remoteMatch.s2 !== -1 && remoteMatch.s2 !== null && remoteMatch.s2 !== '') ? Number(remoteMatch.s2) : null;
+              PLAYOFF_DATA[k].winner = remoteMatch.winner ? remoteMatch.winner : null;
+              PLAYOFF_DATA[k].loser = remoteMatch.loser ? remoteMatch.loser : null;
+              if (remoteMatch.bestOf) PLAYOFF_DATA[k].bestOf = remoteMatch.bestOf;
+              if (remoteMatch.seq) PLAYOFF_DATA[k].seq = remoteMatch.seq;
+              if (remoteMatch.day) PLAYOFF_DATA[k].day = remoteMatch.day;
+              if (remoteMatch.label) PLAYOFF_DATA[k].label = remoteMatch.label;
+            } else {
+              PLAYOFF_DATA[k].team1 = null;
+              PLAYOFF_DATA[k].team2 = null;
+              PLAYOFF_DATA[k].s1 = null;
+              PLAYOFF_DATA[k].s2 = null;
+              PLAYOFF_DATA[k].winner = null;
+              PLAYOFF_DATA[k].loser = null;
+            }
+          }
+        }
+
         normalizeAllPlayoffData();
+
         try {
           localStorage.setItem('mlbb_playoff_data_v9', JSON.stringify(PLAYOFF_DATA));
           localStorage.setItem('mlbb_teams_v9', JSON.stringify(TEAMS));
+          localStorage.setItem('mlbb_bracket_seeded_v9', isBracketSeeded ? 'true' : 'false');
           if (data.tournamentMode) localStorage.setItem('mlbb_tournament_mode_v9', data.tournamentMode);
         } catch(e) {}
 
@@ -6035,12 +6104,38 @@ Check your Browserslist config to be sure that your targets are set up correctly
     function pushToCloud() {
       if (!isCloudSyncConnected || !firebaseDbRef || isReceivingRemoteCloudUpdate) return;
       try {
+        const teamsPayload = (TEAMS || []).map(t => {
+          if (!t) return { id: 'BLANK', name: '' };
+          return { id: t.id, name: t.name, mascot: t.mascot || '', full: t.full || '' };
+        });
+
+        const playoffPayload = {};
+        for (let k in PLAYOFF_DATA) {
+          const m = PLAYOFF_DATA[k];
+          if (!m) continue;
+          playoffPayload[k] = {
+            id: m.id || k,
+            team1: m.team1 ? m.team1 : '',
+            team2: m.team2 ? m.team2 : '',
+            s1: (m.s1 !== null && m.s1 !== undefined && m.s1 !== '') ? Number(m.s1) : -1,
+            s2: (m.s2 !== null && m.s2 !== undefined && m.s2 !== '') ? Number(m.s2) : -1,
+            winner: m.winner ? m.winner : '',
+            loser: m.loser ? m.loser : '',
+            bestOf: m.bestOf || 3,
+            seq: m.seq || 1,
+            day: m.day || 'DAY 1',
+            label: m.label || ''
+          };
+        }
+
         const payload = cleanForFirebase({
           tournamentMode: tournamentMode,
-          TEAMS: TEAMS,
-          PLAYOFF_DATA: PLAYOFF_DATA,
+          isBracketSeeded: Boolean(isBracketSeeded),
+          TEAMS: teamsPayload,
+          PLAYOFF_DATA: playoffPayload,
           lastUpdated: Date.now()
         });
+
         firebaseDbRef.set(payload).catch(err => {
           console.warn('Firebase set error:', err);
         });
