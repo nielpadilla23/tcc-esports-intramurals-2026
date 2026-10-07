@@ -894,8 +894,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
       <!-- Footer Buttons -->
       <div class="flex items-center justify-between gap-2 pt-3 border-t border-[var(--border)]">
-        <button type="button" onclick="resetActiveModalMatch()" class="admin-only px-3 py-2 rounded-xl border border-rose-500/30 hover:bg-rose-500/10 text-xs font-bold text-rose-400 transition cursor-pointer" title="Reset match series to blank">
-          ↺ Reset Match
+        <button type="button" onclick="resetActiveModalMatch()" class="px-3 py-2 rounded-xl border border-rose-500/30 hover:bg-rose-500/10 text-xs font-bold text-rose-400 transition cursor-pointer flex items-center gap-1.5 active:scale-95" title="Reset match series to blank pending state">
+          <span>↺</span> <span>Reset Match</span>
         </button>
         <div class="flex items-center gap-2">
           <button type="button" onclick="closeScoreModal()" class="px-4 py-2 rounded-xl border border-[var(--border)] text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition cursor-pointer">
@@ -2575,73 +2575,133 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
       updatePlayoffSeedsUI();
 
+      // Helper: ensure downstream match state matches its assigned teams
+      function validateMatchReadiness(matchKey) {
+        const m = PLAYOFF_DATA[matchKey];
+        if (!m) return;
+        // If either team is missing, NO scores or winners can exist
+        if (!m.team1 || !m.team2) {
+          m.s1 = null;
+          m.s2 = null;
+          m.winner = null;
+          m.loser = null;
+          if (m.games) delete m.games;
+          return;
+        }
+        // If a winner is recorded, it MUST be one of the two active teams
+        if (m.winner && m.winner !== m.team1 && m.winner !== m.team2) {
+          m.s1 = null;
+          m.s2 = null;
+          m.winner = null;
+          m.loser = null;
+          if (m.games) delete m.games;
+          return;
+        }
+        // If a loser is recorded, ensure it is the other team
+        if (m.loser && (m.loser !== m.team1 && m.loser !== m.team2 || m.loser === m.winner)) {
+          m.loser = (m.winner === m.team1) ? m.team2 : (m.winner === m.team2 ? m.team1 : null);
+        }
+      }
+
       if (tournamentMode === 'double_elim') {
         // Upper Bracket Quarterfinals
         PLAYOFF_DATA.ub_qf1.team1 = s1;
         PLAYOFF_DATA.ub_qf1.team2 = s8;
+        validateMatchReadiness('ub_qf1');
+
         PLAYOFF_DATA.ub_qf2.team1 = s4;
         PLAYOFF_DATA.ub_qf2.team2 = s5;
+        validateMatchReadiness('ub_qf2');
+
         PLAYOFF_DATA.ub_qf3.team1 = s2;
         PLAYOFF_DATA.ub_qf3.team2 = s7;
+        validateMatchReadiness('ub_qf3');
+
         PLAYOFF_DATA.ub_qf4.team1 = s3;
         PLAYOFF_DATA.ub_qf4.team2 = s6;
+        validateMatchReadiness('ub_qf4');
 
-        // Upper Bracket Semifinals (Blank until QF winners decided)
-        PLAYOFF_DATA.ub_sf1.team1 = PLAYOFF_DATA.ub_qf1.winner || null;
-        PLAYOFF_DATA.ub_sf1.team2 = PLAYOFF_DATA.ub_qf2.winner || null;
-        PLAYOFF_DATA.ub_sf2.team1 = PLAYOFF_DATA.ub_qf3.winner || null;
-        PLAYOFF_DATA.ub_sf2.team2 = PLAYOFF_DATA.ub_qf4.winner || null;
-
-        // Upper Bracket Final (Blank until UB SF winners decided)
-        PLAYOFF_DATA.ub_f.team1 = PLAYOFF_DATA.ub_sf1.winner || null;
-        PLAYOFF_DATA.ub_f.team2 = PLAYOFF_DATA.ub_sf2.winner || null;
-
-        // Lower Bracket Round 1 (Blank until QF losers decided)
+        // Lower Bracket Round 1 (fed by QF losers)
         PLAYOFF_DATA.lb_r1_1.team1 = PLAYOFF_DATA.ub_qf1.loser || null;
         PLAYOFF_DATA.lb_r1_1.team2 = PLAYOFF_DATA.ub_qf2.loser || null;
+        validateMatchReadiness('lb_r1_1');
+
         PLAYOFF_DATA.lb_r1_2.team1 = PLAYOFF_DATA.ub_qf3.loser || null;
         PLAYOFF_DATA.lb_r1_2.team2 = PLAYOFF_DATA.ub_qf4.loser || null;
+        validateMatchReadiness('lb_r1_2');
 
-        // Lower Bracket Quarterfinals
+        // Upper Bracket Semifinals (fed by QF winners)
+        PLAYOFF_DATA.ub_sf1.team1 = PLAYOFF_DATA.ub_qf1.winner || null;
+        PLAYOFF_DATA.ub_sf1.team2 = PLAYOFF_DATA.ub_qf2.winner || null;
+        validateMatchReadiness('ub_sf1');
+
+        PLAYOFF_DATA.ub_sf2.team1 = PLAYOFF_DATA.ub_qf3.winner || null;
+        PLAYOFF_DATA.ub_sf2.team2 = PLAYOFF_DATA.ub_qf4.winner || null;
+        validateMatchReadiness('ub_sf2');
+
+        // Lower Bracket Quarterfinals (fed by UB SF losers & LB R1 winners)
         PLAYOFF_DATA.lb_qf1.team1 = PLAYOFF_DATA.ub_sf1.loser || null;
         PLAYOFF_DATA.lb_qf1.team2 = PLAYOFF_DATA.lb_r1_1.winner || null;
+        validateMatchReadiness('lb_qf1');
+
         PLAYOFF_DATA.lb_qf2.team1 = PLAYOFF_DATA.ub_sf2.loser || null;
         PLAYOFF_DATA.lb_qf2.team2 = PLAYOFF_DATA.lb_r1_2.winner || null;
+        validateMatchReadiness('lb_qf2');
 
-        // Lower Bracket Semifinal
+        // Upper Bracket Final (fed by UB SF winners)
+        PLAYOFF_DATA.ub_f.team1 = PLAYOFF_DATA.ub_sf1.winner || null;
+        PLAYOFF_DATA.ub_f.team2 = PLAYOFF_DATA.ub_sf2.winner || null;
+        validateMatchReadiness('ub_f');
+
+        // Lower Bracket Semifinal (fed by LB QF winners)
         PLAYOFF_DATA.lb_sf.team1 = PLAYOFF_DATA.lb_qf1.winner || null;
         PLAYOFF_DATA.lb_sf.team2 = PLAYOFF_DATA.lb_qf2.winner || null;
+        validateMatchReadiness('lb_sf');
 
-        // Lower Bracket Final (BO5)
+        // Lower Bracket Final (fed by UB Final loser & LB Semi winner)
         PLAYOFF_DATA.lb_f.team1 = PLAYOFF_DATA.ub_f.loser || null;
         PLAYOFF_DATA.lb_f.team2 = PLAYOFF_DATA.lb_sf.winner || null;
+        validateMatchReadiness('lb_f');
 
-        // Grand Championship Finals (BO7)
+        // Grand Championship Finals (fed by UB Final winner & LB Final winner)
         PLAYOFF_DATA.gf8.team1 = PLAYOFF_DATA.ub_f.winner || null;
         PLAYOFF_DATA.gf8.team2 = PLAYOFF_DATA.lb_f.winner || null;
+        validateMatchReadiness('gf8');
 
         renderDouble8PlayoffUI();
       } else {
         // 8-Team Single Elimination
         PLAYOFF_DATA.s8_qf1.team1 = s1;
         PLAYOFF_DATA.s8_qf1.team2 = s8;
+        validateMatchReadiness('s8_qf1');
+
         PLAYOFF_DATA.s8_qf2.team1 = s4;
         PLAYOFF_DATA.s8_qf2.team2 = s5;
+        validateMatchReadiness('s8_qf2');
+
         PLAYOFF_DATA.s8_qf3.team1 = s2;
         PLAYOFF_DATA.s8_qf3.team2 = s7;
+        validateMatchReadiness('s8_qf3');
+
         PLAYOFF_DATA.s8_qf4.team1 = s3;
         PLAYOFF_DATA.s8_qf4.team2 = s6;
+        validateMatchReadiness('s8_qf4');
 
         PLAYOFF_DATA.s8_sf1.team1 = PLAYOFF_DATA.s8_qf1.winner || null;
         PLAYOFF_DATA.s8_sf1.team2 = PLAYOFF_DATA.s8_qf2.winner || null;
+        validateMatchReadiness('s8_sf1');
+
         PLAYOFF_DATA.s8_sf2.team1 = PLAYOFF_DATA.s8_qf3.winner || null;
         PLAYOFF_DATA.s8_sf2.team2 = PLAYOFF_DATA.s8_qf4.winner || null;
+        validateMatchReadiness('s8_sf2');
 
         PLAYOFF_DATA.s8_bronze.team1 = PLAYOFF_DATA.s8_sf1.loser || null;
         PLAYOFF_DATA.s8_bronze.team2 = PLAYOFF_DATA.s8_sf2.loser || null;
+        validateMatchReadiness('s8_bronze');
 
         PLAYOFF_DATA.s8_gf.team1 = PLAYOFF_DATA.s8_sf1.winner || null;
         PLAYOFF_DATA.s8_gf.team2 = PLAYOFF_DATA.s8_sf2.winner || null;
+        validateMatchReadiness('s8_gf');
 
         renderSingle8PlayoffUI();
       }
@@ -2906,13 +2966,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
             <div class="flex items-center gap-1.5 shrink-0">
               ${isFinal ? `
                 <span class="font-black text-emerald-400 flex items-center gap-1"><span>✓</span> <span>FINAL (${s1Num}-${s2Num})</span></span>
-                <button onclick="resetMatchScore('${m.id}')" title="Reset Score" class="admin-only text-[10px] text-[var(--muted-foreground)] hover:text-rose-400 ml-1 transition cursor-pointer">Reset</button>
+                <button onclick="resetMatchScore('${m.id}')" title="Reset Score" class="marshal-only text-[10px] text-[var(--muted-foreground)] hover:text-rose-400 ml-1 transition cursor-pointer">Reset</button>
               ` : isInProgress ? `
                 <span class="font-black text-amber-400 flex items-center gap-1.5">
                   <span class="w-1.5 h-1.5 rounded-full bg-red-400 beacon-pulse"></span>
                   <span>GAME ${s1Num + s2Num + 1} (${s1Num}-${s2Num})${currentEsport === 'codm' && CODM_GAME_MODES[s1Num + s2Num] ? ' · ' + CODM_GAME_MODES[s1Num + s2Num].shortName : ''}</span>
                 </span>
-                <button onclick="resetMatchScore('${m.id}')" title="Reset Score" class="admin-only text-[10px] text-[var(--muted-foreground)] hover:text-rose-400 ml-1 transition cursor-pointer">Reset</button>
+                <button onclick="resetMatchScore('${m.id}')" title="Reset Score" class="marshal-only text-[10px] text-[var(--muted-foreground)] hover:text-rose-400 ml-1 transition cursor-pointer">Reset</button>
               ` : isPlayable ? `
                 <span class="text-[10px] font-black text-cyan-400">READY</span>
               ` : `
@@ -3940,6 +4000,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
     }
 
     function confirmResetScores() {
+      if (!isAdmin()) {
+        showToast('🔒 Please log in as Tournament Admin to reset all tournament scores.');
+        openAdminLoginModal('admin');
+        return;
+      }
       openActionConfirmModal('reset_scores');
     }
 
@@ -4264,15 +4329,16 @@ Check your Browserslist config to be sure that your targets are set up correctly
         match.loser = null;
       }
 
-      savePlayoffsToStorage();
       updatePlayoffBracket();
+      savePlayoffsToStorage();
       if (currentTab === 'matches') renderMatchScheduleList();
       if (isTheaterModeOpen) renderTheaterCurrentSlide();
     }
 
     function resetMatchScore(matchKey) {
-      if (!isAdmin()) {
-        showToast('⚠️ Only Tournament Admin can reset match scores.');
+      if (!canScore()) {
+        showToast('🔒 Please log in as Admin or Table Marshal to reset match scores.');
+        openAdminLoginModal('marshal');
         return;
       }
       const match = PLAYOFF_DATA[matchKey];
@@ -4283,10 +4349,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
         match.loser = null;
         if (match.games) delete match.games;
       }
-      savePlayoffsToStorage();
       updatePlayoffBracket();
+      savePlayoffsToStorage();
       if (currentTab === 'matches') renderMatchScheduleList();
       if (isTheaterModeOpen) renderTheaterCurrentSlide();
+      showToast('Match score reset to pending.');
     }
     function showToast(msg) {
       let toast = document.getElementById('floatingToast');
@@ -4402,26 +4469,26 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function resetTournamentScores() {
       if (!isAdmin()) {
-        showToast('⚠️ Only Tournament Admin can reset tournament scores.');
+        showToast('🔒 Only Tournament Admin can reset all tournament scores.');
+        openAdminLoginModal('admin');
         return;
       }
-      const keys = ['ub_qf1', 'ub_qf2', 'ub_qf3', 'ub_qf4', 'ub_sf1', 'ub_sf2', 'ub_f', 'lb_r1_1', 'lb_r1_2', 'lb_qf1', 'lb_qf2', 'lb_sf', 'lb_f', 'gf8', 's8_qf1', 's8_qf2', 's8_qf3', 's8_qf4', 's8_sf1', 's8_sf2', 's8_bronze', 's8_gf'];
-      keys.forEach(k => {
+      for (let k in PLAYOFF_DATA) {
         if (PLAYOFF_DATA[k]) {
           PLAYOFF_DATA[k].s1 = null;
           PLAYOFF_DATA[k].s2 = null;
           PLAYOFF_DATA[k].winner = null;
           PLAYOFF_DATA[k].loser = null;
+          if (PLAYOFF_DATA[k].games) delete PLAYOFF_DATA[k].games;
         }
-      });
-      try { localStorage.removeItem(getStorageKey('playoff_data_v9')); } catch(e) {}
+      }
       updatePlayoffBracket();
+      savePlayoffsToStorage();
       renderHeaderTeamBadges();
       if (currentTab === 'matches') renderMatchScheduleList();
       renderLiveBroadcastHero();
       if (isTheaterModeOpen) renderTheaterCurrentSlide();
-      pushToCloud();
-      showToast('Match scores cleared & synced to cloud.');
+      showToast('All tournament match scores reset to pending & synced.');
     }
 
     function savePlayoffsToStorage() {
@@ -4681,13 +4748,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   <div class="flex items-center gap-2">
                     ${isFinal ? `
                       <span class="text-emerald-400 font-bold">✓ FINAL (${s1Num}-${s2Num})</span>
-                      <button onclick="resetMatchScore('${m.id}')" title="Reset Score" class="admin-only text-[9px] hover:text-rose-400 cursor-pointer">↺</button>
+                      <button onclick="resetMatchScore('${m.id}')" title="Reset Score" class="marshal-only text-[9px] hover:text-rose-400 cursor-pointer">↺</button>
                     ` : isInProgress ? `
                       <span class="text-amber-400 font-bold flex items-center gap-1">
                         <span class="w-1.5 h-1.5 rounded-full bg-red-400 beacon-pulse"></span>
                         <span>GAME ${s1Num + s2Num + 1} (${s1Num}-${s2Num})</span>
                       </span>
-                      <button onclick="resetMatchScore('${m.id}')" title="Reset Score" class="admin-only text-[9px] hover:text-rose-400 cursor-pointer">↺</button>
+                      <button onclick="resetMatchScore('${m.id}')" title="Reset Score" class="marshal-only text-[9px] hover:text-rose-400 cursor-pointer">↺</button>
                     ` : isPlayable ? `
                       <span class="text-amber-400 font-semibold">READY</span>
                     ` : `
@@ -5177,11 +5244,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
       if (s1) {
         s1.max = targetWins;
-        s1.value = match.s1 !== null ? match.s1 : 0;
+        s1.value = match.s1 !== null ? match.s1 : '';
       }
       if (s2) {
         s2.max = targetWins;
-        s2.value = match.s2 !== null ? match.s2 : 0;
+        s2.value = match.s2 !== null ? match.s2 : '';
       }
 
       // Generate Quick Presets: both In-Progress game scores and Series Final outcomes
@@ -5204,8 +5271,14 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
         presets.innerHTML = `
           <div class="space-y-2">
+            <div class="flex items-center justify-between border-b border-[var(--border)]/60 pb-1.5">
+              <span class="text-[9px] font-black uppercase tracking-wider text-[var(--muted-foreground)]">Quick Presets:</span>
+              <button type="button" onclick="setModalScorePreset(null, null)" class="px-2 py-0.5 rounded-lg text-[10px] font-mono font-bold bg-rose-500/15 text-rose-300 hover:bg-rose-500 hover:text-white transition cursor-pointer flex items-center gap-1 active:scale-95" title="Clear inputs and revert match series to pending">
+                <span>↺</span> <span>Blank / Reset</span>
+              </button>
+            </div>
             <div>
-              <span class="text-[9px] font-black uppercase tracking-wider text-blue-400 block mb-1">In-Progress Series Scores (Apply +1 Game Win):</span>
+              <span class="text-[9px] font-black uppercase tracking-wider text-blue-400 block mb-1">In-Progress Series Scores:</span>
               <div class="flex flex-wrap gap-1.5">
                 ${inProgressPresets.map(pair => `
                   <button type="button" onclick="setModalScorePreset(${pair[0]}, ${pair[1]})" class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-blue-500/10 text-blue-300 hover:bg-blue-500 hover:text-white transition cursor-pointer">
@@ -5270,6 +5343,20 @@ Check your Browserslist config to be sure that your targets are set up correctly
     function setModalScorePreset(s1, s2) {
       const inp1 = document.getElementById('modalScore1');
       const inp2 = document.getElementById('modalScore2');
+      if (s1 === null || s2 === null) {
+        if (inp1) inp1.value = '';
+        if (inp2) inp2.value = '';
+        if (activeModalMatchKey && currentEsport === 'codm') {
+          const match = PLAYOFF_DATA[activeModalMatchKey];
+          if (match) {
+            delete match.games;
+            match.games = getCodmMatchGames({ team1: match.team1, team2: match.team2, s1: null, s2: null });
+            renderModalCodmModes(match);
+          }
+        }
+        updateModalPreview();
+        return;
+      }
       if (inp1) inp1.value = s1;
       if (inp2) inp2.value = s2;
 
@@ -5292,11 +5379,19 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const bestOf = getMatchBestOf(activeModalMatchKey, match);
       const targetWins = Math.ceil(bestOf / 2);
 
-      const s1Val = parseInt(document.getElementById('modalScore1')?.value || '0', 10);
-      const s2Val = parseInt(document.getElementById('modalScore2')?.value || '0', 10);
-
+      const raw1 = (document.getElementById('modalScore1')?.value || '').trim();
+      const raw2 = (document.getElementById('modalScore2')?.value || '').trim();
       const banner = document.getElementById('modalStatusBanner');
       if (!banner) return;
+
+      if (raw1 === '' && raw2 === '') {
+        banner.className = 'p-2.5 rounded-xl bg-slate-500/10 border border-slate-500/20 text-xs font-bold text-slate-300 text-center flex items-center justify-center gap-1.5';
+        banner.innerHTML = `<span>⏳</span> <span>Series Blank / Pending (Score not reported)</span>`;
+        return;
+      }
+
+      const s1Val = parseInt(raw1 || '0', 10);
+      const s2Val = parseInt(raw2 || '0', 10);
 
       if (s1Val >= targetWins && s1Val > s2Val) {
         banner.className = 'p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-xs font-black text-emerald-300 text-center flex items-center justify-center gap-1.5';
@@ -5306,7 +5401,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         banner.innerHTML = `<span>🏆</span> <span>Series Final: ${match.team2} wins series (${s1Val} - ${s2Val}) and advances!</span>`;
       } else if (s1Val === 0 && s2Val === 0) {
         banner.className = 'p-2.5 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-slate-300 text-center';
-        banner.innerHTML = `<span>⚡</span> <span>Series Not Started · Game 1 Ready</span>`;
+        banner.innerHTML = `<span>⚡</span> <span>Series In Progress · 0 - 0 (Game 1 underway)</span>`;
       } else {
         const gameNum = s1Val + s2Val + 1;
         banner.className = 'p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-xs font-black text-amber-300 text-center flex items-center justify-center gap-2';
@@ -5327,11 +5422,18 @@ Check your Browserslist config to be sure that your targets are set up correctly
         openAdminLoginModal('marshal');
         return;
       }
-      const s1Val = document.getElementById('modalScore1').value;
-      const s2Val = document.getElementById('modalScore2').value;
+      const s1Val = (document.getElementById('modalScore1')?.value || '').trim();
+      const s2Val = (document.getElementById('modalScore2')?.value || '').trim();
+
+      if (s1Val === '' && s2Val === '') {
+        // User cleared both scores: reset match series to pending
+        resetMatchScore(activeModalMatchKey);
+        closeScoreModal();
+        return;
+      }
 
       if (s1Val === '' || s2Val === '') {
-        alert('Please enter both team scores.');
+        alert('Please enter scores for both teams or click "Blank / Reset" to reset to pending.');
         return;
       }
       const s1 = parseInt(s1Val, 10);
@@ -5350,12 +5452,12 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function resetActiveModalMatch() {
       if (!activeModalMatchKey) return;
-      if (!isAdmin()) {
-        showToast('⚠️ Only Tournament Admin can reset completed match series.');
+      if (!canScore()) {
+        showToast('🔒 Please log in as Admin or Table Marshal to reset match scores.');
+        openAdminLoginModal('marshal');
         return;
       }
       resetMatchScore(activeModalMatchKey);
-      showToast(`Match score reset.`);
       closeScoreModal();
     }
     // --- 15. LIVE STAGE THEATER MODE ---
