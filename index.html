@@ -288,12 +288,169 @@ Check your Browserslist config to be sure that your targets are set up correctly
   <!-- Confetti Canvas for Grand Finals / Simulation Celebration -->
   <canvas id="confettiCanvas" class="fixed inset-0 pointer-events-none z-50 hidden"></canvas>
 
+    <!-- ==================== ESPORT LANDING HUB (PORTAL SELECTION SCREEN) ==================== -->
+  <div id="esportLandingHub" class="min-h-screen flex flex-col justify-between bg-gradient-to-b from-[#0a0f1d] via-[#070b14] to-[#04060b] text-white relative overflow-hidden select-none">
+    
+    <!-- Ambient Background Glow Accents -->
+    <div class="pointer-events-none absolute -top-40 -left-40 w-96 h-96 bg-blue-600/15 rounded-full blur-3xl"></div>
+    <div class="pointer-events-none absolute -top-40 -right-40 w-96 h-96 bg-amber-500/15 rounded-full blur-3xl"></div>
+    <div class="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-72 bg-emerald-500/5 rounded-full blur-3xl"></div>
+
+    <!-- Hub Top Navigation Bar -->
+    <header class="border-b border-white/10 bg-black/40 backdrop-blur-md px-4 sm:px-8 py-3.5 flex items-center justify-between relative z-10">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-lg shadow-inner">
+          🏆
+        </div>
+        <div>
+          <h2 class="text-xs sm:text-sm font-black text-white uppercase tracking-wider">TAGOLOAN COMMUNITY COLLEGE</h2>
+          <p class="text-[10px] text-slate-400 font-bold tracking-wide">OFFICIAL INTRAMURALS 2026 · E-SPORTS PORTAL</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <!-- Theme Toggle Button -->
+        <button onclick="toggleTheme()" title="Toggle Dark/Light Mode" class="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold flex items-center justify-center transition cursor-pointer">
+          <span id="hubThemeToggleIcon">🌙</span>
+        </button>
+        <!-- Role / Login Indicator -->
+        <button onclick="openAdminLoginModal()" id="hubLoginBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-black transition cursor-pointer active:scale-95">
+          <span>🔒</span> <span>Login</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Hub Center: Title & The 2 Big Esport Portal Cards -->
+    <div class="max-w-6xl mx-auto px-4 py-8 sm:py-12 flex-1 flex flex-col justify-center items-center text-center relative z-10 w-full">
+      
+      <!-- Championship Intro Badge & Headline -->
+      <div class="max-w-2xl mx-auto space-y-3">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 shadow-xs">
+          <span class="text-xs">🎮</span>
+          <span class="text-xs font-black text-amber-400 uppercase tracking-widest">Official E-Sports Championships</span>
+        </div>
+        <h1 class="text-3xl sm:text-5xl font-black text-white tracking-tight uppercase leading-tight drop-shadow-md">
+          CHOOSE YOUR ESPORT
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-400 font-medium max-w-lg mx-auto">
+          Welcome to the official TCC E-Sports Intramurals 2026 portal. Select a game below to enter its live tournament dashboard, brackets, match scoring, and standings.
+        </p>
+      </div>
+
+      <!-- The 2 Big Esport Cards: MLBB & CODM -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 max-w-4xl w-full mt-8 sm:mt-12 text-left">
+        
+        <!-- CARD 1: Mobile Legends Bang Bang -->
+        <div onclick="openEsportDashboard('mlbb')" class="group relative rounded-3xl p-6 sm:p-8 bg-gradient-to-b from-[#0e172a]/95 to-[#090d18]/95 border-2 border-blue-500/40 hover:border-blue-400 shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 cursor-pointer flex flex-col justify-between space-y-6 hover:-translate-y-1.5 active:translate-y-0 overflow-hidden">
+          <div class="absolute -top-24 -right-24 w-48 h-48 bg-blue-500/20 rounded-full blur-2xl group-hover:bg-blue-500/30 transition duration-300"></div>
+          
+          <div class="relative z-10 flex items-center justify-between">
+            <span class="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-blue-500/20 text-blue-400 border border-blue-500/30 shadow-inner">
+              ⚔️ 5v5 MOBA
+            </span>
+            <span class="text-[10px] font-mono font-bold text-slate-400 bg-white/5 px-2.5 py-1 rounded-lg border border-white/10">
+              Double Elimination
+            </span>
+          </div>
+
+          <!-- MLBB Logo Center -->
+          <div class="relative z-10 h-28 sm:h-32 flex items-center justify-center py-2">
+            <img id="hubLogoMLBB" src="" alt="Mobile Legends Bang Bang" class="max-h-full max-w-full object-contain filter drop-shadow-lg group-hover:scale-105 transition duration-300">
+          </div>
+
+          <div class="relative z-10 space-y-2">
+            <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center justify-between">
+              <span>Mobile Legends: Bang Bang</span>
+            </h3>
+            <p class="text-xs text-slate-400 leading-relaxed font-medium">
+              8 College Rosters competing in Upper & Lower brackets. Features game-by-game live scoring (+1), match sequencing, and grand finals medal ceremony.
+            </p>
+          </div>
+
+          <!-- Card CTA Button -->
+          <div class="relative z-10 pt-2">
+            <div class="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-sm text-center shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 group-hover:gap-3 transition-all">
+              <span>Enter MLBB Dashboard</span>
+              <span>→</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 2: Call of Duty Mobile (CODM) -->
+        <div onclick="openEsportDashboard('codm')" class="group relative rounded-3xl p-6 sm:p-8 bg-gradient-to-b from-[#1a1608]/95 to-[#0d0b05]/95 border-2 border-amber-500/40 hover:border-amber-400 shadow-2xl hover:shadow-yellow-500/25 transition-all duration-300 cursor-pointer flex flex-col justify-between space-y-6 hover:-translate-y-1.5 active:translate-y-0 overflow-hidden">
+          <div class="absolute -top-24 -right-24 w-48 h-48 bg-amber-500/20 rounded-full blur-2xl group-hover:bg-amber-500/30 transition duration-300"></div>
+          
+          <div class="relative z-10 flex items-center justify-between">
+            <span class="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-amber-500/20 text-yellow-400 border border-yellow-500/30 shadow-inner">
+              🎯 5v5 Tactical FPS
+            </span>
+            <span class="text-[10px] font-mono font-bold text-slate-400 bg-white/5 px-2.5 py-1 rounded-lg border border-white/10">
+              Double Elimination
+            </span>
+          </div>
+
+          <!-- CODM Logo Center (Clean Transparent Logo) -->
+          <div class="relative z-10 h-28 sm:h-32 flex items-center justify-center py-2">
+            <img id="hubLogoCODM" src="" alt="Call of Duty Mobile" class="max-h-full max-w-full object-contain filter drop-shadow-lg group-hover:scale-105 transition duration-300">
+          </div>
+
+          <div class="relative z-10 space-y-2">
+            <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center justify-between">
+              <span>Call of Duty: Mobile</span>
+            </h3>
+            <p class="text-xs text-slate-400 leading-relaxed font-medium">
+              Hardpoint, Search & Destroy, and Control matches across 8 College Teams. Includes BO3/BO5 live scoring and theater mode wall stage feed.
+            </p>
+          </div>
+
+          <!-- Card CTA Button -->
+          <div class="relative z-10 pt-2">
+            <div class="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-500 hover:from-amber-400 hover:to-yellow-400 text-black font-black text-sm text-center shadow-lg shadow-yellow-500/30 flex items-center justify-center gap-2 group-hover:gap-3 transition-all">
+              <span>Enter CODM Dashboard</span>
+              <span>→</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Quick College Roster Badges Preview -->
+      <div class="mt-10 pt-6 border-t border-white/10 max-w-3xl w-full flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+        <span class="font-bold flex items-center gap-1.5">
+          <span>🏛️</span> 8 Official College Departments Participating
+        </span>
+        <div class="flex items-center gap-1.5 flex-wrap justify-center">
+          <span class="px-2 py-0.5 rounded bg-white/5 text-[10px] font-mono">CIT</span>
+          <span class="px-2 py-0.5 rounded bg-white/5 text-[10px] font-mono">CBA</span>
+          <span class="px-2 py-0.5 rounded bg-white/5 text-[10px] font-mono">CCJPS</span>
+          <span class="px-2 py-0.5 rounded bg-white/5 text-[10px] font-mono">CAS</span>
+          <span class="px-2 py-0.5 rounded bg-white/5 text-[10px] font-mono">CHM</span>
+          <span class="px-2 py-0.5 rounded bg-white/5 text-[10px] font-mono">COED</span>
+          <span class="px-2 py-0.5 rounded bg-white/5 text-[10px] font-mono">CMID</span>
+          <span class="px-2 py-0.5 rounded bg-white/5 text-[10px] font-mono">CLIS</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Hub Footer -->
+    <footer class="border-t border-white/10 bg-black/40 backdrop-blur-md px-4 py-4 text-center text-xs text-slate-500 relative z-10">
+      <p>Tagoloan Community College Intramurals 2026 · Official E-Sports Bracket Management System</p>
+    </footer>
+
+  </div>
+
   <!-- Top Navigation & Controls Header -->
-  <header class="border-b border-[var(--border)] bg-[var(--card)]/95 backdrop-blur-md sticky top-0 z-30 transition-colors shadow-sm">
+  <header id="appHeader" class="border-b border-[var(--border)] bg-[var(--card)]/95 backdrop-blur-md sticky top-0 z-30 transition-colors shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       
       <!-- Left: Title, Championship Badge & Esport Switcher -->
       <div class="flex items-center justify-between sm:justify-start gap-3 sm:gap-4 flex-wrap">
+        <!-- Back to Esports Hub Button -->
+        <button onclick="returnToEsportHub()" title="Back to E-Sports Hub (Choose MLBB / CODM)" class="px-2.5 py-1.5 rounded-xl bg-[var(--secondary)] hover:bg-amber-500/15 border border-[var(--border)] hover:border-amber-500/40 text-xs font-black text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition cursor-pointer flex items-center gap-1.5 shrink-0 shadow-xs active:scale-95">
+          <span class="text-xs">◀</span> <span class="hidden sm:inline">Hub</span>
+        </button>
+
         <div class="flex items-center gap-3 cursor-pointer group" onclick="openEsportSelectorModal()" title="Click to choose E-Sports Tournament (MLBB / CODM)">
           <img id="mainEsportLogo" src="" alt="E-Sports Logo" class="h-8 sm:h-9 w-auto object-contain drop-shadow shrink-0 select-none transition group-hover:scale-105" />
           <div>
@@ -390,7 +547,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
   </header>
 
   <!-- Main Tournament Dashboard Container -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-1 w-full">
+  <main id="appMain" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-1 w-full">
 
     <!-- Real-Time Esports Broadcast Hero: LIVE NOW & UP NEXT -->
     <div id="liveBroadcastHeroContainer" class="w-full"></div>
@@ -1158,6 +1315,80 @@ Check your Browserslist config to be sure that your targets are set up correctly
       return ESPORTS_CONFIG[currentEsport] || ESPORTS_CONFIG.mlbb;
     }
 
+    
+    function showEsportHub() {
+      const hub = document.getElementById('esportLandingHub');
+      const appHeader = document.getElementById('appHeader');
+      const appMain = document.getElementById('appMain');
+
+      if (hub) hub.classList.remove('hidden');
+      if (appHeader) appHeader.classList.add('hidden');
+      if (appMain) appMain.classList.add('hidden');
+
+      // Update Hub Logos
+      const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+      const hubLogoMLBB = document.getElementById('hubLogoMLBB');
+      const hubLogoCODM = document.getElementById('hubLogoCODM');
+      if (hubLogoMLBB) hubLogoMLBB.src = ESPORTS_CONFIG.mlbb.getLogo(theme);
+      if (hubLogoCODM) hubLogoCODM.src = ESPORTS_CONFIG.codm.getLogo(theme);
+
+      const hubThemeIcon = document.getElementById('hubThemeToggleIcon');
+      if (hubThemeIcon) hubThemeIcon.textContent = theme === 'dark' ? '🌙' : '☀️';
+
+      document.title = "E-Sports Championship Portal - TCC Intramurals 2026";
+      try {
+        if (window.location.hash && !window.location.hash.includes('hub')) {
+          history.replaceState(null, '', window.location.pathname);
+        }
+      } catch(e) {}
+    }
+
+    function openEsportDashboard(esportId) {
+      const hub = document.getElementById('esportLandingHub');
+      const appHeader = document.getElementById('appHeader');
+      const appMain = document.getElementById('appMain');
+
+      if (hub) hub.classList.add('hidden');
+      if (appHeader) appHeader.classList.remove('hidden');
+      if (appMain) appMain.classList.remove('hidden');
+
+      switchEsport(esportId);
+      try {
+        window.location.hash = 'game=' + esportId;
+      } catch(e) {}
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function returnToEsportHub() {
+      showEsportHub();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function checkUrlNavigation() {
+      const hash = (window.location.hash || '').toLowerCase();
+      const searchParams = new URLSearchParams(window.location.search || '');
+      const gameParam = (searchParams.get('game') || searchParams.get('esport') || '').toLowerCase();
+
+      if (gameParam === 'mlbb' || gameParam === 'codm') {
+        openEsportDashboard(gameParam);
+        return true;
+      }
+
+      if (hash.includes('game=mlbb') || hash === '#mlbb') {
+        openEsportDashboard('mlbb');
+        return true;
+      }
+
+      if (hash.includes('game=codm') || hash === '#codm') {
+        openEsportDashboard('codm');
+        return true;
+      }
+
+      // Default when opening the URL: show the 2 ESPORTS selection hub screen!
+      showEsportHub();
+      return false;
+    }
+
     function updateEsportBrandingUI() {
       const cfg = getCurrentEsportConfig();
       const theme = document.documentElement.getAttribute('data-theme') || 'dark';
@@ -1579,6 +1810,12 @@ Check your Browserslist config to be sure that your targets are set up correctly
       try { localStorage.setItem('mlbb_theme', theme); } catch(e) {}
       const icon = document.getElementById('themeToggleIcon');
       if (icon) icon.innerText = theme === 'dark' ? '🌙' : '☀️';
+      const hubIcon = document.getElementById('hubThemeToggleIcon');
+      if (hubIcon) hubIcon.innerText = theme === 'dark' ? '🌙' : '☀️';
+      const hubLogoMLBB = document.getElementById('hubLogoMLBB');
+      const hubLogoCODM = document.getElementById('hubLogoCODM');
+      if (hubLogoMLBB && typeof ESPORTS_CONFIG !== 'undefined') hubLogoMLBB.src = ESPORTS_CONFIG.mlbb.getLogo(theme);
+      if (hubLogoCODM && typeof ESPORTS_CONFIG !== 'undefined') hubLogoCODM.src = ESPORTS_CONFIG.codm.getLogo(theme);
     }
 
     function switchTab(tabId) {
@@ -7340,6 +7577,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       currentEsport = localStorage.getItem('tcc_current_esport_v1') || 'mlbb';
       loadTournamentDataForEsport(currentEsport);
       updateEsportBrandingUI();
+      checkUrlNavigation();
       try { localStorage.setItem(getStorageKey('teams_v9'), JSON.stringify(TEAMS)); } catch(e) {}
       savePlayoffsToStorage();
 
