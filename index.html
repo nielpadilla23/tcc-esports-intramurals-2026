@@ -870,11 +870,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
         <button onclick="closeAdminLoginModal()" class="w-8 h-8 rounded-xl bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-[var(--muted-foreground)] hover:text-[var(--foreground)] flex items-center justify-center text-xs font-black transition cursor-pointer">✕</button>
       </div>
 
-      <div class="p-3.5 rounded-2xl bg-[var(--secondary)]/40 border border-[var(--border)] text-xs text-[var(--muted-foreground)] leading-relaxed space-y-2">
+      <div class="p-3.5 rounded-2xl bg-[var(--secondary)]/40 border border-[var(--border)] text-xs text-[var(--muted-foreground)] leading-relaxed">
         <p>Enter the tournament security PIN to unlock real-time match scoring, series advance, manual seed ordering, and simulations.</p>
-        <p class="text-[11px] text-amber-400 font-bold flex items-center gap-1">
-          <span>💡</span> <span>Default Venue PIN: <code class="px-1.5 py-0.5 rounded bg-[var(--card)] border border-[var(--border)] text-amber-300 font-mono">tcc2026</code></span>
-        </p>
       </div>
 
       <form onsubmit="event.preventDefault(); submitAdminPin();" class="space-y-3">
@@ -1235,6 +1232,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       if (currentTab === 'teams') renderCollegeRoster();
       if (currentTab === 'matches') renderMatchScheduleList();
       if (isTheaterModeOpen) renderTheaterCurrentSlide();
+      pushToCloud();
     }
 
     function changeTeamSeed(collegeId, newSeedStr) {
@@ -3236,6 +3234,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       if (currentTab === 'teams') renderCollegeRoster();
       if (currentTab === 'matches') renderMatchScheduleList();
       if (isTheaterModeOpen) renderTheaterCurrentSlide();
+      pushToCloud();
       showToast('Bracket & seeds reset to default blank state.');
     }
 
@@ -3274,6 +3273,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       updatePlayoffBracket();
       if (currentTab === 'matches') renderMatchScheduleList();
       if (isTheaterModeOpen) renderTheaterCurrentSlide();
+      pushToCloud();
       showToast('Match scores cleared.');
     }
 
@@ -5781,6 +5781,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
     }
 
     // --- 14. REAL-TIME CLOUD SYNC (FIREBASE REALTIME DATABASE) ---
+    // When a Firebase URL is set here, all devices (spectator phones, marshal PCs, projector screens)
+    // automatically sync in real-time (<100ms) with zero configuration required by visitors.
+    const DEFAULT_FIREBASE_DB_URL = '';
     let firebaseDbRef = null;
     let isCloudSyncConnected = false;
     let cloudChannelKey = 'tcc_tournament_2026';
@@ -5792,8 +5795,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
         cloudChannelKey = localStorage.getItem('tcc_firebase_channel_v1') || 'tcc_tournament_2026';
       } catch(e) {}
 
-      if (savedConfig) {
-        connectToFirebase(savedConfig, cloudChannelKey, false);
+      const activeConfig = savedConfig || (typeof DEFAULT_FIREBASE_DB_URL !== 'undefined' && DEFAULT_FIREBASE_DB_URL.trim() ? DEFAULT_FIREBASE_DB_URL.trim() : null);
+
+      if (activeConfig) {
+        connectToFirebase(activeConfig, cloudChannelKey, false);
       } else {
         updateCloudStatusBadge(false, 'Cloud: Local');
       }
@@ -5862,6 +5867,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
           const val = snapshot.val();
           if (val) {
             handleCloudSyncUpdate(val);
+          } else if (isAdmin) {
+            // New empty room - push existing local data up to cloud
+            pushToCloud();
           }
         });
 
