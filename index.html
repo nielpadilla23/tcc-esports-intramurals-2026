@@ -1098,6 +1098,53 @@ Check your Browserslist config to be sure that your targets are set up correctly
       s8_gf: { id: 's8_gf', seq: 8, day: 'DAY 3', label: 'Grand Championship Finals (BO7)', bestOf: 7, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null }
     };
 
+    // --- DATA SANITIZATION & SCORE HELPERS ---
+    function isValidScore(val) {
+      return val !== null && val !== undefined && val !== '' && !isNaN(val);
+    }
+
+    function formatScore(val) {
+      return isValidScore(val) ? Number(val) : '-';
+    }
+
+    function normalizePlayoffMatch(m, k) {
+      if (!m) return m;
+      if (!m.id && k) m.id = k;
+      if (m.s1 === undefined || m.s1 === 'undefined' || m.s1 === '') m.s1 = null;
+      else if (m.s1 !== null) m.s1 = Number(m.s1);
+
+      if (m.s2 === undefined || m.s2 === 'undefined' || m.s2 === '') m.s2 = null;
+      else if (m.s2 !== null) m.s2 = Number(m.s2);
+
+      if (!m.team1 || m.team1 === 'undefined' || m.team1 === 'null') m.team1 = null;
+      if (!m.team2 || m.team2 === 'undefined' || m.team2 === 'null') m.team2 = null;
+      if (!m.winner || m.winner === 'undefined' || m.winner === 'null') m.winner = null;
+      if (!m.loser || m.loser === 'undefined' || m.loser === 'null') m.loser = null;
+
+      if (k) {
+        if (typeof MATCH_BEST_OF !== 'undefined' && MATCH_BEST_OF[k] !== undefined) m.bestOf = MATCH_BEST_OF[k];
+        else if (!m.bestOf) m.bestOf = 3;
+
+        if (typeof MATCH_SEQUENCES !== 'undefined' && MATCH_SEQUENCES[k] !== undefined) m.seq = MATCH_SEQUENCES[k];
+        else if (!m.seq) m.seq = 1;
+
+        if (typeof MATCH_DAYS !== 'undefined' && MATCH_DAYS[k] !== undefined) m.day = MATCH_DAYS[k];
+        else if (!m.day) m.day = 'DAY 1';
+
+        if (typeof CANONICAL_LABELS !== 'undefined' && CANONICAL_LABELS[k] !== undefined) m.label = CANONICAL_LABELS[k];
+        else if (!m.label) m.label = 'Match';
+      }
+      return m;
+    }
+
+    function normalizeAllPlayoffData() {
+      for (let k in PLAYOFF_DATA) {
+        if (PLAYOFF_DATA[k]) {
+          normalizePlayoffMatch(PLAYOFF_DATA[k], k);
+        }
+      }
+    }
+
     // --- 2. THEME & TABS LOGIC ---
     function initTheme() {
       const saved = localStorage.getItem('mlbb_theme') || 'dark';
@@ -1733,22 +1780,24 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function renderPlayoffCard(m, subtext = '', isGrandFinal = false, s1SeedBadge = '', s2SeedBadge = '') {
       if (!m) return '';
-      const hasScores = m.s1 !== null && m.s2 !== null;
-      const bestOfVal = MATCH_BEST_OF[m.id] !== undefined ? MATCH_BEST_OF[m.id] : (m.bestOf || 3);
+      const hasScores = isValidScore(m.s1) && isValidScore(m.s2);
+      const s1Num = hasScores ? Number(m.s1) : 0;
+      const s2Num = hasScores ? Number(m.s2) : 0;
+      const bestOfVal = (typeof MATCH_BEST_OF !== 'undefined' && MATCH_BEST_OF[m.id] !== undefined) ? MATCH_BEST_OF[m.id] : (m.bestOf || 3);
       const targetWins = Math.ceil(bestOfVal / 2);
 
       const isFinal = Boolean(m.winner);
-      const isInProgress = hasScores && !isFinal;
+      const isInProgress = hasScores && !isFinal && (s1Num > 0 || s2Num > 0);
       const t1Won = isFinal && m.winner === m.team1;
       const t2Won = isFinal && m.winner === m.team2;
-      const t1Leading = isInProgress && m.s1 > m.s2;
-      const t2Leading = isInProgress && m.s2 > m.s1;
+      const t1Leading = isInProgress && s1Num > s2Num;
+      const t2Leading = isInProgress && s2Num > s1Num;
 
       const isPlayable = Boolean(m.team1 && m.team2 && m.team1 !== 'TBD' && m.team2 !== 'TBD');
 
-      const seqNum = MATCH_SEQUENCES[m.id] !== undefined ? MATCH_SEQUENCES[m.id] : (m.seq || '');
-      const dayLabel = MATCH_DAYS[m.id] !== undefined ? MATCH_DAYS[m.id] : (m.day || '');
-      const matchLabel = (m.id && PLAYOFF_DATA[m.id] && PLAYOFF_DATA[m.id].label) ? PLAYOFF_DATA[m.id].label : (m.label || '');
+      const seqNum = (typeof MATCH_SEQUENCES !== 'undefined' && MATCH_SEQUENCES[m.id] !== undefined) ? MATCH_SEQUENCES[m.id] : (m.seq || '');
+      const dayLabel = (typeof MATCH_DAYS !== 'undefined' && MATCH_DAYS[m.id] !== undefined) ? MATCH_DAYS[m.id] : (m.day || '');
+      const matchLabel = (m.id && PLAYOFF_DATA[m.id] && PLAYOFF_DATA[m.id].label) ? PLAYOFF_DATA[m.id].label : (m.label || (typeof CANONICAL_LABELS !== 'undefined' ? CANONICAL_LABELS[m.id] : '') || 'Match');
 
       const cardBorder = isGrandFinal 
         ? 'border-2 border-amber-500/80 bg-gradient-to-b from-amber-500/10 via-[var(--card)] to-[var(--card)] gold-championship-card' 
@@ -1806,7 +1855,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 </div>
               </div>
               <span class="text-base font-black font-mono ml-2 ${t1Won ? 'text-emerald-400' : (t1Leading ? 'text-amber-300' : 'text-[var(--foreground)]')}">
-                ${m.s1 !== null ? m.s1 : '-'}
+                ${formatScore(m.s1)}
               </span>
             </div>
 
@@ -1823,7 +1872,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 </div>
               </div>
               <span class="text-base font-black font-mono ml-2 ${t2Won ? 'text-emerald-400' : (t2Leading ? 'text-amber-300' : 'text-[var(--foreground)]')}">
-                ${m.s2 !== null ? m.s2 : '-'}
+                ${formatScore(m.s2)}
               </span>
             </div>
           </div>
@@ -1833,12 +1882,12 @@ Check your Browserslist config to be sure that your targets are set up correctly
             <span class="truncate max-w-[170px]" title="${subtext}">${subtext}</span>
             <div class="flex items-center gap-1.5 shrink-0">
               ${isFinal ? `
-                <span class="font-black text-emerald-400 flex items-center gap-1"><span>✓</span> <span>FINAL (${m.s1}-${m.s2})</span></span>
+                <span class="font-black text-emerald-400 flex items-center gap-1"><span>✓</span> <span>FINAL (${s1Num}-${s2Num})</span></span>
                 <button onclick="resetMatchScore('${m.id}')" title="Reset Score" class="admin-only text-[10px] text-[var(--muted-foreground)] hover:text-rose-400 ml-1 transition cursor-pointer">Reset</button>
               ` : isInProgress ? `
                 <span class="font-black text-amber-400 flex items-center gap-1.5">
                   <span class="w-1.5 h-1.5 rounded-full bg-red-400 beacon-pulse"></span>
-                  <span>GAME ${m.s1 + m.s2 + 1} (${m.s1}-${m.s2})</span>
+                  <span>GAME ${s1Num + s2Num + 1} (${s1Num}-${s2Num})</span>
                 </span>
                 <button onclick="resetMatchScore('${m.id}')" title="Reset Score" class="admin-only text-[10px] text-[var(--muted-foreground)] hover:text-rose-400 ml-1 transition cursor-pointer">Reset</button>
               ` : isPlayable ? `
@@ -1854,11 +1903,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
             <div class="admin-only pt-1.5 flex items-center justify-between gap-1 text-[10px] border-t border-[var(--border)]/40">
               <span class="text-[var(--muted-foreground)] text-[9px] font-black uppercase tracking-wider">Apply +1:</span>
               <div class="flex items-center gap-1.5">
-                <button onclick="incrementMatchScore('${m.id}', 1)" title="Apply +1 game win to ${m.team1}" class="px-2.5 py-0.5 rounded-lg bg-blue-500/15 hover:bg-blue-500 text-blue-400 hover:text-white font-black border border-blue-500/30 transition cursor-pointer flex items-center gap-1">
-                  <span>+1</span> <span>${m.team1}</span>
+                <button onclick="incrementMatchScore('${m.id}', 1)" title="Apply +1 game win to ${m.team1 || 'Team 1'}" class="px-2.5 py-0.5 rounded-lg bg-blue-500/15 hover:bg-blue-500 text-blue-400 hover:text-white font-black border border-blue-500/30 transition cursor-pointer flex items-center gap-1">
+                  <span>+1</span> <span>${m.team1 || 'Team 1'}</span>
                 </button>
-                <button onclick="incrementMatchScore('${m.id}', 2)" title="Apply +1 game win to ${m.team2}" class="px-2.5 py-0.5 rounded-lg bg-blue-500/15 hover:bg-blue-500 text-blue-400 hover:text-white font-black border border-blue-500/30 transition cursor-pointer flex items-center gap-1">
-                  <span>+1</span> <span>${m.team2}</span>
+                <button onclick="incrementMatchScore('${m.id}', 2)" title="Apply +1 game win to ${m.team2 || 'Team 2'}" class="px-2.5 py-0.5 rounded-lg bg-blue-500/15 hover:bg-blue-500 text-blue-400 hover:text-white font-black border border-blue-500/30 transition cursor-pointer flex items-center gap-1">
+                  <span>+1</span> <span>${m.team2 || 'Team 2'}</span>
                 </button>
               </div>
             </div>
@@ -3421,17 +3470,21 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           ${filtered.map((m) => {
-            const hasScores = m.s1 !== null && m.s2 !== null;
+            const hasScores = isValidScore(m.s1) && isValidScore(m.s2);
+            const s1Num = hasScores ? Number(m.s1) : 0;
+            const s2Num = hasScores ? Number(m.s2) : 0;
             const isFinal = Boolean(m.winner);
-            const isInProgress = hasScores && !isFinal;
+            const isInProgress = hasScores && !isFinal && (s1Num > 0 || s2Num > 0);
             const t1Won = isFinal && m.winner === m.team1;
             const t2Won = isFinal && m.winner === m.team2;
-            const t1Leading = isInProgress && m.s1 > m.s2;
-            const t2Leading = isInProgress && m.s2 > m.s1;
+            const t1Leading = isInProgress && s1Num > s2Num;
+            const t2Leading = isInProgress && s2Num > s1Num;
             const isPlayable = Boolean(m.team1 && m.team2 && m.team1 !== 'TBD' && m.team2 !== 'TBD');
 
-            const mDay = m.day || MATCH_DAYS[m.id] || '';
-            const mSeq = m.seq || MATCH_SEQUENCES[m.id] || '';
+            const mDay = (typeof MATCH_DAYS !== 'undefined' && MATCH_DAYS[m.id] !== undefined) ? MATCH_DAYS[m.id] : (m.day || '');
+            const mSeq = (typeof MATCH_SEQUENCES !== 'undefined' && MATCH_SEQUENCES[m.id] !== undefined) ? MATCH_SEQUENCES[m.id] : (m.seq || '');
+            const mLabel = (m.id && PLAYOFF_DATA[m.id] && PLAYOFF_DATA[m.id].label) ? PLAYOFF_DATA[m.id].label : (m.label || (typeof CANONICAL_LABELS !== 'undefined' ? CANONICAL_LABELS[m.id] : '') || 'Match');
+            const mBestOf = (typeof MATCH_BEST_OF !== 'undefined' && MATCH_BEST_OF[m.id] !== undefined) ? MATCH_BEST_OF[m.id] : (m.bestOf || 3);
 
             return `
               <div class="p-4 rounded-2xl bg-[var(--card)] border border-[var(--border)] shadow-xs hover:border-amber-500/40 transition flex flex-col justify-between space-y-3">
@@ -3440,11 +3493,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     <span class="px-1.5 py-0.5 rounded-md text-[10px] font-mono font-black ${mDay === 'DAY 1' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : mDay === 'DAY 2' ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'} shrink-0">
                       ${mDay} · MATCH #${mSeq}
                     </span>
-                    <span class="text-xs font-black uppercase text-[var(--muted-foreground)] truncate">${m.label}</span>
+                    <span class="text-xs font-black uppercase text-[var(--muted-foreground)] truncate">${mLabel}</span>
                   </div>
                   <div class="flex items-center gap-1.5 shrink-0">
-                    <span class="text-[9px] font-bold px-2 py-0.5 rounded-full ${m.bestOf === 7 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : m.bestOf === 5 ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30'}">
-                      BO${m.bestOf}
+                    <span class="text-[9px] font-bold px-2 py-0.5 rounded-full ${mBestOf === 7 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : mBestOf === 5 ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30'}">
+                      BO${mBestOf}
                     </span>
                     ${isPlayable ? `
                       <button onclick="openScoreModal('${m.id}')" title="Update Score" class="admin-only px-2 py-0.5 rounded-lg text-[10px] font-black bg-amber-500/15 text-amber-400 hover:bg-amber-500 hover:text-slate-950 border border-amber-500/30 transition cursor-pointer flex items-center gap-1">
@@ -3464,7 +3517,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                       ${renderTeamLogo(m.team1, 'w-6 h-6', 'rounded-md shrink-0')}
                       <span class="text-xs font-black truncate ${t1Won ? 'text-emerald-400' : (t1Leading ? 'text-amber-300' : 'text-[var(--foreground)]')}">${m.team1 || 'TBD'}</span>
                     </div>
-                    <span class="text-sm font-black font-mono ${t1Won ? 'text-emerald-400' : (t1Leading ? 'text-amber-300' : 'text-[var(--foreground)]')}">${m.s1 !== null ? m.s1 : '-'}</span>
+                    <span class="text-sm font-black font-mono ${t1Won ? 'text-emerald-400' : (t1Leading ? 'text-amber-300' : 'text-[var(--foreground)]')}">${formatScore(m.s1)}</span>
                   </div>
 
                   <!-- Team 2 -->
@@ -3473,23 +3526,23 @@ Check your Browserslist config to be sure that your targets are set up correctly
                       ${renderTeamLogo(m.team2, 'w-6 h-6', 'rounded-md shrink-0')}
                       <span class="text-xs font-black truncate ${t2Won ? 'text-emerald-400' : (t2Leading ? 'text-amber-300' : 'text-[var(--foreground)]')}">${m.team2 || 'TBD'}</span>
                     </div>
-                    <span class="text-sm font-black font-mono ${t2Won ? 'text-emerald-400' : (t2Leading ? 'text-amber-300' : 'text-[var(--foreground)]')}">${m.s2 !== null ? m.s2 : '-'}</span>
+                    <span class="text-sm font-black font-mono ${t2Won ? 'text-emerald-400' : (t2Leading ? 'text-amber-300' : 'text-[var(--foreground)]')}">${formatScore(m.s2)}</span>
                   </div>
                 </div>
 
                 <!-- Footer Status & Actions -->
                 <div class="flex items-center justify-between text-[10px] text-[var(--muted-foreground)] pt-1 border-t border-[var(--border)]/60">
                   <span class="truncate max-w-[200px]">
-                    ${isFinal ? `✓ Winner: ${m.winner}` : (isInProgress ? `In Progress · Game ${m.s1 + m.s2 + 1}` : (isPlayable ? 'Ready to play' : 'Awaiting teams'))}
+                    ${isFinal ? `✓ Winner: ${m.winner}` : (isInProgress ? `In Progress · Game ${s1Num + s2Num + 1}` : (isPlayable ? 'Ready to play' : 'Awaiting teams'))}
                   </span>
                   <div class="flex items-center gap-2">
                     ${isFinal ? `
-                      <span class="text-emerald-400 font-bold">✓ FINAL (${m.s1}-${m.s2})</span>
+                      <span class="text-emerald-400 font-bold">✓ FINAL (${s1Num}-${s2Num})</span>
                       <button onclick="resetMatchScore('${m.id}')" title="Reset Score" class="text-[9px] hover:text-rose-400 cursor-pointer">↺</button>
                     ` : isInProgress ? `
                       <span class="text-amber-400 font-bold flex items-center gap-1">
                         <span class="w-1.5 h-1.5 rounded-full bg-red-400 beacon-pulse"></span>
-                        <span>GAME ${m.s1 + m.s2 + 1} (${m.s1}-${m.s2})</span>
+                        <span>GAME ${s1Num + s2Num + 1} (${s1Num}-${s2Num})</span>
                       </span>
                       <button onclick="resetMatchScore('${m.id}')" title="Reset Score" class="text-[9px] hover:text-rose-400 cursor-pointer">↺</button>
                     ` : isPlayable ? `
@@ -3505,11 +3558,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   <div class="pt-1.5 flex items-center justify-between gap-1 text-[10px] border-t border-[var(--border)]/40">
                     <span class="text-[var(--muted-foreground)] text-[9px] font-black uppercase tracking-wider">Apply +1:</span>
                     <div class="flex items-center gap-1.5">
-                      <button onclick="incrementMatchScore('${m.id}', 1)" title="Apply +1 game win to ${m.team1}" class="px-2.5 py-0.5 rounded-lg bg-blue-500/15 hover:bg-blue-500 text-blue-400 hover:text-white font-black border border-blue-500/30 transition cursor-pointer flex items-center gap-1">
-                        <span>+1</span> <span>${m.team1}</span>
+                      <button onclick="incrementMatchScore('${m.id}', 1)" title="Apply +1 game win to ${m.team1 || 'Team 1'}" class="px-2.5 py-0.5 rounded-lg bg-blue-500/15 hover:bg-blue-500 text-blue-400 hover:text-white font-black border border-blue-500/30 transition cursor-pointer flex items-center gap-1">
+                        <span>+1</span> <span>${m.team1 || 'Team 1'}</span>
                       </button>
-                      <button onclick="incrementMatchScore('${m.id}', 2)" title="Apply +1 game win to ${m.team2}" class="px-2.5 py-0.5 rounded-lg bg-blue-500/15 hover:bg-blue-500 text-blue-400 hover:text-white font-black border border-blue-500/30 transition cursor-pointer flex items-center gap-1">
-                        <span>+1</span> <span>${m.team2}</span>
+                      <button onclick="incrementMatchScore('${m.id}', 2)" title="Apply +1 game win to ${m.team2 || 'Team 2'}" class="px-2.5 py-0.5 rounded-lg bg-blue-500/15 hover:bg-blue-500 text-blue-400 hover:text-white font-black border border-blue-500/30 transition cursor-pointer flex items-center gap-1">
+                        <span>+1</span> <span>${m.team2 || 'Team 2'}</span>
                       </button>
                     </div>
                   </div>
@@ -5462,12 +5515,18 @@ Check your Browserslist config to be sure that your targets are set up correctly
         return;
       }
 
+      // Normalize all match structures
+      normalizeAllPlayoffData();
+
       // Find Current Match (Live Now):
-      // 1. Any match with score progress (!winner && s1 !== null && s2 !== null)
-      // 2. Earliest unplayed match that is playable
-      let liveMatch = matches.find(m => m.s1 !== null && m.s2 !== null && !m.winner);
+      // 1. Any match with active scores in progress (!winner && isValidScore(s1) && isValidScore(s2) && (s1 > 0 || s2 > 0))
+      // 2. Earliest unplayed match with confirmed teams
+      let liveMatch = matches.find(m => isValidScore(m.s1) && isValidScore(m.s2) && (Number(m.s1) > 0 || Number(m.s2) > 0) && !m.winner);
       if (!liveMatch) {
         liveMatch = matches.find(m => m.team1 && m.team2 && m.team1 !== 'TBD' && m.team2 !== 'TBD' && !m.winner);
+      }
+      if (!liveMatch && matches.length > 0) {
+        liveMatch = matches.find(m => !m.winner) || matches[0];
       }
 
       // Find Up Next Match (On Deck):
@@ -5508,12 +5567,29 @@ Check your Browserslist config to be sure that your targets are set up correctly
         return;
       }
 
-      const liveDay = liveMatch.day || MATCH_DAYS[liveMatch.id] || 'DAY 1';
-      const liveSeq = liveMatch.seq || MATCH_SEQUENCES[liveMatch.id] || '1';
-      const liveS1 = liveMatch.s1 !== null ? liveMatch.s1 : 0;
-      const liveS2 = liveMatch.s2 !== null ? liveMatch.s2 : 0;
-      const liveInProgress = liveMatch.s1 !== null && liveMatch.s2 !== null && (liveMatch.s1 > 0 || liveMatch.s2 > 0);
+      const liveId = liveMatch.id || '';
+      const liveDay = (typeof MATCH_DAYS !== 'undefined' && MATCH_DAYS[liveId] !== undefined) ? MATCH_DAYS[liveId] : (liveMatch.day || 'DAY 1');
+      const liveSeq = (typeof MATCH_SEQUENCES !== 'undefined' && MATCH_SEQUENCES[liveId] !== undefined) ? MATCH_SEQUENCES[liveId] : (liveMatch.seq || '1');
+      const liveBestOf = (typeof MATCH_BEST_OF !== 'undefined' && MATCH_BEST_OF[liveId] !== undefined) ? MATCH_BEST_OF[liveId] : (liveMatch.bestOf || 3);
+      const liveLabel = (liveMatch.label && liveMatch.label !== 'undefined') ? liveMatch.label : ((typeof CANONICAL_LABELS !== 'undefined' && CANONICAL_LABELS[liveId]) ? CANONICAL_LABELS[liveId] : 'Current Match');
+
+      const liveTeam1 = (liveMatch.team1 && liveMatch.team1 !== 'null' && liveMatch.team1 !== 'undefined') ? liveMatch.team1 : 'TBD';
+      const liveTeam2 = (liveMatch.team2 && liveMatch.team2 !== 'null' && liveMatch.team2 !== 'undefined') ? liveMatch.team2 : 'TBD';
+
+      const hasLiveScores = isValidScore(liveMatch.s1) && isValidScore(liveMatch.s2);
+      const liveS1 = hasLiveScores ? Number(liveMatch.s1) : 0;
+      const liveS2 = hasLiveScores ? Number(liveMatch.s2) : 0;
+      const liveInProgress = hasLiveScores && (liveS1 > 0 || liveS2 > 0) && !liveMatch.winner;
       const liveGameNum = liveS1 + liveS2 + 1;
+
+      const upNextId = upNextMatch ? (upNextMatch.id || '') : '';
+      const upNextDay = upNextMatch ? ((typeof MATCH_DAYS !== 'undefined' && MATCH_DAYS[upNextId] !== undefined) ? MATCH_DAYS[upNextId] : (upNextMatch.day || '')) : '';
+      const upNextSeq = upNextMatch ? ((typeof MATCH_SEQUENCES !== 'undefined' && MATCH_SEQUENCES[upNextId] !== undefined) ? MATCH_SEQUENCES[upNextId] : (upNextMatch.seq || '')) : '';
+      const upNextBestOf = upNextMatch ? ((typeof MATCH_BEST_OF !== 'undefined' && MATCH_BEST_OF[upNextId] !== undefined) ? MATCH_BEST_OF[upNextId] : (upNextMatch.bestOf || 3)) : 3;
+      const upNextLabel = upNextMatch ? ((upNextMatch.label && upNextMatch.label !== 'undefined') ? upNextMatch.label : ((typeof CANONICAL_LABELS !== 'undefined' && CANONICAL_LABELS[upNextId]) ? CANONICAL_LABELS[upNextId] : 'Next Match')) : '';
+
+      const upNextTeam1 = (upNextMatch && upNextMatch.team1 && upNextMatch.team1 !== 'null' && upNextMatch.team1 !== 'undefined') ? upNextMatch.team1 : 'TBD';
+      const upNextTeam2 = (upNextMatch && upNextMatch.team2 && upNextMatch.team2 !== 'null' && upNextMatch.team2 !== 'undefined') ? upNextMatch.team2 : 'TBD';
 
       container.innerHTML = `
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
@@ -5533,7 +5609,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
               </div>
               <div class="flex items-center gap-2">
                 <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--secondary)] border border-[var(--border)] text-[var(--muted-foreground)]">
-                  BO${liveMatch.bestOf}
+                  BO${liveBestOf}
                 </span>
                 ${liveInProgress ? `
                   <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
@@ -5550,41 +5626,41 @@ Check your Browserslist config to be sure that your targets are set up correctly
             <!-- Live Matchup Stage -->
             <div class="py-4">
               <div class="text-[11px] font-black uppercase tracking-wider text-[var(--muted-foreground)] text-center mb-3">
-                ${liveMatch.label}
+                ${liveLabel}
               </div>
 
               <div class="flex items-center justify-between gap-2 sm:gap-4">
                 <!-- Team 1 -->
                 <div class="flex-1 flex flex-col items-center text-center">
-                  ${renderTeamLogo(liveMatch.team1, 'w-12 h-12 sm:w-16 sm:h-16', 'rounded-2xl border-2 border-[var(--border)] shadow-md mb-2')}
+                  ${renderTeamLogo(liveTeam1, 'w-12 h-12 sm:w-16 sm:h-16', 'rounded-2xl border-2 border-[var(--border)] shadow-md mb-2')}
                   <div class="text-sm sm:text-base font-black text-[var(--foreground)] truncate max-w-[120px] sm:max-w-[160px]">
-                    ${liveMatch.team1}
+                    ${liveTeam1}
                   </div>
                   <div class="text-[10px] text-[var(--muted-foreground)] font-bold">
-                    ${getTeamCollegeShort(liveMatch.team1)}
+                    ${getTeamCollegeShort(liveTeam1)}
                   </div>
                 </div>
 
                 <!-- Score Centerpiece -->
                 <div class="flex flex-col items-center justify-center shrink-0 px-3 py-2 rounded-2xl bg-[var(--card-surface)] border border-[var(--border)]">
                   <div class="flex items-center gap-2 sm:gap-3 text-2xl sm:text-4xl font-mono font-black">
-                    <span class="${liveS1 > liveS2 ? 'text-amber-400' : 'text-[var(--foreground)]'}">${liveS1}</span>
+                    <span class="${liveS1 > liveS2 ? 'text-amber-400' : 'text-[var(--foreground)]'}">${hasLiveScores ? liveS1 : '0'}</span>
                     <span class="text-slate-500 text-lg sm:text-2xl">-</span>
-                    <span class="${liveS2 > liveS1 ? 'text-amber-400' : 'text-[var(--foreground)]'}">${liveS2}</span>
+                    <span class="${liveS2 > liveS1 ? 'text-amber-400' : 'text-[var(--foreground)]'}">${hasLiveScores ? liveS2 : '0'}</span>
                   </div>
                   <span class="text-[9px] uppercase tracking-wider font-extrabold text-[var(--muted-foreground)] mt-0.5">
-                    ${liveInProgress ? 'Live Game Score' : 'Series Score'}
+                    ${liveInProgress ? 'Live Game Score' : (liveMatch.winner ? 'Series Final' : 'Pre-Match (0 - 0)')}
                   </span>
                 </div>
 
                 <!-- Team 2 -->
                 <div class="flex-1 flex flex-col items-center text-center">
-                  ${renderTeamLogo(liveMatch.team2, 'w-12 h-12 sm:w-16 sm:h-16', 'rounded-2xl border-2 border-[var(--border)] shadow-md mb-2')}
+                  ${renderTeamLogo(liveTeam2, 'w-12 h-12 sm:w-16 sm:h-16', 'rounded-2xl border-2 border-[var(--border)] shadow-md mb-2')}
                   <div class="text-sm sm:text-base font-black text-[var(--foreground)] truncate max-w-[120px] sm:max-w-[160px]">
-                    ${liveMatch.team2}
+                    ${liveTeam2}
                   </div>
                   <div class="text-[10px] text-[var(--muted-foreground)] font-bold">
-                    ${getTeamCollegeShort(liveMatch.team2)}
+                    ${getTeamCollegeShort(liveTeam2)}
                   </div>
                 </div>
               </div>
@@ -5599,11 +5675,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
               <!-- Marshal Quick Scoring Buttons (Admin Only) -->
               <div class="admin-only flex items-center gap-1.5">
-                <button onclick="incrementMatchScore('${liveMatch.id}', 1)" title="Add game win to ${liveMatch.team1}" class="px-2.5 py-1 rounded-lg bg-blue-500/15 hover:bg-blue-500 text-blue-400 hover:text-white font-black text-[10px] border border-blue-500/30 transition cursor-pointer">
-                  +1 ${liveMatch.team1}
+                <button onclick="incrementMatchScore('${liveMatch.id}', 1)" title="Add game win to ${liveTeam1}" class="px-2.5 py-1 rounded-lg bg-blue-500/15 hover:bg-blue-500 text-blue-400 hover:text-white font-black text-[10px] border border-blue-500/30 transition cursor-pointer ${liveTeam1 === 'TBD' ? 'opacity-40 pointer-events-none' : ''}">
+                  +1 ${liveTeam1}
                 </button>
-                <button onclick="incrementMatchScore('${liveMatch.id}', 2)" title="Add game win to ${liveMatch.team2}" class="px-2.5 py-1 rounded-lg bg-blue-500/15 hover:bg-blue-500 text-blue-400 hover:text-white font-black text-[10px] border border-blue-500/30 transition cursor-pointer">
-                  +1 ${liveMatch.team2}
+                <button onclick="incrementMatchScore('${liveMatch.id}', 2)" title="Add game win to ${liveTeam2}" class="px-2.5 py-1 rounded-lg bg-blue-500/15 hover:bg-blue-500 text-blue-400 hover:text-white font-black text-[10px] border border-blue-500/30 transition cursor-pointer ${liveTeam2 === 'TBD' ? 'opacity-40 pointer-events-none' : ''}">
+                  +1 ${liveTeam2}
                 </button>
                 <button onclick="openScoreModal('${liveMatch.id}')" title="Custom Score & End Series" class="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500 text-amber-400 hover:text-slate-950 font-black text-[10px] border border-amber-500/30 transition cursor-pointer">
                   ✏️ Edit
@@ -5622,13 +5698,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 </span>
                 ${upNextMatch ? `
                   <span class="text-xs font-mono font-bold text-sky-400">
-                    ${upNextMatch.day || MATCH_DAYS[upNextMatch.id] || ''} · #${upNextMatch.seq || MATCH_SEQUENCES[upNextMatch.id] || ''}
+                    ${upNextDay ? upNextDay + ' · ' : ''}#${upNextSeq || ''}
                   </span>
                 ` : ''}
               </div>
               ${upNextMatch ? `
                 <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--secondary)] border border-[var(--border)] text-[var(--muted-foreground)]">
-                  BO${upNextMatch.bestOf}
+                  BO${upNextBestOf}
                 </span>
               ` : ''}
             </div>
@@ -5637,14 +5713,14 @@ Check your Browserslist config to be sure that your targets are set up correctly
             <div class="py-4">
               ${upNextMatch ? `
                 <div class="text-[11px] font-black uppercase tracking-wider text-[var(--muted-foreground)] text-center mb-3">
-                  ${upNextMatch.label}
+                  ${upNextLabel}
                 </div>
 
                 <div class="flex items-center justify-around gap-2">
                   <div class="flex flex-col items-center text-center">
-                    ${renderTeamLogo(upNextMatch.team1, 'w-10 h-10 sm:w-12 sm:h-12', 'rounded-xl border border-[var(--border)] mb-1.5')}
+                    ${renderTeamLogo(upNextTeam1, 'w-10 h-10 sm:w-12 sm:h-12', 'rounded-xl border border-[var(--border)] mb-1.5')}
                     <div class="text-xs sm:text-sm font-black text-[var(--foreground)] truncate max-w-[100px]">
-                      ${upNextMatch.team1 || 'TBD'}
+                      ${upNextTeam1}
                     </div>
                   </div>
 
@@ -5653,9 +5729,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   </div>
 
                   <div class="flex flex-col items-center text-center">
-                    ${renderTeamLogo(upNextMatch.team2, 'w-10 h-10 sm:w-12 sm:h-12', 'rounded-xl border border-[var(--border)] mb-1.5')}
+                    ${renderTeamLogo(upNextTeam2, 'w-10 h-10 sm:w-12 sm:h-12', 'rounded-xl border border-[var(--border)] mb-1.5')}
                     <div class="text-xs sm:text-sm font-black text-[var(--foreground)] truncate max-w-[100px]">
-                      ${upNextMatch.team2 || 'TBD'}
+                      ${upNextTeam2}
                     </div>
                   </div>
                 </div>
@@ -5937,6 +6013,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
             Object.assign(PLAYOFF_DATA[k], data.PLAYOFF_DATA[k]);
           }
         }
+        normalizeAllPlayoffData();
         try {
           localStorage.setItem('mlbb_playoff_data_v9', JSON.stringify(PLAYOFF_DATA));
           localStorage.setItem('mlbb_teams_v9', JSON.stringify(TEAMS));
@@ -6121,6 +6198,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         if (PLAYOFF_DATA[k].winner === 'COM') PLAYOFF_DATA[k].winner = 'CMID';
         if (PLAYOFF_DATA[k].loser === 'COM') PLAYOFF_DATA[k].loser = 'CMID';
       }
+      normalizeAllPlayoffData();
       try { localStorage.setItem('mlbb_teams_v9', JSON.stringify(TEAMS)); } catch(e) {}
       savePlayoffsToStorage();
 
