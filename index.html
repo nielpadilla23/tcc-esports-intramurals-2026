@@ -861,7 +861,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
               <input type="number" id="modalScore1" min="0" max="4" oninput="updateModalPreview()" class="w-16 text-center text-3xl font-mono font-black p-1 rounded-xl bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] focus:outline-hidden focus:border-amber-500">
               <button type="button" onclick="stepModalScore(1, 1)" class="w-8 h-8 rounded-xl bg-[var(--card)] border border-[var(--border)] hover:bg-emerald-500/20 hover:text-emerald-400 font-black text-sm flex items-center justify-center transition cursor-pointer select-none" title="Plus 1 Game Win">+</button>
             </div>
-            <button type="button" onclick="stepModalScore(1, 1)" class="w-full py-1.5 px-2 rounded-xl bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white font-black text-xs border border-blue-500/30 transition cursor-pointer flex items-center justify-center gap-1">
+            <button type="button" id="modalPlusOneBtn1" onclick="stepModalScore(1, 1)" class="w-full py-1.5 px-2 rounded-xl bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white font-black text-xs border border-blue-500/30 transition cursor-pointer flex items-center justify-center gap-1">
               <span>+1</span> <span>Win Game</span>
             </button>
           </div>
@@ -878,7 +878,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
               <input type="number" id="modalScore2" min="0" max="4" oninput="updateModalPreview()" class="w-16 text-center text-3xl font-mono font-black p-1 rounded-xl bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] focus:outline-hidden focus:border-amber-500">
               <button type="button" onclick="stepModalScore(2, 1)" class="w-8 h-8 rounded-xl bg-[var(--card)] border border-[var(--border)] hover:bg-emerald-500/20 hover:text-emerald-400 font-black text-sm flex items-center justify-center transition cursor-pointer select-none" title="Plus 1 Game Win">+</button>
             </div>
-            <button type="button" onclick="stepModalScore(2, 1)" class="w-full py-1.5 px-2 rounded-xl bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white font-black text-xs border border-blue-500/30 transition cursor-pointer flex items-center justify-center gap-1">
+            <button type="button" id="modalPlusOneBtn2" onclick="stepModalScore(2, 1)" class="w-full py-1.5 px-2 rounded-xl bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white font-black text-xs border border-blue-500/30 transition cursor-pointer flex items-center justify-center gap-1">
               <span>+1</span> <span>Win Game</span>
             </button>
           </div>
@@ -3217,8 +3217,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 ${isBye ? 'BYE' : 'BO' + bestOfVal}
               </span>
               ${isPlayable ? `
-                <button onclick="openScoreModal('${m.id}')" title="Update Score" class="marshal-only px-2 py-0.5 rounded-lg text-[10px] font-black bg-amber-500/15 text-amber-400 hover:bg-amber-500 hover:text-slate-950 border border-amber-500/30 transition cursor-pointer flex items-center gap-1">
-                  <span>✏️</span> <span>Update Score</span>
+                <button onclick="openScoreModal('${m.id}')" title="${currentEsport === 'codm' ? 'Edit Score' : 'Update Score'}" class="marshal-only px-2 py-0.5 rounded-lg text-[10px] font-black bg-amber-500/15 text-amber-400 hover:bg-amber-500 hover:text-slate-950 border border-amber-500/30 transition cursor-pointer flex items-center gap-1">
+                  <span>✏️</span> <span>${currentEsport === 'codm' ? 'Edit Score' : 'Update Score'}</span>
                 </button>
               ` : ''}
             </div>
@@ -3301,7 +3301,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
           </div>
 
           <!-- Quick Game-by-Game Increment Action Bar -->
-          ${isPlayable && !isFinal && !isBye ? `
+          ${isPlayable && !isFinal && !isBye && currentEsport !== 'codm' ? `
             <div class="marshal-only pt-1.5 flex items-center justify-between gap-1 text-[10px] border-t border-[var(--border)]/40">
               <span class="text-[var(--muted-foreground)] text-[9px] font-black uppercase tracking-wider">Apply +1:</span>
               <div class="flex items-center gap-1.5">
@@ -4703,6 +4703,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
     }
 
     function incrementMatchScore(matchKey, teamSlot) {
+      if (currentEsport === 'codm') {
+        openScoreModal(matchKey);
+        return;
+      }
       if (!canScore()) {
         showToast('🔒 Please log in as Admin or Table Marshal to update scores.');
         openAdminLoginModal('marshal');
@@ -5172,8 +5176,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
                       ${isBye ? 'BYE' : `BO${mBestOf}`}
                     </span>
                     ${isPlayable ? `
-                      <button onclick="openScoreModal('${m.id}')" title="Update Score" class="marshal-only px-2 py-0.5 rounded-lg text-[10px] font-black bg-amber-500/15 text-amber-400 hover:bg-amber-500 hover:text-slate-950 border border-amber-500/30 transition cursor-pointer flex items-center gap-1">
-                        <span>✏️</span> <span>Update Score</span>
+                      <button onclick="openScoreModal('${m.id}')" title="${currentEsport === 'codm' ? 'Edit Score' : 'Update Score'}" class="marshal-only px-2 py-0.5 rounded-lg text-[10px] font-black bg-amber-500/15 text-amber-400 hover:bg-amber-500 hover:text-slate-950 border border-amber-500/30 transition cursor-pointer flex items-center gap-1">
+                        <span>✏️</span> <span>${currentEsport === 'codm' ? 'Edit Score' : 'Update Score'}</span>
                       </button>
                     ` : ''}
                     <button onclick="printSingleMatch('${m.id}')" title="Print Match ${matchShortCode} Scoresheet" class="px-1.5 py-0.5 rounded-lg text-[10px] font-black bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-[var(--border)] transition cursor-pointer flex items-center gap-1">
@@ -5241,7 +5245,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 </div>
 
                 <!-- Quick Apply +1 Buttons -->
-                ${isPlayable && !isFinal ? `
+                ${isPlayable && !isFinal && currentEsport !== 'codm' ? `
                   <div class="marshal-only pt-1.5 flex items-center justify-between gap-1 text-[10px] border-t border-[var(--border)]/40">
                     <span class="text-[var(--muted-foreground)] text-[9px] font-black uppercase tracking-wider">Apply +1:</span>
                     <div class="flex items-center gap-1.5">
@@ -5918,6 +5922,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
           codmContainer.classList.add('hidden');
         }
       }
+
+      const plusBtn1 = document.getElementById('modalPlusOneBtn1');
+      const plusBtn2 = document.getElementById('modalPlusOneBtn2');
+      if (plusBtn1) plusBtn1.style.display = currentEsport === 'codm' ? 'none' : '';
+      if (plusBtn2) plusBtn2.style.display = currentEsport === 'codm' ? 'none' : '';
 
       updateModalPreview();
       if (modal) modal.classList.remove('hidden');
@@ -7826,14 +7835,16 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
               <!-- Marshal & Admin Quick Scoring Buttons -->
               <div class="marshal-only flex items-center gap-1.5 shrink-0">
+                ${currentEsport !== 'codm' ? `
                 <button onclick="incrementMatchScore('${liveMatch.id}', 1)" title="Add game win to ${liveTeam1}" class="px-2.5 py-1 rounded-lg bg-blue-500/15 hover:bg-blue-500 text-blue-400 hover:text-white font-black text-[10px] border border-blue-500/30 transition cursor-pointer ${liveTeam1 === 'TBD' ? 'opacity-40 pointer-events-none' : ''}">
                   +1 ${liveTeam1}
                 </button>
                 <button onclick="incrementMatchScore('${liveMatch.id}', 2)" title="Add game win to ${liveTeam2}" class="px-2.5 py-1 rounded-lg bg-blue-500/15 hover:bg-blue-500 text-blue-400 hover:text-white font-black text-[10px] border border-blue-500/30 transition cursor-pointer ${liveTeam2 === 'TBD' ? 'opacity-40 pointer-events-none' : ''}">
                   +1 ${liveTeam2}
                 </button>
+                ` : ''}
                 <button onclick="openScoreModal('${liveMatch.id}')" title="Custom Score & End Series" class="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500 text-amber-400 hover:text-slate-950 font-black text-[10px] border border-amber-500/30 transition cursor-pointer">
-                  ✏️ Edit
+                  ✏️ ${currentEsport === 'codm' ? 'Edit Score' : 'Edit'}
                 </button>
               </div>
             </div>
