@@ -5791,31 +5791,43 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   </span>
                 </div>
 
-                <!-- Matchup Rows -->
-                <div class="py-1.5 space-y-1">
-                  <div class="flex items-center justify-between text-xs px-2 py-0.5 rounded-lg bg-emerald-500/15 font-black text-emerald-400 border border-emerald-500/30">
-                    <div class="flex items-center gap-2 truncate">
-                      ${renderTeamLogo(champion, 'w-5 h-5', 'rounded shrink-0')}
-                      <span class="truncate">${champion}</span>
-                      <span class="text-[8px] px-1 py-0.2 rounded bg-emerald-500/25 text-emerald-300 font-bold uppercase">WIN</span>
+                <!-- Matchup Content (horizontal layout matching Next Match) -->
+                <div class="py-2 flex items-center justify-between gap-2 px-1">
+                  <!-- Team 1 (Champion) -->
+                  <div class="flex-1 flex items-center gap-1.5 truncate">
+                    ${renderTeamLogo(champion, 'w-6 h-6', 'rounded-md border border-[var(--border)] shrink-0')}
+                    <div class="truncate">
+                      <div class="text-xs font-black text-emerald-400 truncate flex items-center gap-1">
+                        <span>${champion}</span>
+                        <span class="text-[8px] px-1 py-0.2 rounded bg-emerald-500/25 text-emerald-300 font-bold uppercase">WIN</span>
+                      </div>
+                      <div class="text-[9px] text-[var(--muted-foreground)] font-semibold truncate leading-tight">${champObj.mascot || getTeamCollegeShort(champion)}</div>
                     </div>
-                    <span class="font-mono font-black ml-2 text-sm">${champScore}</span>
                   </div>
-                  <div class="flex items-center justify-between text-xs px-2 py-0.5 rounded-lg text-[var(--muted-foreground)] opacity-75">
-                    <div class="flex items-center gap-2 truncate">
-                      ${renderTeamLogo(runnerUp, 'w-5 h-5', 'rounded shrink-0')}
-                      <span class="truncate">${runnerUp}</span>
+
+                  <!-- Score Badge (Centerpiece mirroring VS badge in Up Next) -->
+                  <div class="flex items-center gap-1 px-2 py-0.5 rounded bg-[var(--secondary)] border border-emerald-500/30 text-xs font-mono font-black shrink-0 shadow-inner">
+                    <span class="text-emerald-400">${champScore}</span>
+                    <span class="text-slate-500 text-[10px]">-</span>
+                    <span class="text-[var(--muted-foreground)]">${runnerScore}</span>
+                  </div>
+
+                  <!-- Team 2 (Runner-Up) -->
+                  <div class="flex-1 flex items-center justify-end gap-1.5 text-right truncate">
+                    <div class="truncate">
+                      <div class="text-xs font-black text-[var(--foreground)] truncate">${runnerUp}</div>
+                      <div class="text-[9px] text-[var(--muted-foreground)] font-semibold truncate leading-tight">${runnerObj.mascot || getTeamCollegeShort(runnerUp)}</div>
                     </div>
-                    <span class="font-mono font-black ml-2 text-sm">${runnerScore}</span>
+                    ${renderTeamLogo(runnerUp, 'w-6 h-6', 'rounded-md border border-[var(--border)] shrink-0')}
                   </div>
                 </div>
 
                 <!-- Footer -->
                 <div class="pt-1 border-t border-[var(--border)]/60 flex items-center justify-between text-[10px] text-[var(--muted-foreground)]">
-                  <span class="truncate font-semibold text-emerald-400 flex items-center gap-1">
-                    <span>🏆</span> <span class="truncate">${champion} Gold Champion</span>
+                  <span class="truncate text-[9px] font-mono max-w-[140px]">Grand Finals Series</span>
+                  <span class="text-[9px] font-bold text-emerald-400 shrink-0 flex items-center gap-1">
+                    <span>🏆</span> <span class="truncate">${champion} Champion</span>
                   </span>
-                  <span class="text-[9px] font-mono text-[var(--muted-foreground)]">Grand Finals</span>
                 </div>
               </div>
 
@@ -6097,30 +6109,45 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
               <!-- Content -->
               ${recentMatch ? `
-                <div class="py-1.5 space-y-1">
-                  <div class="flex items-center justify-between text-xs px-2 py-0.5 rounded-lg ${recentT1Won ? 'bg-emerald-500/15 font-black text-emerald-400 border border-emerald-500/30' : 'text-[var(--muted-foreground)] opacity-75'}">
-                    <div class="flex items-center gap-2 truncate">
-                      ${renderTeamLogo(recentTeam1, 'w-5 h-5', 'rounded shrink-0')}
-                      <span class="truncate">${recentTeam1}</span>
-                      ${recentT1Won ? '<span class="text-[8px] px-1 py-0.2 rounded bg-emerald-500/25 text-emerald-300 font-bold uppercase">WIN</span>' : ''}
+                <div class="py-2 flex items-center justify-between gap-2 px-1">
+                  <!-- Team 1 -->
+                  <div class="flex-1 flex items-center gap-1.5 truncate">
+                    ${renderTeamLogo(recentTeam1, 'w-6 h-6', 'rounded-md border border-[var(--border)] shrink-0')}
+                    <div class="truncate">
+                      <div class="text-xs font-black ${recentT1Won ? 'text-emerald-400' : 'text-[var(--foreground)]'} truncate flex items-center gap-1">
+                        <span>${recentTeam1}</span>
+                        ${recentT1Won ? '<span class="text-[8px] px-1 rounded bg-emerald-500/25 text-emerald-300 font-bold uppercase">WIN</span>' : ''}
+                      </div>
+                      <div class="text-[9px] text-[var(--muted-foreground)] font-semibold truncate leading-tight">${getTeamCollegeShort(recentTeam1)}</div>
                     </div>
-                    <span class="font-mono font-black ml-2 text-sm">${recentS1}</span>
                   </div>
-                  <div class="flex items-center justify-between text-xs px-2 py-0.5 rounded-lg ${recentT2Won ? 'bg-emerald-500/15 font-black text-emerald-400 border border-emerald-500/30' : 'text-[var(--muted-foreground)] opacity-75'}">
-                    <div class="flex items-center gap-2 truncate">
-                      ${renderTeamLogo(recentTeam2, 'w-5 h-5', 'rounded shrink-0')}
-                      <span class="truncate">${recentTeam2}</span>
-                      ${recentT2Won ? '<span class="text-[8px] px-1 py-0.2 rounded bg-emerald-500/25 text-emerald-300 font-bold uppercase">WIN</span>' : ''}
+
+                  <!-- Final Series Score Badge (mirrors the VS badge in Up Next) -->
+                  <div class="flex items-center gap-1 px-2 py-0.5 rounded bg-[var(--secondary)] border border-emerald-500/30 text-xs font-mono font-black shrink-0 shadow-inner">
+                    <span class="${recentT1Won ? 'text-emerald-400' : 'text-[var(--muted-foreground)]'}">${recentS1}</span>
+                    <span class="text-slate-500 text-[10px]">-</span>
+                    <span class="${recentT2Won ? 'text-emerald-400' : 'text-[var(--muted-foreground)]'}">${recentS2}</span>
+                  </div>
+
+                  <!-- Team 2 -->
+                  <div class="flex-1 flex items-center justify-end gap-1.5 text-right truncate">
+                    <div class="truncate">
+                      <div class="text-xs font-black ${recentT2Won ? 'text-emerald-400' : 'text-[var(--foreground)]'} truncate flex items-center justify-end gap-1">
+                        ${recentT2Won ? '<span class="text-[8px] px-1 rounded bg-emerald-500/25 text-emerald-300 font-bold uppercase">WIN</span>' : ''}
+                        <span>${recentTeam2}</span>
+                      </div>
+                      <div class="text-[9px] text-[var(--muted-foreground)] font-semibold truncate leading-tight">${getTeamCollegeShort(recentTeam2)}</div>
                     </div>
-                    <span class="font-mono font-black ml-2 text-sm">${recentS2}</span>
+                    ${renderTeamLogo(recentTeam2, 'w-6 h-6', 'rounded-md border border-[var(--border)] shrink-0')}
                   </div>
                 </div>
+
                 <!-- Footer -->
                 <div class="pt-1 border-t border-[var(--border)]/60 flex items-center justify-between text-[10px] text-[var(--muted-foreground)]">
-                  <span class="truncate font-semibold text-emerald-400 flex items-center gap-1">
+                  <span class="truncate text-[9px] font-mono max-w-[140px]" title="${recentLabel}">${recentLabel || 'Recent Series'}</span>
+                  <span class="text-[9px] font-bold text-emerald-400 shrink-0 flex items-center gap-1">
                     <span>✓</span> <span class="truncate">${recentWinner || 'Winner'} Advancing</span>
                   </span>
-                  <span class="text-[9px] font-mono truncate max-w-[130px]" title="${recentLabel}">${recentLabel}</span>
                 </div>
               ` : `
                 <div class="py-2.5 text-center text-[11px] text-[var(--muted-foreground)]">
