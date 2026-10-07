@@ -5713,19 +5713,28 @@ Check your Browserslist config to be sure that your targets are set up correctly
               <div class="py-3">
                 <div class="flex items-center justify-between gap-3 sm:gap-4">
                   <!-- Champion Info -->
-                  <div class="flex items-center gap-3 sm:gap-3.5 min-w-0">
-                    <div class="w-13 h-13 sm:w-16 sm:h-16 rounded-2xl bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center text-3xl sm:text-4xl shadow-md shrink-0">
-                      🏆
+                  <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+                    <!-- Champion Official College Icon Badge -->
+                    <div class="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center p-1.5 shadow-md shrink-0">
+                      ${renderTeamLogo(champion, 'w-11 h-11 sm:w-13 sm:h-13', 'rounded-xl object-contain drop-shadow-md')}
+                      <span class="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-amber-500 border border-amber-300 text-slate-950 flex items-center justify-center text-xs shadow-md font-bold" title="Tournament Champion">
+                        🏆
+                      </span>
                     </div>
                     <div class="min-w-0">
-                      <span class="text-[10px] font-black uppercase tracking-wider text-amber-400 block">
-                        Official Tournament Champion
+                      <span class="text-[10px] font-black uppercase tracking-wider text-amber-400 flex items-center gap-1">
+                        <span>👑</span> Official Tournament Champion
                       </span>
-                      <h2 class="text-xl sm:text-2xl font-black text-[var(--foreground)] uppercase truncate">
-                        ${champion}
+                      <h2 class="text-xl sm:text-2xl font-black text-[var(--foreground)] uppercase truncate flex items-center gap-2">
+                        <span>${champion}</span>
+                        ${champObj.mascot ? `
+                          <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-extrabold tracking-normal normal-case">
+                            ${champObj.mascot}
+                          </span>
+                        ` : ''}
                       </h2>
                       <div class="text-[11px] text-[var(--muted-foreground)] font-semibold truncate">
-                        ${champObj.full || 'Tagoloan Community College'} ${champObj.mascot ? '· ' + champObj.mascot : ''}
+                        ${champObj.full || 'Tagoloan Community College'}
                       </div>
                     </div>
                   </div>
@@ -5749,8 +5758,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 <div class="text-[10px] sm:text-[11px] font-medium flex items-center gap-1.5 text-amber-400/90 truncate">
                   <span>✨</span> <span class="truncate">TAGOLOAN COMMUNITY COLLEGE · Intramurals 2026</span>
                 </div>
-                <div class="text-[10px] font-bold text-slate-300 flex items-center gap-1 shrink-0">
-                  <span>🥈 Runner-Up:</span> <span class="text-[var(--foreground)]">${runnerUp || 'TBD'}</span>
+                <div class="text-[10px] font-bold text-slate-300 flex items-center gap-1.5 shrink-0">
+                  <span>🥈 Runner-Up:</span>
+                  ${renderTeamLogo(runnerUp, 'w-4 h-4', 'rounded shrink-0')}
+                  <span class="text-[var(--foreground)]">${runnerUp || 'TBD'}</span>
                 </div>
               </div>
             </div>
@@ -5823,11 +5834,15 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 <!-- Ceremony Content -->
                 <div class="py-2 flex items-center justify-between gap-2 px-1 text-xs">
                   <div class="flex items-center gap-1.5 font-bold text-amber-400 truncate">
-                    <span>🥇</span> <span class="truncate">${champion}</span>
+                    <span>🥇</span>
+                    ${renderTeamLogo(champion, 'w-4 h-4', 'rounded shrink-0')}
+                    <span class="truncate">${champion}</span>
                   </div>
                   <div class="text-[10px] text-slate-400 font-bold">➔</div>
                   <div class="flex items-center gap-1.5 font-bold text-slate-300 truncate">
-                    <span>🥈</span> <span class="truncate">${runnerUp}</span>
+                    <span>🥈</span>
+                    ${renderTeamLogo(runnerUp, 'w-4 h-4', 'rounded shrink-0')}
+                    <span class="truncate">${runnerUp}</span>
                   </div>
                 </div>
 
