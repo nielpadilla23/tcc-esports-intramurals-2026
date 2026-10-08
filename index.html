@@ -1108,7 +1108,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
             <span class="text-[var(--muted-foreground)] font-bold">Active Session:</span>
             <span id="loginCurrentRoleBadge" class="ml-1.5 font-black text-amber-400">👁️ Viewer (Read Only)</span>
           </div>
-          <button type="button" id="loginLogoutBtn" onclick="logoutSession(); closeAdminLoginModal();" class="text-[11px] font-bold text-rose-400 hover:text-rose-300 transition cursor-pointer hidden">
+          <button type="button" id="loginLogoutBtn" onclick="closeAdminLoginModal(); confirmLogoutSession();" class="text-[11px] font-bold text-rose-400 hover:text-rose-300 transition cursor-pointer hidden">
             🚪 Log Out
           </button>
         </div>
@@ -4546,6 +4546,20 @@ Check your Browserslist config to be sure that your targets are set up correctly
         if (submitBtn) submitBtn.classList.add('bg-rose-600', 'hover:bg-rose-700', 'shadow-rose-600/30');
         if (btnIcon) btnIcon.innerText = '🗑️';
         if (btnText) btnText.innerText = 'Yes, Blank Bracket';
+      } else if (actionType === 'exit_session') {
+        if (iconBg) iconBg.classList.add('bg-rose-500/15', 'text-rose-400', 'border', 'border-rose-500/30');
+        if (icon) icon.innerText = '🚪';
+        if (badge) {
+          badge.classList.add('bg-rose-500/10', 'text-rose-400', 'border-rose-500/30');
+          badge.innerText = 'Confirm Exit';
+        }
+        const accountName = currentSession ? currentSession.name : 'Authorized Account';
+        if (title) title.innerText = 'Exit Authorized Session?';
+        if (msg) msg.innerText = `Are you sure you want to proceed and exit from ${accountName}? You will return to Spectator Viewer mode and scoring controls will be locked.`;
+        if (subnote) subnote.innerHTML = '<span>ℹ️</span> <span>Confirm to proceed. You can log back in at any time with your security PIN.</span>';
+        if (submitBtn) submitBtn.classList.add('bg-rose-600', 'hover:bg-rose-700', 'shadow-rose-600/30');
+        if (btnIcon) btnIcon.innerText = '🚪';
+        if (btnText) btnText.innerText = 'Proceed & Exit';
       }
 
       modal.classList.remove('hidden');
@@ -4567,6 +4581,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
         resetTournamentScores();
       } else if (action === 'blank_bracket') {
         resetToBlankBracket();
+      } else if (action === 'exit_session') {
+        logoutSession();
       }
     }
 
@@ -8302,6 +8318,17 @@ Check your Browserslist config to be sure that your targets are set up correctly
       }
     }
 
+    function confirmLogoutSession() {
+      const modal = document.getElementById('actionConfirmModal');
+      if (modal && typeof openActionConfirmModal === 'function') {
+        openActionConfirmModal('exit_session');
+      } else {
+        if (confirm('Are you sure you want to proceed and exit your authorized session?')) {
+          logoutSession();
+        }
+      }
+    }
+
     // Backward-compatible setRole wrapper
     function setRole(role, notify = true) {
       if (role === 'viewer') {
@@ -8455,7 +8482,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 ${scopeBadge}
                 ${roleBadge}
               </button>
-              <button onclick="logoutSession()" title="Log out / End Session" class="px-2 py-1.5 rounded-xl border border-[var(--border)] hover:bg-[var(--secondary)] text-xs font-bold text-[var(--muted-foreground)] hover:text-rose-400 transition cursor-pointer flex items-center gap-1" aria-label="Log Out">
+              <button onclick="confirmLogoutSession()" id="headerExitBtn" title="Log out / End Session" class="px-2 py-1.5 rounded-xl border border-[var(--border)] hover:bg-[var(--secondary)] text-xs font-bold text-[var(--muted-foreground)] hover:text-rose-400 transition cursor-pointer flex items-center gap-1" aria-label="Log Out">
                 <span>🚪</span> <span class="hidden sm:inline">Exit</span>
               </button>
             </div>

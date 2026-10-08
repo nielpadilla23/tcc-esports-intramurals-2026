@@ -93,10 +93,41 @@ try:
     driver.save_screenshot(artifact_mlbb_path)
     print(f"MLBB dashboard screenshot saved: {artifact_mlbb_path}")
 
+    print("\n--- 4b. TEST EXIT CONFIRMATION MODAL & PROCEED FLOW ---")
+    # Click Exit button in the header
+    driver.execute_script("document.getElementById('headerExitBtn').click();")
+    time.sleep(0.3)
+
+    # Verify confirmation modal is shown
+    confirm_modal_visible = driver.execute_script("return !document.getElementById('actionConfirmModal').classList.contains('hidden');")
+    assert_true(confirm_modal_visible, "Action confirmation modal displayed on Exit click")
+
+    modal_title = driver.execute_script("return document.getElementById('confirmModalTitle').innerText;")
+    modal_msg = driver.execute_script("return document.getElementById('confirmModalMessage').innerText;")
+    btn_text = driver.execute_script("return document.getElementById('confirmModalBtnText').innerText;")
+    assert_true("exit" in modal_title.lower(), f"Modal title mentions exit: {modal_title}")
+    assert_true("proceed" in modal_msg.lower(), f"Modal message asks to proceed: {modal_msg}")
+    assert_true("proceed" in btn_text.lower(), f"Submit button confirms proceed: {btn_text}")
+
+    # Capture screenshot of Exit Confirmation Dialog
+    artifact_exit_confirm_path = os.path.join(r"C:\Users\User\.gemini\antigravity\brain\b9d9bb4a-656b-44b4-86c7-d911586ab055", "verified_exit_confirmation_modal.png")
+    driver.save_screenshot(artifact_exit_confirm_path)
+    print(f"Exit confirmation screenshot saved: {artifact_exit_confirm_path}")
+
+    # 1. Test Cancel: modal closes, session remains active
+    driver.execute_script("closeActionConfirmModal();")
+    assert_true(driver.execute_script("return currentSession !== null;"), "Session remains active after cancelling exit")
+
+    # 2. Test Proceed: modal proceeds and logs out
+    driver.execute_script("document.getElementById('headerExitBtn').click();")
+    time.sleep(0.2)
+    driver.execute_script("document.getElementById('confirmModalSubmitBtn').click();")
+    time.sleep(0.3)
+
+    assert_true(driver.execute_script("return currentSession === null;"), "Session terminated after clicking Proceed & Exit")
+    assert_true(driver.execute_script("return getEffectiveRole() === 'viewer';"), "Reverted to viewer mode after proceeding with exit")
+
     print("\n--- 5. TEST CODM PASSWORD ROUTING (codm2026 -> CODM Dashboard) ---")
-    # Log out first
-    driver.execute_script("logoutSession();")
-    assert_true(driver.execute_script("return currentSession === null;"), "Logged out cleanly")
 
     # Stay on MLBB dashboard, enter CODM password
     assert_true(driver.execute_script("return currentEsport === 'mlbb';"), "Pre-condition: currently on MLBB dashboard")
