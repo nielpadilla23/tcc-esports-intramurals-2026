@@ -11649,6 +11649,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
           if (data.tournamentMode) localStorage.setItem(getStorageKey('tournament_mode_v9'), data.tournamentMode);
         } catch(e) {}
 
+        if (typeof TournamentResultsDB !== 'undefined' && TournamentResultsDB.syncPlayoffs) {
+          TournamentResultsDB.syncPlayoffs(currentEsport);
+        }
+
         renderHeaderTeamBadges();
         updatePlayoffSeedsUI();
         updatePlayoffBracket();
@@ -11699,8 +11703,31 @@ Check your Browserslist config to be sure that your targets are set up correctly
         firebaseDbRef.set(payload).catch(err => {
           console.warn('Firebase set error:', err);
         });
+
+        if (typeof TournamentResultsDB !== 'undefined') {
+          syncToFirebase('results_db', {
+            matchesCount: Object.keys(TournamentResultsDB.tables.matches).length,
+            brCount: Object.keys(TournamentResultsDB.tables.codm_br_scores).length,
+            standings: TournamentResultsDB.tables.college_standings,
+            updatedAt: Date.now()
+          });
+        }
       } catch(e) {
         console.warn('Failed to push to cloud:', e);
+      }
+    }
+
+    function syncToFirebase(key, data) {
+      if (!isCloudSyncConnected || !firebaseDbRef || isReceivingRemoteCloudUpdate) return;
+      try {
+        const rootRef = firebaseDbRef.parent;
+        if (rootRef) {
+          rootRef.child(`${cloudChannelKey}_${key}`).set(cleanForFirebase(data)).catch(err => {
+            console.warn('Firebase sync error for ' + key + ':', err);
+          });
+        }
+      } catch(e) {
+        console.warn('Failed to sync ' + key + ' to cloud:', e);
       }
     }
 
