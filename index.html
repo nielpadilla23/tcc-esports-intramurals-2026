@@ -9071,19 +9071,53 @@ Check your Browserslist config to be sure that your targets are set up correctly
       `;
     }
 
+    function getMaxUnlockedBrRound() {
+      let maxComp = 0;
+      for (let r = 1; r <= 8; r++) {
+        const rnd = CODM_BR_DATA.rounds[r];
+        if (rnd && rnd.status === 'completed') {
+          maxComp = r;
+        }
+      }
+      return Math.min(8, maxComp + 1);
+    }
+
+    function renderBrModalRoundSelect() {
+      const select = document.getElementById('brModalRoundSelect');
+      if (!select) return;
+
+      const maxUnlocked = Math.max(getMaxUnlockedBrRound(), activeBrModalRound);
+      let html = '';
+      for (let r = 1; r <= maxUnlocked; r++) {
+        const rnd = CODM_BR_DATA.rounds[r];
+        const isComp = rnd && rnd.status === 'completed';
+        const label = isComp ? `Round ${r} (Done)` : (r === maxUnlocked && maxUnlocked > 1 ? `Round ${r} (Next)` : `Round ${r}`);
+        const isSel = (r === activeBrModalRound) ? 'selected' : '';
+        html += `<option value="${r}" ${isSel}>${label}</option>`;
+      }
+      select.innerHTML = html;
+      select.value = String(activeBrModalRound);
+    }
+
     function openBrScoreModal(roundNum) {
       if (!canScore('codm')) {
         notifyAuthRequired('marshal');
         return;
       }
-      activeBrModalRound = parseInt(roundNum || selectedBrRound || 1, 10);
-      const modal = document.getElementById('codmBrScoreModal');
-      const select = document.getElementById('brModalRoundSelect');
+      const maxUnlocked = getMaxUnlockedBrRound();
+      if (roundNum) {
+        activeBrModalRound = parseInt(roundNum, 10);
+      } else {
+        // Automatically provide the next available / active round
+        activeBrModalRound = parseInt(selectedBrRound || maxUnlocked || 1, 10);
+      }
+
+      renderBrModalRoundSelect();
       const badge = document.getElementById('brModalRoundBadge');
-      if (select) select.value = activeBrModalRound;
       if (badge) badge.innerText = `Round ${activeBrModalRound}`;
 
       renderBrModalTeamRows();
+      const modal = document.getElementById('codmBrScoreModal');
       if (modal) modal.classList.remove('hidden');
     }
 
@@ -9096,7 +9130,84 @@ Check your Browserslist config to be sure that your targets are set up correctly
       activeBrModalRound = parseInt(val, 10) || 1;
       const badge = document.getElementById('brModalRoundBadge');
       if (badge) badge.innerText = `Round ${activeBrModalRound}`;
+      renderBrModalRoundSelect();
       renderBrModalTeamRows();
+    }
+
+    let isUpdatingPlacementDropdowns = false;
+
+    function getPlacementOptionLabel(p) {
+      const suffixes = { 1: '1st', 2: '2nd', 3: '3rd', 4: '4th', 5: '5th', 6: '6th', 7: '7th' };
+      const pts = BR_PLACEMENT_POINTS[p] || 0;
+      return `${suffixes[p] || p + 'th'} (${pts} pts)`;
+    }
+
+    function attachPlacementSetter(sel) {
+      if (!sel || sel._placementSetterAttached) return;
+      sel._placementSetterAttached = true;
+      const origDesc = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
+      Object.defineProperty(sel, 'value', {
+        get() {
+          return origDesc.get.call(this);
+        },
+        set(v) {
+          if (v && ![...this.options].some(o => o.value == v)) {
+            const opt = document.createElement('option');
+            opt.value = v;
+            opt.text = getPlacementOptionLabel(parseInt(v, 10));
+            this.appendChild(opt);
+          }
+          origDesc.set.call(this, v);
+          if (!isUpdatingPlacementDropdowns) {
+            isUpdatingPlacementDropdowns = true;
+            updateBrPlacementDropdownOptions();
+            updateBrModalCalculations();
+            isUpdatingPlacementDropdowns = false;
+          }
+        }
+      });
+    }
+
+    function updateBrPlacementDropdownOptions() {
+      // 1. Gather all current selections
+      const currentSelections = {};
+      const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0 };
+
+      CODM_BR_TEAMS.forEach(teamId => {
+        const sel = document.getElementById(`brPlacement_${teamId}`);
+        const val = (sel && sel.value) ? parseInt(sel.value, 10) : null;
+        currentSelections[teamId] = val;
+        if (val && counts[val] !== undefined) {
+          counts[val]++;
+        }
+      });
+
+      // 2. Re-populate options for each team: once chosen by another team, it does not appear on the options
+      CODM_BR_TEAMS.forEach(teamId => {
+        const sel = document.getElementById(`brPlacement_${teamId}`);
+        if (!sel) return;
+
+        const myVal = currentSelections[teamId];
+        let html = `<option value="">-- Placement --</option>`;
+
+        for (let p = 1; p <= 7; p++) {
+          const takenByOther = (counts[p] > (myVal === p ? 1 : 0));
+          if (!takenByOther || myVal === p) {
+            html += `<option value="${p}" ${myVal === p ? 'selected' : ''}>${getPlacementOptionLabel(p)}</option>`;
+          }
+        }
+
+        const prevUpdating = isUpdatingPlacementDropdowns;
+        isUpdatingPlacementDropdowns = true;
+        sel.innerHTML = html;
+        sel.value = myVal ? String(myVal) : '';
+        isUpdatingPlacementDropdowns = prevUpdating;
+      });
+    }
+
+    function onBrPlacementChange(teamId, val) {
+      updateBrPlacementDropdownOptions();
+      updateBrModalCalculations();
     }
 
     function renderBrModalTeamRows() {
@@ -9108,7 +9219,6 @@ Check your Browserslist config to be sure that your targets are set up correctly
       container.innerHTML = CODM_BR_TEAMS.map(teamId => {
         const college = DEFAULT_TEAMS.find(t => t.name === teamId) || { name: teamId, mascot: 'Team' };
         const res = (rnd.results && rnd.results[teamId]) ? rnd.results[teamId] : { placement: null, kills: 0 };
-        const curPlc = (res.placement !== null && res.placement !== undefined) ? res.placement : '';
         const curKills = parseInt(res.kills || 0, 10);
 
         return `
@@ -9135,15 +9245,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
               <!-- Placement Select -->
               <div class="col-span-3 flex-1 min-w-0 sm:w-full">
                 <div class="sm:hidden text-[9px] font-bold text-[var(--muted-foreground)] uppercase mb-0.5">Placement</div>
-                <select id="brPlacement_${teamId}" onchange="updateBrModalCalculations()" class="w-full px-2.5 py-1.5 rounded-xl bg-[var(--card)] border border-[var(--border)] text-xs font-bold text-white focus:outline-hidden focus:border-purple-500 cursor-pointer">
-                  <option value="">-- Placement --</option>
-                  <option value="1" ${curPlc == 1 ? 'selected' : ''}>1st (10 pts)</option>
-                  <option value="2" ${curPlc == 2 ? 'selected' : ''}>2nd (8 pts)</option>
-                  <option value="3" ${curPlc == 3 ? 'selected' : ''}>3rd (6 pts)</option>
-                  <option value="4" ${curPlc == 4 ? 'selected' : ''}>4th (5 pts)</option>
-                  <option value="5" ${curPlc == 5 ? 'selected' : ''}>5th (4 pts)</option>
-                  <option value="6" ${curPlc == 6 ? 'selected' : ''}>6th (3 pts)</option>
-                  <option value="7" ${curPlc == 7 ? 'selected' : ''}>7th (2 pts)</option>
+                <select id="brPlacement_${teamId}" onchange="onBrPlacementChange('${teamId}', this.value)" class="w-full px-2.5 py-1.5 rounded-xl bg-[var(--card)] border border-[var(--border)] text-xs font-bold text-white focus:outline-hidden focus:border-purple-500 cursor-pointer">
+                  <!-- Populated via updateBrPlacementDropdownOptions() -->
                 </select>
               </div>
 
@@ -9168,6 +9271,18 @@ Check your Browserslist config to be sure that your targets are set up correctly
         `;
       }).join('');
 
+      // Set initial values and attach setters
+      CODM_BR_TEAMS.forEach(teamId => {
+        const res = (rnd.results && rnd.results[teamId]) ? rnd.results[teamId] : { placement: null };
+        const curPlc = (res.placement !== null && res.placement !== undefined && res.placement !== '') ? parseInt(res.placement, 10) : null;
+        const sel = document.getElementById(`brPlacement_${teamId}`);
+        if (!sel) return;
+
+        attachPlacementSetter(sel);
+        if (curPlc) sel.value = String(curPlc);
+      });
+
+      updateBrPlacementDropdownOptions();
       updateBrModalCalculations();
     }
 
@@ -9220,13 +9335,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
       if (alertBanner && alertText) {
         if (hasDuplicates) {
-          alertBanner.className = "p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 bg-rose-500/10 border border-rose-500/30 text-rose-400";
+          alertBanner.className = "sm:col-span-7 p-2 rounded-xl text-[11px] font-bold flex items-center gap-1.5 bg-rose-500/10 border border-rose-500/30 text-rose-400";
           alertText.innerText = `⚠️ Duplicate placement: Multiple teams have #${duplicates.join(', #')}. Each team must have a unique rank (1st to 7th).`;
         } else if (placedCount === 7) {
-          alertBanner.className = "p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400";
-          alertText.innerText = `✅ Perfect! All 7 placements (1st to 7th) are uniquely assigned.`;
+          alertBanner.className = "sm:col-span-7 p-2 rounded-xl text-[11px] font-bold flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400";
+          alertText.innerText = `✅ All 7 placements (1st to 7th) are uniquely assigned.`;
         } else {
-          alertBanner.className = "p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-400";
+          alertBanner.className = "sm:col-span-7 p-2 rounded-xl text-[11px] font-bold flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-400";
           alertText.innerText = `ℹ️ ${placedCount} of 7 college placements assigned so far.`;
         }
       }
@@ -9278,21 +9393,35 @@ Check your Browserslist config to be sure that your targets are set up correctly
         };
       });
 
-      CODM_BR_DATA.rounds[activeBrModalRound] = {
-        roundNum: activeBrModalRound,
+      const savedRound = activeBrModalRound;
+
+      CODM_BR_DATA.rounds[savedRound] = {
+        roundNum: savedRound,
         status: allPlaced ? 'completed' : 'in_progress',
         results: results
       };
 
       saveBrDataToStorage();
       if (typeof TournamentResultsDB !== 'undefined' && TournamentResultsDB.recordBrRound) {
-        TournamentResultsDB.recordBrRound(activeBrModalRound, CODM_BR_DATA.rounds[activeBrModalRound]);
+        TournamentResultsDB.recordBrRound(savedRound, CODM_BR_DATA.rounds[savedRound]);
       }
       closeBrScoreModal();
-      selectBrRound(activeBrModalRound);
-      renderCodmBattleRoyale();
 
-      showToast(`✅ Round ${activeBrModalRound} scores saved successfully!`);
+      // Once the round ends (completed), automatically provide the next round!
+      if (allPlaced) {
+        const nextRound = Math.min(8, savedRound + 1);
+        activeBrModalRound = nextRound;
+        selectedBrRound = nextRound;
+        selectBrRound(nextRound);
+        renderBrModalRoundSelect();
+        showToast(`✅ Round ${savedRound} completed! Automatically provided Round ${nextRound} as next round.`);
+      } else {
+        selectBrRound(savedRound);
+        renderBrModalRoundSelect();
+        showToast(`✅ Round ${savedRound} scores saved.`);
+      }
+
+      renderCodmBattleRoyale();
 
       const completedCount = Object.values(CODM_BR_DATA.rounds || {}).filter(r => r && r.status === 'completed').length;
       if (completedCount === 8) {
@@ -9325,6 +9454,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       if (typeof TournamentResultsDB !== 'undefined' && TournamentResultsDB.recordBrRoundReset) {
         TournamentResultsDB.recordBrRoundReset(activeBrModalRound);
       }
+      renderBrModalRoundSelect();
       renderBrModalTeamRows();
       renderCodmBattleRoyale();
       showToast(`🗑️ Round ${activeBrModalRound} reset to pending.`);
@@ -9379,6 +9509,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
       if (typeof TournamentResultsDB !== 'undefined' && TournamentResultsDB.syncAllBrRounds) {
         TournamentResultsDB.syncAllBrRounds();
       }
+      activeBrModalRound = 8;
+      selectedBrRound = 8;
+      renderBrModalRoundSelect();
       renderCodmBattleRoyale();
       triggerConfetti();
       showToast('🏆 All 8 CODM Battle Royale rounds simulated successfully!');
@@ -9402,6 +9535,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
       if (typeof TournamentResultsDB !== 'undefined' && TournamentResultsDB.recordBrReset) {
         TournamentResultsDB.recordBrReset();
       }
+      activeBrModalRound = 1;
+      selectedBrRound = 1;
+      renderBrModalRoundSelect();
       renderCodmBattleRoyale();
       showToast('🔄 Battle Royale scores reset to Round 1.');
     }
