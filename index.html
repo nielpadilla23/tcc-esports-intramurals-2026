@@ -998,22 +998,22 @@ Check your Browserslist config to be sure that your targets are set up correctly
   </div>
 
   <!-- Interactive Score Editing / Updating Modal (BO3 & BO5 Game-by-Game) -->
-  <div id="scoreEditModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-    <div class="bg-[var(--card)] border border-[var(--border)] rounded-3xl p-6 max-w-lg w-full shadow-2xl space-y-4 animate-scale-up">
+  <div id="scoreEditModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-2.5 sm:p-4 hidden select-none">
+    <div class="bg-[var(--card)] border border-[var(--border)] rounded-3xl p-4 sm:p-6 max-w-lg w-full shadow-2xl space-y-3.5 sm:space-y-4 animate-scale-up max-h-[92vh] overflow-y-auto">
       <!-- Modal Header -->
       <div class="flex items-start justify-between pb-3 border-b border-[var(--border)]">
-        <div class="space-y-1">
+        <div class="space-y-0.5 sm:space-y-1">
           <div class="flex items-center gap-2">
             <span class="px-2 py-0.5 rounded-md text-[10px] font-mono font-black bg-amber-500/20 text-amber-400 border border-amber-500/30 uppercase">Score Editor</span>
-            <h3 id="modalMatchTitle" class="text-base font-black text-[var(--foreground)]">Update Series Score</h3>
+            <h3 id="modalMatchTitle" class="text-sm sm:text-base font-black text-[var(--foreground)]">Update Series Score</h3>
           </div>
-          <p id="modalMatchBestOf" class="text-xs text-[var(--muted-foreground)]">Best-of-3 Series · First to 2 Wins</p>
+          <p id="modalMatchBestOf" class="text-[11px] sm:text-xs text-[var(--muted-foreground)]">Best-of-3 Series · First to 2 Wins</p>
         </div>
         <button onclick="closeScoreModal()" class="text-[var(--muted-foreground)] hover:text-[var(--foreground)] text-lg cursor-pointer p-1">✕</button>
       </div>
 
       <!-- Live Series Status Banner -->
-      <div id="modalStatusBanner" class="p-2.5 rounded-xl bg-[var(--secondary)]/60 border border-[var(--border)] text-xs font-bold text-center">
+      <div id="modalStatusBanner" class="p-2 sm:p-2.5 rounded-xl bg-[var(--secondary)]/60 border border-[var(--border)] text-xs font-bold text-center">
         <!-- Injected via updateModalPreview() -->
       </div>
 
@@ -1023,38 +1023,38 @@ Check your Browserslist config to be sure that your targets are set up correctly
       </div>
 
       <!-- Standard Score Steppers & Presets Section (Shown in MLBB, hidden in CODM) -->
-      <div id="modalStandardScoreSection" class="space-y-4">
+      <div id="modalStandardScoreSection" class="space-y-3 sm:space-y-4">
         <!-- Teams Score Adjusters -->
-        <div class="grid grid-cols-2 gap-4 text-center">
+        <div class="grid grid-cols-2 gap-2.5 sm:gap-4 text-center">
           <!-- Team 1 -->
-          <div class="p-3.5 sm:p-4 rounded-2xl bg-[var(--secondary)]/40 border border-[var(--border)] flex flex-col justify-between space-y-3">
-            <div id="modalTeam1Info" class="flex flex-col items-center gap-1.5 font-black text-sm text-[var(--foreground)]">
+          <div class="p-2.5 sm:p-4 rounded-2xl bg-[var(--secondary)]/40 border border-[var(--border)] flex flex-col justify-between space-y-2.5 sm:space-y-3">
+            <div id="modalTeam1Info" class="flex flex-col items-center gap-1 font-black text-xs sm:text-sm text-[var(--foreground)]">
               <!-- Injected via JS -->
             </div>
-            <div class="space-y-2">
-              <div class="flex items-center justify-center gap-2">
-                <button type="button" onclick="stepModalScore(1, -1)" class="w-8 h-8 rounded-xl bg-[var(--card)] border border-[var(--border)] hover:bg-rose-500/20 hover:text-rose-400 font-black text-sm flex items-center justify-center transition cursor-pointer select-none" title="Minus 1 Game Win">-</button>
-                <input type="number" id="modalScore1" min="0" max="4" oninput="updateModalPreview()" class="w-16 text-center text-3xl font-mono font-black p-1 rounded-xl bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] focus:outline-hidden focus:border-amber-500">
-                <button type="button" onclick="stepModalScore(1, 1)" class="w-8 h-8 rounded-xl bg-[var(--card)] border border-[var(--border)] hover:bg-emerald-500/20 hover:text-emerald-400 font-black text-sm flex items-center justify-center transition cursor-pointer select-none" title="Plus 1 Game Win">+</button>
+            <div class="space-y-1.5 sm:space-y-2">
+              <div class="flex items-center justify-center gap-1.5 sm:gap-2">
+                <button type="button" onclick="stepModalScore(1, -1)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[var(--card)] border border-[var(--border)] hover:bg-rose-500/20 hover:text-rose-400 font-black text-xs sm:text-sm flex items-center justify-center transition cursor-pointer select-none" title="Minus 1 Game Win">-</button>
+                <input type="number" id="modalScore1" min="0" max="4" oninput="updateModalPreview()" class="w-12 sm:w-16 text-center text-2xl sm:text-3xl font-mono font-black p-1 rounded-xl bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] focus:outline-hidden focus:border-amber-500">
+                <button type="button" onclick="stepModalScore(1, 1)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[var(--card)] border border-[var(--border)] hover:bg-emerald-500/20 hover:text-emerald-400 font-black text-xs sm:text-sm flex items-center justify-center transition cursor-pointer select-none" title="Plus 1 Game Win">+</button>
               </div>
-              <button type="button" id="modalPlusOneBtn1" onclick="stepModalScore(1, 1)" class="w-full py-1.5 px-2 rounded-xl bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white font-black text-xs border border-blue-500/30 transition cursor-pointer flex items-center justify-center gap-1">
+              <button type="button" id="modalPlusOneBtn1" onclick="stepModalScore(1, 1)" class="w-full py-1.5 px-1.5 sm:px-2 rounded-xl bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white font-black text-[11px] sm:text-xs border border-blue-500/30 transition cursor-pointer flex items-center justify-center gap-1">
                 <span>+1</span> <span>Win Game</span>
               </button>
             </div>
           </div>
 
           <!-- Team 2 -->
-          <div class="p-3.5 sm:p-4 rounded-2xl bg-[var(--secondary)]/40 border border-[var(--border)] flex flex-col justify-between space-y-3">
-            <div id="modalTeam2Info" class="flex flex-col items-center gap-1.5 font-black text-sm text-[var(--foreground)]">
+          <div class="p-2.5 sm:p-4 rounded-2xl bg-[var(--secondary)]/40 border border-[var(--border)] flex flex-col justify-between space-y-2.5 sm:space-y-3">
+            <div id="modalTeam2Info" class="flex flex-col items-center gap-1 font-black text-xs sm:text-sm text-[var(--foreground)]">
               <!-- Injected via JS -->
             </div>
-            <div class="space-y-2">
-              <div class="flex items-center justify-center gap-2">
-                <button type="button" onclick="stepModalScore(2, -1)" class="w-8 h-8 rounded-xl bg-[var(--card)] border border-[var(--border)] hover:bg-rose-500/20 hover:text-rose-400 font-black text-sm flex items-center justify-center transition cursor-pointer select-none" title="Minus 1 Game Win">-</button>
-                <input type="number" id="modalScore2" min="0" max="4" oninput="updateModalPreview()" class="w-16 text-center text-3xl font-mono font-black p-1 rounded-xl bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] focus:outline-hidden focus:border-amber-500">
-                <button type="button" onclick="stepModalScore(2, 1)" class="w-8 h-8 rounded-xl bg-[var(--card)] border border-[var(--border)] hover:bg-emerald-500/20 hover:text-emerald-400 font-black text-sm flex items-center justify-center transition cursor-pointer select-none" title="Plus 1 Game Win">+</button>
+            <div class="space-y-1.5 sm:space-y-2">
+              <div class="flex items-center justify-center gap-1.5 sm:gap-2">
+                <button type="button" onclick="stepModalScore(2, -1)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[var(--card)] border border-[var(--border)] hover:bg-rose-500/20 hover:text-rose-400 font-black text-xs sm:text-sm flex items-center justify-center transition cursor-pointer select-none" title="Minus 1 Game Win">-</button>
+                <input type="number" id="modalScore2" min="0" max="4" oninput="updateModalPreview()" class="w-12 sm:w-16 text-center text-2xl sm:text-3xl font-mono font-black p-1 rounded-xl bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] focus:outline-hidden focus:border-amber-500">
+                <button type="button" onclick="stepModalScore(2, 1)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[var(--card)] border border-[var(--border)] hover:bg-emerald-500/20 hover:text-emerald-400 font-black text-xs sm:text-sm flex items-center justify-center transition cursor-pointer select-none" title="Plus 1 Game Win">+</button>
               </div>
-              <button type="button" id="modalPlusOneBtn2" onclick="stepModalScore(2, 1)" class="w-full py-1.5 px-2 rounded-xl bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white font-black text-xs border border-blue-500/30 transition cursor-pointer flex items-center justify-center gap-1">
+              <button type="button" id="modalPlusOneBtn2" onclick="stepModalScore(2, 1)" class="w-full py-1.5 px-1.5 sm:px-2 rounded-xl bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white font-black text-[11px] sm:text-xs border border-blue-500/30 transition cursor-pointer flex items-center justify-center gap-1">
                 <span>+1</span> <span>Win Game</span>
               </button>
             </div>
@@ -1062,7 +1062,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         </div>
 
         <!-- Quick Preset Scores Container -->
-        <div class="p-3 rounded-2xl bg-[var(--secondary)]/25 border border-[var(--border)] space-y-2">
+        <div class="p-2.5 sm:p-3 rounded-2xl bg-[var(--secondary)]/25 border border-[var(--border)] space-y-2">
           <div id="modalPresetsContainer" class="space-y-2">
             <!-- Injected via JS: In-Progress Game Scores & Series Final Presets -->
           </div>
@@ -1071,15 +1071,15 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
       <!-- Footer Buttons -->
       <div class="flex items-center justify-between gap-2 pt-3 border-t border-[var(--border)]">
-        <button type="button" onclick="resetActiveModalMatch()" class="px-3 py-2 rounded-xl border border-rose-500/30 hover:bg-rose-500/10 text-xs font-bold text-rose-400 transition cursor-pointer flex items-center gap-1.5 active:scale-95" title="Reset match series to blank pending state">
-          <span>↺</span> <span>Reset Match</span>
+        <button type="button" onclick="resetActiveModalMatch()" class="px-2.5 sm:px-3 py-2 rounded-xl border border-rose-500/30 hover:bg-rose-500/10 text-xs font-bold text-rose-400 transition cursor-pointer flex items-center gap-1 active:scale-95 shrink-0" title="Reset match series to blank pending state">
+          <span>↺</span> <span class="hidden sm:inline">Reset Match</span><span class="sm:hidden">Reset</span>
         </button>
-        <div class="flex items-center gap-2">
-          <button type="button" onclick="closeScoreModal()" class="px-4 py-2 rounded-xl border border-[var(--border)] text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition cursor-pointer">
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <button type="button" onclick="closeScoreModal()" class="px-3 sm:px-4 py-2 rounded-xl border border-[var(--border)] text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition cursor-pointer">
             Cancel
           </button>
-          <button type="button" onclick="saveModalScore()" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black shadow-md transition cursor-pointer flex items-center gap-1.5">
-            <span>⚡</span> <span>Update Score</span>
+          <button type="button" onclick="saveModalScore()" class="px-3.5 sm:px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black shadow-md transition cursor-pointer flex items-center gap-1.5 active:scale-95">
+            <span>⚡</span> <span class="hidden sm:inline">Update Score</span><span class="sm:hidden">Update</span>
           </button>
         </div>
       </div>
@@ -1323,72 +1323,74 @@ Check your Browserslist config to be sure that your targets are set up correctly
   </div>
 
   <!-- CODM Battle Royale Round Score Entry / Edit Modal -->
-  <div id="codmBrScoreModal" onclick="if(event.target===this)closeBrScoreModal()" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 hidden select-none transition-all duration-200">
-    <div class="w-full max-w-2xl rounded-3xl bg-[var(--card)] border border-[var(--border)] p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+  <div id="codmBrScoreModal" onclick="if(event.target===this)closeBrScoreModal()" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-2.5 sm:p-4 hidden select-none transition-all duration-200">
+    <div class="w-full max-w-2xl rounded-3xl bg-[var(--card)] border border-[var(--border)] shadow-2xl flex flex-col max-h-[92vh] overflow-hidden animate-scale-up">
       
-      <!-- Modal Header -->
-      <div class="flex items-center justify-between pb-3 border-b border-[var(--border)]">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-2xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-xl text-purple-300 shrink-0">
-            🪂
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <h3 class="text-base font-black text-[var(--foreground)]">CODM Battle Royale · Round Score Editor</h3>
-              <span id="brModalRoundBadge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">Round 1</span>
+      <!-- Modal Header (Fixed Top) -->
+      <div class="p-3.5 sm:p-5 pb-3 border-b border-[var(--border)] shrink-0 space-y-2.5 sm:space-y-3 bg-[var(--card)]">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-lg sm:text-xl text-purple-300 shrink-0 shadow-inner">
+              🪂
             </div>
-            <p class="text-xs text-[var(--muted-foreground)] font-medium">Input each squad's Placement (1st-7th) and Total Kills at round end.</p>
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <h3 class="text-sm sm:text-base font-black text-[var(--foreground)] truncate">CODM Battle Royale · Score Editor</h3>
+                <span id="brModalRoundBadge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 shrink-0">Round 1</span>
+              </div>
+              <p class="text-[11px] sm:text-xs text-[var(--muted-foreground)] font-medium truncate">Input each squad's Placement (1st-7th) and Total Kills at round end.</p>
+            </div>
+          </div>
+          <button type="button" onclick="closeBrScoreModal()" class="w-8 h-8 rounded-xl bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-[var(--muted-foreground)] hover:text-[var(--foreground)] flex items-center justify-center text-xs font-black transition cursor-pointer shrink-0 ml-1" aria-label="Close modal">✕</button>
+        </div>
+
+        <!-- Round Selector & Real-Time Placement Validation Alert -->
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-stretch sm:items-center">
+          <div class="sm:col-span-5 p-2 rounded-xl bg-[var(--secondary)]/40 border border-[var(--border)] flex items-center justify-between gap-2">
+            <label for="brModalRoundSelect" class="text-[11px] font-bold text-[var(--muted-foreground)] uppercase shrink-0">Select Round:</label>
+            <select id="brModalRoundSelect" onchange="onBrModalRoundChange(this.value)" class="flex-1 px-2.5 py-1 rounded-lg bg-[var(--card)] border border-[var(--border)] text-xs font-black text-[var(--foreground)] focus:outline-hidden focus:border-amber-500 cursor-pointer">
+              <option value="1">Round 1</option>
+              <option value="2">Round 2</option>
+              <option value="3">Round 3</option>
+              <option value="4">Round 4</option>
+              <option value="5">Round 5</option>
+              <option value="6">Round 6</option>
+              <option value="7">Round 7</option>
+              <option value="8">Round 8</option>
+            </select>
+          </div>
+          <div id="brModalValidationAlert" class="sm:col-span-7 p-2 rounded-xl text-[11px] font-bold flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+            <span>✅</span> <span id="brModalValidationText" class="truncate">All 7 placements (1st to 7th) are uniquely assigned.</span>
           </div>
         </div>
-        <button type="button" onclick="closeBrScoreModal()" class="w-8 h-8 rounded-xl bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-[var(--muted-foreground)] hover:text-[var(--foreground)] flex items-center justify-center text-xs font-black transition cursor-pointer" aria-label="Close modal">✕</button>
       </div>
 
-      <!-- Round Selector -->
-      <div class="p-3 rounded-2xl bg-[var(--secondary)]/40 border border-[var(--border)] flex items-center justify-between gap-3">
-        <div class="flex items-center gap-2 w-full sm:w-auto">
-          <label for="brModalRoundSelect" class="text-xs font-bold text-[var(--muted-foreground)] uppercase shrink-0">Select Round:</label>
-          <select id="brModalRoundSelect" onchange="onBrModalRoundChange(this.value)" class="px-3 py-1.5 rounded-xl bg-[var(--card)] border border-[var(--border)] text-xs font-black text-[var(--foreground)] focus:outline-hidden focus:border-amber-500 cursor-pointer">
-            <option value="1">Round 1</option>
-            <option value="2">Round 2</option>
-            <option value="3">Round 3</option>
-            <option value="4">Round 4</option>
-            <option value="5">Round 5</option>
-            <option value="6">Round 6</option>
-            <option value="7">Round 7</option>
-            <option value="8">Round 8</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Real-Time Placement Validation Alert Banner -->
-      <div id="brModalValidationAlert" class="p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
-        <span>✅</span> <span id="brModalValidationText">All 7 placements (1st to 7th) are uniquely assigned.</span>
-      </div>
-
-      <!-- 7 College Rows Form -->
-      <form id="brRoundScoreForm" onsubmit="event.preventDefault(); saveBrRoundFromModal();" class="space-y-2.5">
-        <div class="hidden sm:grid sm:grid-cols-12 gap-2 text-[10px] font-black uppercase text-[var(--muted-foreground)] px-2">
+      <!-- 7 College Rows Form (Flex column with scrollable body) -->
+      <form id="brRoundScoreForm" onsubmit="event.preventDefault(); saveBrRoundFromModal();" class="flex flex-col flex-1 overflow-hidden min-h-0">
+        <!-- Desktop Table Headers (Hidden on mobile) -->
+        <div class="hidden sm:grid sm:grid-cols-12 gap-2 text-[10px] font-black uppercase text-[var(--muted-foreground)] px-5 pt-3 pb-1 border-b border-[var(--border)]/40 shrink-0">
           <div class="col-span-5">College Squad</div>
           <div class="col-span-3 text-center">Placement (Pts)</div>
           <div class="col-span-2 text-center">Squad Kills</div>
           <div class="col-span-2 text-right">Round Pts</div>
         </div>
         
-        <div id="brModalTeamRowsContainer" class="space-y-2">
+        <!-- Scrollable Squad Rows Body -->
+        <div id="brModalTeamRowsContainer" class="p-3 sm:p-5 overflow-y-auto space-y-2.5 flex-1 min-h-0">
           <!-- Injected via renderBrModalTeamRows() -->
         </div>
 
-        <!-- Action Buttons -->
-        <div class="flex items-center justify-between gap-2 pt-3 border-t border-[var(--border)]">
-          <button type="button" onclick="clearBrCurrentRoundModal()" class="px-3 py-2 rounded-xl border border-rose-500/30 hover:bg-rose-500/10 text-xs font-bold text-rose-400 transition cursor-pointer">
-            🗑️ Clear Round
+        <!-- Action Buttons (Pinned Footer) -->
+        <div class="p-3 sm:p-4 bg-[var(--card)] border-t border-[var(--border)] shrink-0 flex items-center justify-between gap-2">
+          <button type="button" onclick="clearBrCurrentRoundModal()" class="px-2.5 sm:px-3 py-2 rounded-xl border border-rose-500/30 hover:bg-rose-500/10 text-xs font-bold text-rose-400 transition cursor-pointer flex items-center gap-1 active:scale-95 shrink-0">
+            <span>🗑️</span> <span class="hidden sm:inline">Clear Round</span><span class="sm:hidden">Clear</span>
           </button>
           <div class="flex items-center gap-2">
-            <button type="button" onclick="closeBrScoreModal()" class="px-4 py-2 rounded-xl border border-[var(--border)] text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition cursor-pointer">
+            <button type="button" onclick="closeBrScoreModal()" class="px-3.5 sm:px-4 py-2 rounded-xl border border-[var(--border)] text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition cursor-pointer">
               Cancel
             </button>
-            <button type="submit" id="brModalSubmitBtn" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-black shadow-md transition cursor-pointer flex items-center gap-1.5 active:scale-95">
-              <span>💾</span> <span>Save Round Results</span>
+            <button type="submit" id="brModalSubmitBtn" class="px-4 sm:px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-black shadow-md transition cursor-pointer flex items-center gap-1.5 active:scale-95">
+              <span>💾</span> <span class="hidden sm:inline">Save Round Results</span><span class="sm:hidden">Save Results</span>
             </button>
           </div>
         </div>
@@ -9110,39 +9112,54 @@ Check your Browserslist config to be sure that your targets are set up correctly
         const curKills = parseInt(res.kills || 0, 10);
 
         return `
-          <div class="p-2.5 rounded-2xl bg-[var(--card-surface)] border border-[var(--border)] flex flex-col sm:grid sm:grid-cols-12 gap-2.5 items-center">
-            <!-- College Info -->
-            <div class="col-span-5 flex items-center gap-2.5 w-full">
-              ${TEAM_ICONS[teamId] ? `<img src="${TEAM_ICONS[teamId]}" alt="${teamId}" class="w-7 h-7 object-contain rounded shrink-0">` : `<div class="w-7 h-7 rounded bg-white/10 flex items-center justify-center font-bold text-xs">${teamId}</div>`}
-              <div class="truncate">
-                <div class="font-black text-white text-xs">${teamId}</div>
-                <div class="text-[10px] text-[var(--muted-foreground)]">${college.mascot}</div>
+          <div class="p-2.5 sm:p-3 rounded-2xl bg-[var(--card-surface)] border border-[var(--border)] flex flex-col sm:grid sm:grid-cols-12 gap-2 sm:gap-2.5 sm:items-center transition hover:border-[var(--border)]/80">
+            <!-- Row 1 on mobile: College Info & Round Points Badge -->
+            <div class="col-span-5 flex items-center justify-between sm:justify-start gap-2.5 w-full">
+              <div class="flex items-center gap-2 min-w-0">
+                ${TEAM_ICONS[teamId] ? `<img src="${TEAM_ICONS[teamId]}" alt="${teamId}" class="w-7 h-7 sm:w-8 sm:h-8 object-contain rounded shrink-0">` : `<div class="w-7 h-7 rounded bg-white/10 flex items-center justify-center font-bold text-xs shrink-0">${teamId}</div>`}
+                <div class="min-w-0">
+                  <div class="font-black text-white text-xs truncate">${teamId}</div>
+                  <div class="text-[10px] text-[var(--muted-foreground)] truncate">${college.mascot}</div>
+                </div>
+              </div>
+              <!-- Mobile-Only Round Points Badge -->
+              <div class="sm:hidden shrink-0">
+                <span id="brPtsMobile_${teamId}" class="px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-300 font-mono font-black text-xs border border-purple-500/30">
+                  0 pts
+                </span>
               </div>
             </div>
 
-            <!-- Placement Select -->
-            <div class="col-span-3 w-full">
-              <select id="brPlacement_${teamId}" onchange="updateBrModalCalculations()" class="w-full px-2.5 py-1.5 rounded-xl bg-[var(--card)] border border-[var(--border)] text-xs font-bold text-white focus:outline-hidden focus:border-purple-500 cursor-pointer">
-                <option value="">-- Placement --</option>
-                <option value="1" ${curPlc == 1 ? 'selected' : ''}>1st (10 pts)</option>
-                <option value="2" ${curPlc == 2 ? 'selected' : ''}>2nd (8 pts)</option>
-                <option value="3" ${curPlc == 3 ? 'selected' : ''}>3rd (6 pts)</option>
-                <option value="4" ${curPlc == 4 ? 'selected' : ''}>4th (5 pts)</option>
-                <option value="5" ${curPlc == 5 ? 'selected' : ''}>5th (4 pts)</option>
-                <option value="6" ${curPlc == 6 ? 'selected' : ''}>6th (3 pts)</option>
-                <option value="7" ${curPlc == 7 ? 'selected' : ''}>7th (2 pts)</option>
-              </select>
+            <!-- Row 2 on mobile: Placement Select + Squad Kills Stepper Side-by-Side -->
+            <div class="flex items-center gap-2 w-full sm:contents">
+              <!-- Placement Select -->
+              <div class="col-span-3 flex-1 min-w-0 sm:w-full">
+                <div class="sm:hidden text-[9px] font-bold text-[var(--muted-foreground)] uppercase mb-0.5">Placement</div>
+                <select id="brPlacement_${teamId}" onchange="updateBrModalCalculations()" class="w-full px-2.5 py-1.5 rounded-xl bg-[var(--card)] border border-[var(--border)] text-xs font-bold text-white focus:outline-hidden focus:border-purple-500 cursor-pointer">
+                  <option value="">-- Placement --</option>
+                  <option value="1" ${curPlc == 1 ? 'selected' : ''}>1st (10 pts)</option>
+                  <option value="2" ${curPlc == 2 ? 'selected' : ''}>2nd (8 pts)</option>
+                  <option value="3" ${curPlc == 3 ? 'selected' : ''}>3rd (6 pts)</option>
+                  <option value="4" ${curPlc == 4 ? 'selected' : ''}>4th (5 pts)</option>
+                  <option value="5" ${curPlc == 5 ? 'selected' : ''}>5th (4 pts)</option>
+                  <option value="6" ${curPlc == 6 ? 'selected' : ''}>6th (3 pts)</option>
+                  <option value="7" ${curPlc == 7 ? 'selected' : ''}>7th (2 pts)</option>
+                </select>
+              </div>
+
+              <!-- Squad Kills Counter -->
+              <div class="col-span-2 shrink-0 sm:w-full sm:flex sm:items-center sm:justify-center">
+                <div class="sm:hidden text-[9px] font-bold text-[var(--muted-foreground)] uppercase mb-0.5 text-center">Squad Kills</div>
+                <div class="flex items-center gap-1 justify-center">
+                  <button type="button" onclick="stepBrKills('${teamId}', -1)" class="w-7 h-7 rounded-lg bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-white font-black text-xs cursor-pointer flex items-center justify-center shrink-0 active:scale-90 transition">-</button>
+                  <input type="number" id="brKills_${teamId}" value="${curKills}" min="0" max="99" oninput="updateBrModalCalculations()" class="w-10 sm:w-12 px-1 py-1 rounded-lg bg-[var(--card)] border border-[var(--border)] text-center text-xs font-mono font-bold text-rose-400 focus:outline-hidden">
+                  <button type="button" onclick="stepBrKills('${teamId}', 1)" class="w-7 h-7 rounded-lg bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-white font-black text-xs cursor-pointer flex items-center justify-center shrink-0 active:scale-90 transition">+</button>
+                </div>
+              </div>
             </div>
 
-            <!-- Squad Kills Counter -->
-            <div class="col-span-2 flex items-center gap-1 justify-center w-full">
-              <button type="button" onclick="stepBrKills('${teamId}', -1)" class="w-7 h-7 rounded-lg bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-white font-black text-xs cursor-pointer flex items-center justify-center">-</button>
-              <input type="number" id="brKills_${teamId}" value="${curKills}" min="0" max="99" oninput="updateBrModalCalculations()" class="w-12 px-1 py-1 rounded-lg bg-[var(--card)] border border-[var(--border)] text-center text-xs font-mono font-bold text-rose-400 focus:outline-hidden">
-              <button type="button" onclick="stepBrKills('${teamId}', 1)" class="w-7 h-7 rounded-lg bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-white font-black text-xs cursor-pointer flex items-center justify-center">+</button>
-            </div>
-
-            <!-- Calculated Points Badge -->
-            <div class="col-span-2 text-right w-full sm:w-auto">
+            <!-- Desktop-Only Calculated Points Badge -->
+            <div class="hidden sm:block col-span-2 text-right">
               <span id="brPts_${teamId}" class="px-2 py-0.5 rounded-lg bg-purple-500/20 text-purple-300 font-mono font-black text-xs border border-purple-500/30">
                 0 pts
               </span>
@@ -9173,6 +9190,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         const plcSelect = document.getElementById(`brPlacement_${teamId}`);
         const killsInput = document.getElementById(`brKills_${teamId}`);
         const ptsBadge = document.getElementById(`brPts_${teamId}`);
+        const ptsBadgeMobile = document.getElementById(`brPtsMobile_${teamId}`);
 
         const plc = (plcSelect && plcSelect.value) ? parseInt(plcSelect.value, 10) : null;
         const kls = (killsInput && killsInput.value) ? parseInt(killsInput.value, 10) : 0;
@@ -9181,6 +9199,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
         if (ptsBadge) {
           ptsBadge.innerText = `${totPts} pts`;
+        }
+        if (ptsBadgeMobile) {
+          ptsBadgeMobile.innerText = `${totPts} pts`;
         }
 
         if (plc) {
