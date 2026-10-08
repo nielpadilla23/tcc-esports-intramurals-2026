@@ -8684,7 +8684,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function renderCodmBattleRoyale() {
       const standings = calculateBrStandings();
-      const completedCount = Object.values(CODM_BR_DATA.rounds).filter(r => r.status === 'completed').length;
+      const completedCount = Object.values(CODM_BR_DATA.rounds || {}).filter(r => r && r.status === 'completed').length;
 
       // Update progress badge
       const progBadge = document.getElementById('brProgressBadge');
@@ -8732,15 +8732,38 @@ Check your Browserslist config to be sure that your targets are set up correctly
         return;
       }
 
+      const isConcluded = completedCount === 8;
+
+      // 1st Place (top1) Badges & Labels
+      const top1Badge = isConcluded
+        ? `<span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500 text-slate-950 shadow-xs flex items-center gap-1"><span>👑</span> Champion (Gold)</span>`
+        : `<span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500 text-slate-950 shadow-xs">1st</span>`;
+      const top1SubRank = isConcluded ? '#1 Champion' : '#1 Leader';
+      const top1HeaderEmoji = isConcluded ? '<span class="text-sm">👑</span>' : '';
+      const top1ScoreLabel = isConcluded ? 'Championship Score' : 'Leader Score';
+      const top1Watermark = isConcluded
+        ? '<div class="absolute -right-6 -top-6 text-7xl opacity-10 select-none pointer-events-none">👑</div>'
+        : '<div class="absolute -right-6 -top-6 text-7xl opacity-10 select-none pointer-events-none">🎯</div>';
+
+      // 2nd Place (top2) Badges & Labels
+      const top2Badge = isConcluded
+        ? `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-300/20 text-slate-200 border border-slate-300/40 shadow-xs flex items-center gap-1"><span>🥈</span> Silver</span>`
+        : `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-500/20 text-slate-300 border border-slate-500/30">2nd</span>`;
+      const top2SubRank = isConcluded ? '#2 Silver' : '#2 Overall';
+
+      // 3rd Place (top3) Badges & Labels
+      const top3Badge = isConcluded
+        ? `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-800/30 text-amber-400 border border-amber-700/40 shadow-xs flex items-center gap-1"><span>🥉</span> Bronze</span>`
+        : `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-800/30 text-amber-400 border border-amber-700/40">3rd</span>`;
+      const top3SubRank = isConcluded ? '#3 Bronze' : '#3 Overall';
+
       container.innerHTML = `
-        <!-- 2nd Place: 1st Runner Up (Silver) -->
+        <!-- 2nd Place: ${isConcluded ? 'Silver' : '2nd Place'} -->
         <div class="order-2 md:order-1 p-5 rounded-3xl bg-gradient-to-b from-slate-800/40 via-[var(--card)] to-[var(--card)] border border-slate-500/30 shadow-lg flex flex-col justify-between space-y-4">
           <div class="space-y-2">
             <div class="flex items-center justify-between">
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-500/20 text-slate-300 border border-slate-500/30">
-                🥈 1st Runner Up
-              </span>
-              <span class="text-xs font-mono font-bold text-slate-400">#2 Overall</span>
+              ${top2Badge}
+              <span class="text-xs font-mono font-bold text-slate-400">${top2SubRank}</span>
             </div>
             <div class="flex items-center gap-3 pt-1">
               ${top2.icon ? `<img src="${top2.icon}" alt="${top2.name}" class="w-12 h-12 object-contain rounded-xl p-1 bg-white/5 border border-white/10 shrink-0">` : `<div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center font-black text-sm">${top2.name}</div>`}
@@ -8763,22 +8786,20 @@ Check your Browserslist config to be sure that your targets are set up correctly
           </div>
         </div>
 
-        <!-- 1st Place: Champion (Gold) -->
+        <!-- 1st Place: ${isConcluded ? 'Champion (Gold)' : '1st Place'} -->
         <div class="order-1 md:order-2 p-5 rounded-3xl bg-gradient-to-b from-amber-500/20 via-[var(--card)] to-[var(--card)] border-2 border-amber-500/50 shadow-xl shadow-amber-500/10 flex flex-col justify-between space-y-4 relative overflow-hidden">
-          <div class="absolute -right-6 -top-6 text-7xl opacity-10 select-none pointer-events-none">👑</div>
+          ${top1Watermark}
           <div class="space-y-2">
             <div class="flex items-center justify-between">
-              <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500 text-slate-950 shadow-xs">
-                🥇 Champion
-              </span>
-              <span class="text-xs font-mono font-black text-amber-400">#1 Leader</span>
+              ${top1Badge}
+              <span class="text-xs font-mono font-black text-amber-400">${top1SubRank}</span>
             </div>
             <div class="flex items-center gap-3 pt-1">
               ${top1.icon ? `<img src="${top1.icon}" alt="${top1.name}" class="w-14 h-14 object-contain rounded-2xl p-1 bg-amber-500/10 border border-amber-500/30 shrink-0">` : `<div class="w-14 h-14 rounded-2xl bg-amber-500/20 flex items-center justify-center font-black text-base text-amber-300">${top1.name}</div>`}
               <div>
                 <h4 class="text-xl font-black text-amber-300 flex items-center gap-1.5">
                   <span>${top1.name}</span>
-                  <span class="text-sm">👑</span>
+                  ${top1HeaderEmoji}
                 </h4>
                 <p class="text-xs text-amber-200/80 font-bold">${top1.mascot}</p>
                 <p class="text-[10px] text-slate-300 truncate max-w-[190px]">${top1.full}</p>
@@ -8787,7 +8808,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
           </div>
           <div class="pt-3 border-t border-amber-500/20 flex items-center justify-between text-xs">
             <div>
-              <div class="text-[10px] text-amber-400/80 uppercase font-bold">Championship Score</div>
+              <div class="text-[10px] text-amber-400/80 uppercase font-bold">${top1ScoreLabel}</div>
               <div class="text-3xl font-black text-amber-400 font-mono">${top1.totalPoints} <span class="text-xs text-amber-300 font-bold">PTS</span></div>
             </div>
             <div class="text-right text-[11px] text-slate-300 font-medium">
@@ -8798,14 +8819,12 @@ Check your Browserslist config to be sure that your targets are set up correctly
           </div>
         </div>
 
-        <!-- 3rd Place: 2nd Runner Up (Bronze) -->
+        <!-- 3rd Place: ${isConcluded ? 'Bronze' : '3rd Place'} -->
         <div class="order-3 md:order-3 p-5 rounded-3xl bg-gradient-to-b from-amber-900/30 via-[var(--card)] to-[var(--card)] border border-amber-700/30 shadow-lg flex flex-col justify-between space-y-4">
           <div class="space-y-2">
             <div class="flex items-center justify-between">
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-800/30 text-amber-400 border border-amber-700/40">
-                🥉 2nd Runner Up
-              </span>
-              <span class="text-xs font-mono font-bold text-amber-600">#3 Overall</span>
+              ${top3Badge}
+              <span class="text-xs font-mono font-bold text-amber-600">${top3SubRank}</span>
             </div>
             <div class="flex items-center gap-3 pt-1">
               ${top3.icon ? `<img src="${top3.icon}" alt="${top3.name}" class="w-12 h-12 object-contain rounded-xl p-1 bg-white/5 border border-white/10 shrink-0">` : `<div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center font-black text-sm">${top3.name}</div>`}
@@ -8834,10 +8853,23 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const tbody = document.getElementById('brStandingsTableBody');
       if (!tbody) return;
 
+      const completedCount = Object.values(CODM_BR_DATA.rounds || {}).filter(r => r && r.status === 'completed').length;
+      const isConcluded = completedCount === 8;
+
       tbody.innerHTML = standings.map((item, idx) => {
-        const rankMedal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${item.rank}`;
-        const rankClass = idx === 0 ? 'text-amber-400 font-black text-base' : idx === 1 ? 'text-slate-300 font-black text-base' : idx === 2 ? 'text-amber-600 font-black text-base' : 'text-[var(--muted-foreground)] font-mono font-bold';
-        const rowBg = idx === 0 ? 'bg-amber-500/5' : idx === 1 ? 'bg-slate-500/5' : idx === 2 ? 'bg-amber-800/5' : '';
+        let rankMedal;
+        let rankClass;
+        let rowBg;
+
+        if (isConcluded) {
+          rankMedal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${item.rank}`;
+          rankClass = idx === 0 ? 'text-amber-400 font-black text-base' : idx === 1 ? 'text-slate-300 font-black text-base' : idx === 2 ? 'text-amber-600 font-black text-base' : 'text-[var(--muted-foreground)] font-mono font-bold';
+          rowBg = idx === 0 ? 'bg-amber-500/10' : idx === 1 ? 'bg-slate-500/10' : idx === 2 ? 'bg-amber-800/10' : '';
+        } else {
+          rankMedal = idx === 0 ? '1st' : idx === 1 ? '2nd' : idx === 2 ? '3rd' : `${item.rank}`;
+          rankClass = idx === 0 ? 'text-amber-400 font-black text-sm font-mono' : idx === 1 ? 'text-slate-300 font-black text-sm font-mono' : idx === 2 ? 'text-amber-500 font-black text-sm font-mono' : 'text-[var(--muted-foreground)] font-mono font-bold';
+          rowBg = idx === 0 ? 'bg-amber-500/5' : '';
+        }
 
         // 8 round cells
         const roundCells = item.roundHistory.map(rh => {
@@ -9220,7 +9252,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
       showToast(`✅ Round ${activeBrModalRound} scores saved successfully!`);
 
-      const completedCount = Object.values(CODM_BR_DATA.rounds).filter(r => r.status === 'completed').length;
+      const completedCount = Object.values(CODM_BR_DATA.rounds || {}).filter(r => r && r.status === 'completed').length;
       if (completedCount === 8) {
         triggerConfetti();
       }
@@ -9334,7 +9366,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function printBrStandings() {
       const standings = calculateBrStandings();
-      const completedCount = Object.values(CODM_BR_DATA.rounds).filter(r => r.status === 'completed').length;
+      const completedCount = Object.values(CODM_BR_DATA.rounds || {}).filter(r => r && r.status === 'completed').length;
 
       const printWin = window.open('', '_blank');
       if (!printWin) {
@@ -9374,16 +9406,21 @@ Check your Browserslist config to be sure that your targets are set up correctly
               </tr>
             </thead>
             <tbody>
-              ${standings.map((s, idx) => `
+              ${standings.map((s, idx) => {
+                const isConcluded = completedCount === 8;
+                const rankText = isConcluded
+                  ? (idx === 0 ? '🥇 Champion (Gold)' : idx === 1 ? '🥈 Silver' : idx === 2 ? '🥉 Bronze' : `#${s.rank}`)
+                  : (idx === 0 ? '1st' : idx === 1 ? '2nd' : idx === 2 ? '3rd' : `#${s.rank}`);
+                return `
                 <tr class="${idx === 0 ? 'champ' : ''}">
-                  <td><b>#${s.rank}</b></td>
+                  <td><b>${rankText}</b></td>
                   <td class="left"><b>${s.name}</b> (${s.mascot}) - ${s.full}</td>
                   ${s.roundHistory.map(r => `<td>${r.placement !== null ? `${r.totalPoints} (#${r.placement})` : '-'}</td>`).join('')}
                   <td><b>${s.totalKills}</b></td>
                   <td><b>${s.totalPlacementPoints}</b></td>
                   <td><b>${s.totalPoints} pts</b></td>
                 </tr>
-              `).join('')}
+              `;}).join('')}
             </tbody>
           </table>
           <div class="footer">
@@ -10651,7 +10688,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         const codmMpCompleted = codmMpMatches.filter(m => m.status === 'completed').length;
 
         const brScores = Object.values(this.tables.codm_br_scores);
-        const brRoundsCompleted = new Set(brScores.filter(s => s.status === 'completed').map(s => s.round_num)).size;
+        const brRoundsCompleted = new Set(brScores.filter(s => s && s.status === 'completed').map(s => s.round_num)).size;
 
         const standings = Object.values(this.tables.college_standings).sort((a, b) => (a.rank || 1) - (b.rank || 1));
         const leader = standings[0] || { name: 'CIT', mascot: 'Fox', championship_points: 0 };
@@ -11140,10 +11177,23 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 <tbody class="divide-y divide-[var(--border)]/60">
                   ${standings.map(s => {
                     const col = this.getCollege(s.team_id);
+                    const brScores = Object.values(this.tables.codm_br_scores);
+                    const brRoundsCompleted = new Set(brScores.filter(sc => sc && sc.status === 'completed').map(sc => sc.round_num)).size;
+                    const allMatches = Object.values(this.tables.matches);
+                    const mlbbConcluded = Boolean(allMatches.find(m => m && (m.id === 'mlbb_gf8' || m.id === 'mlbb_s8_gf') && m.status === 'completed'));
+                    const codmConcluded = Boolean(allMatches.find(m => m && (m.id === 'codm_gf8' || m.id === 'codm_s8_gf') && m.status === 'completed'));
+                    const isAllConcluded = mlbbConcluded && codmConcluded && brRoundsCompleted === 8;
+
                     let rankBadge = `<span class="font-mono font-black text-xs text-[var(--muted-foreground)]">#${s.rank}</span>`;
-                    if (s.rank === 1) rankBadge = `<span class="text-base" title="Championship Gold">🥇</span>`;
-                    else if (s.rank === 2) rankBadge = `<span class="text-base" title="Silver Medal">🥈</span>`;
-                    else if (s.rank === 3) rankBadge = `<span class="text-base" title="Bronze Medal">🥉</span>`;
+                    if (isAllConcluded) {
+                      if (s.rank === 1) rankBadge = `<span class="text-base" title="Champion (Gold)">🥇</span>`;
+                      else if (s.rank === 2) rankBadge = `<span class="text-base" title="Silver Medal">🥈</span>`;
+                      else if (s.rank === 3) rankBadge = `<span class="text-base" title="Bronze Medal">🥉</span>`;
+                    } else {
+                      if (s.rank === 1) rankBadge = `<span class="font-mono font-black text-xs text-amber-400">1st</span>`;
+                      else if (s.rank === 2) rankBadge = `<span class="font-mono font-black text-xs text-slate-300">2nd</span>`;
+                      else if (s.rank === 3) rankBadge = `<span class="font-mono font-black text-xs text-amber-500">3rd</span>`;
+                    }
 
                     return `
                       <tr class="hover:bg-[var(--secondary)]/40 transition">

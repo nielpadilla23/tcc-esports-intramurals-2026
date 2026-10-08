@@ -169,6 +169,14 @@ try:
     assert_true(standings[1]['id'] == 'CBA' and standings[1]['totalPoints'] == 14, f"Rank 2 is CBA with 14 pts")
     assert_true(standings[2]['id'] == 'CHM' and standings[2]['totalPoints'] == 11, f"Rank 3 is CHM with 11 pts")
     assert_true(standings[6]['id'] == 'CAS' and standings[6]['totalPoints'] == 1, f"Rank 7 is CAS with 1 pt")
+    # Verify Podium cards in DOM after 1 round (in-progress)
+    podium_r1_html = driver.execute_script("return document.getElementById('brPodiumContainer').innerHTML;")
+    assert_true("1st" in podium_r1_html, "1st place shown in podium when rounds are in progress")
+    assert_true("2nd" in podium_r1_html, "2nd place shown in podium when rounds are in progress")
+    assert_true("3rd" in podium_r1_html, "3rd place shown in podium when rounds are in progress")
+    assert_true("Champion (Gold)" not in podium_r1_html, "Champion (Gold) not shown yet while rounds are in progress")
+    assert_true("1st Runner Up" not in podium_r1_html, "1st Runner Up not shown")
+    assert_true("2nd Runner Up" not in podium_r1_html, "2nd Runner Up not shown")
 
     print("\n--- 5. TEST FAST SIMULATION OF ALL 8 ROUNDS ---")
     # Log in as Tournament Director (Super Admin)
@@ -207,11 +215,11 @@ try:
 
     print(f"Simulated Champion: {standings_sim[0]['name']} ({standings_sim[0]['mascot']}) with {standings_sim[0]['totalPoints']} PTS ({standings_sim[0]['totalKills']} Kills)!")
 
-    # Verify Podium cards in DOM
+    # Verify Podium cards in DOM when all 8 rounds are complete
     podium_html = driver.execute_script("return document.getElementById('brPodiumContainer').innerHTML;")
-    assert_true("🥇 Champion" in podium_html, "Champion card in podium")
-    assert_true("🥈 1st Runner Up" in podium_html, "1st Runner Up card in podium")
-    assert_true("🥉 2nd Runner Up" in podium_html, "2nd Runner Up card in podium")
+    assert_true("Champion (Gold)" in podium_html, "Champion (Gold) marked in podium when all 8 rounds completed")
+    assert_true("Silver" in podium_html, "Silver marked in podium when all 8 rounds completed")
+    assert_true("Bronze" in podium_html, "Bronze marked in podium when all 8 rounds completed")
 
     screenshot_sim = os.path.join(artifacts_dir, "codm_br_simulated_leaderboard.png")
     driver.save_screenshot(screenshot_sim)
