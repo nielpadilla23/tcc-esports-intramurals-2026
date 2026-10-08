@@ -178,6 +178,19 @@ try:
     assert_true("1st Runner Up" not in podium_r1_html, "1st Runner Up not shown")
     assert_true("2nd Runner Up" not in podium_r1_html, "2nd Runner Up not shown")
 
+    # Verify Standings table headers and columns after Round 1 (only done rounds and total points)
+    table_head_html = driver.execute_script("return document.getElementById('brStandingsTableHead').innerHTML;")
+    assert_true("R1" in table_head_html, "R1 column header is present in standings table")
+    assert_true("R2" not in table_head_html, "R2 column header is NOT shown when only Round 1 is done")
+    assert_true("R8" not in table_head_html, "R8 column header is NOT shown when only Round 1 is done")
+    assert_true("Kills" not in table_head_html, "Separate Kills column is omitted for cleaner design")
+    assert_true("Place Pts" not in table_head_html, "Separate Place Pts column is omitted for cleaner design")
+    assert_true("Total Pts" in table_head_html, "Total Pts column header is present")
+
+    screenshot_r1 = os.path.join(artifacts_dir, "codm_br_round1_clean_leaderboard.png")
+    driver.save_screenshot(screenshot_r1)
+    print(f"Round 1 clean leaderboard screenshot saved: {screenshot_r1}")
+
     print("\n--- 5. TEST FAST SIMULATION OF ALL 8 ROUNDS ---")
     # Log in as Tournament Director (Super Admin)
     driver.execute_script("submitAdminPin('admin2026');")
@@ -220,6 +233,13 @@ try:
     assert_true("Champion (Gold)" in podium_html, "Champion (Gold) marked in podium when all 8 rounds completed")
     assert_true("Silver" in podium_html, "Silver marked in podium when all 8 rounds completed")
     assert_true("Bronze" in podium_html, "Bronze marked in podium when all 8 rounds completed")
+
+    # Verify Standings table headers when all 8 rounds are complete
+    table_head_all_html = driver.execute_script("return document.getElementById('brStandingsTableHead').innerHTML;")
+    assert_true("R1" in table_head_all_html and "R8" in table_head_all_html, "All 8 round columns present when tournament concludes")
+    assert_true("Kills" not in table_head_all_html, "Kills column remains omitted")
+    assert_true("Place Pts" not in table_head_all_html, "Place Pts column remains omitted")
+    assert_true("Total Pts" in table_head_all_html, "Total Pts column present")
 
     screenshot_sim = os.path.join(artifacts_dir, "codm_br_simulated_leaderboard.png")
     driver.save_screenshot(screenshot_sim)

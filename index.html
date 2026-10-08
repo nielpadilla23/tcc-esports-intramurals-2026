@@ -796,7 +796,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
           <h3 class="text-base font-black text-[var(--foreground)] uppercase tracking-wide flex items-center gap-2">
             <span>🏆</span> <span>Overall Cumulative Leaderboard & Standings</span>
           </h3>
-          <p class="text-xs text-[var(--muted-foreground)]">Official tournament placements ranked by Total Points (Placement Points + Squad Kills) across all 8 rounds.</p>
+          <p id="brStandingsSubtext" class="text-xs text-[var(--muted-foreground)]">Official tournament placements ranked by Total Points (Placement Points + Squad Kills) across all 8 rounds.</p>
         </div>
         <div class="text-[11px] text-[var(--muted-foreground)] font-mono font-bold">
           Points Table: 1st=12 · 2nd=10 · 3rd=8 · 4th=6 · 5th=4 · 6th=2 · 7th=1
@@ -806,20 +806,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
       <!-- Responsive Table -->
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs">
-          <thead>
+          <thead id="brStandingsTableHead">
             <tr class="border-b border-[var(--border)] text-[10px] font-black uppercase text-[var(--muted-foreground)] tracking-wider">
-              <th class="py-2.5 px-2 text-center w-12">Rank</th>
+              <th class="py-2.5 px-2 text-center w-14">Rank</th>
               <th class="py-2.5 px-3 min-w-[170px]">College Squad</th>
-              <th class="py-2.5 px-1.5 text-center font-mono">R1</th>
-              <th class="py-2.5 px-1.5 text-center font-mono">R2</th>
-              <th class="py-2.5 px-1.5 text-center font-mono">R3</th>
-              <th class="py-2.5 px-1.5 text-center font-mono">R4</th>
-              <th class="py-2.5 px-1.5 text-center font-mono">R5</th>
-              <th class="py-2.5 px-1.5 text-center font-mono">R6</th>
-              <th class="py-2.5 px-1.5 text-center font-mono">R7</th>
-              <th class="py-2.5 px-1.5 text-center font-mono">R8</th>
-              <th class="py-2.5 px-2 text-center">Kills 💀</th>
-              <th class="py-2.5 px-2 text-center">Place Pts 🎯</th>
+              <th class="py-2.5 px-2 text-center font-mono text-purple-300">R1</th>
               <th class="py-2.5 px-3 text-right">Total Pts ⚡</th>
             </tr>
           </thead>
@@ -8850,11 +8841,50 @@ Check your Browserslist config to be sure that your targets are set up correctly
     }
 
     function renderBrStandingsTable(standings) {
+      const thead = document.getElementById('brStandingsTableHead');
       const tbody = document.getElementById('brStandingsTableBody');
       if (!tbody) return;
 
       const completedCount = Object.values(CODM_BR_DATA.rounds || {}).filter(r => r && r.status === 'completed').length;
       const isConcluded = completedCount === 8;
+
+      // Identify which rounds are done (completed or have recorded placement scores)
+      const doneRounds = [];
+      for (let r = 1; r <= 8; r++) {
+        const rnd = CODM_BR_DATA.rounds ? CODM_BR_DATA.rounds[r] : null;
+        if (rnd && (rnd.status === 'completed' || Object.values(rnd.results || {}).some(res => res && (res.placement !== null && res.placement !== undefined && res.placement !== '')))) {
+          doneRounds.push(r);
+        }
+      }
+
+      // Dynamically update subtext indicator
+      const subtext = document.getElementById('brStandingsSubtext');
+      if (subtext) {
+        if (doneRounds.length === 0) {
+          subtext.innerHTML = `Official standings ranked by Total Accumulated Points · <span class="text-amber-400 font-medium">Awaiting Round 1 · Round columns will unlock as matches conclude</span>`;
+        } else if (isConcluded) {
+          subtext.innerHTML = `Official standings ranked by Total Accumulated Points · <span class="text-emerald-400 font-bold">🏆 All 8 Competitive Rounds Completed · Tournament Concluded</span>`;
+        } else {
+          const roundListStr = doneRounds.map(r => `R${r}`).join(', ');
+          subtext.innerHTML = `Official standings ranked by Total Accumulated Points · <span class="text-purple-300 font-bold">Displaying completed rounds (${roundListStr})</span>`;
+        }
+      }
+
+      // Dynamically render table header for only the done rounds
+      if (thead) {
+        const roundHeaders = doneRounds.map(r => `
+          <th class="py-2.5 px-2 text-center font-mono text-purple-300">R${r}</th>
+        `).join('');
+
+        thead.innerHTML = `
+          <tr class="border-b border-[var(--border)] text-[10px] font-black uppercase text-[var(--muted-foreground)] tracking-wider">
+            <th class="py-2.5 px-2 text-center w-14">Rank</th>
+            <th class="py-2.5 px-3 min-w-[170px]">College Squad</th>
+            ${roundHeaders}
+            <th class="py-2.5 px-3 text-right font-mono text-amber-400">Total Pts ⚡</th>
+          </tr>
+        `;
+      }
 
       tbody.innerHTML = standings.map((item, idx) => {
         let rankMedal;
@@ -8871,21 +8901,22 @@ Check your Browserslist config to be sure that your targets are set up correctly
           rowBg = idx === 0 ? 'bg-amber-500/5' : '';
         }
 
-        // 8 round cells
-        const roundCells = item.roundHistory.map(rh => {
+        // Render cells ONLY for completed/done rounds
+        const roundCells = doneRounds.map(r => {
+          const rh = item.roundHistory.find(h => h.round === r) || { placement: null, kills: 0, placementPoints: 0, totalPoints: 0 };
           if (rh.status === 'completed' || rh.placement !== null) {
             const plcText = rh.placement ? `#${rh.placement}` : '-';
-            const tooltip = `${plcText} (${rh.placementPoints} pts) + ${rh.kills} kills = ${rh.totalPoints} pts`;
+            const tooltip = `Round ${r}: ${plcText} (${rh.placementPoints} pts) + ${rh.kills} kills = ${rh.totalPoints} pts`;
             const highlight = rh.placement === 1 ? 'text-amber-400 font-black' : rh.placement <= 3 ? 'text-white font-bold' : 'text-slate-300';
             return `
-              <td class="py-2.5 px-1.5 text-center font-mono" title="${tooltip}">
-                <div class="${highlight} text-xs leading-none">${rh.totalPoints}</div>
-                <div class="text-[9px] text-[var(--muted-foreground)]">${plcText}</div>
+              <td class="py-2.5 px-2 text-center font-mono" title="${tooltip}">
+                <div class="${highlight} text-xs font-bold leading-none">${rh.totalPoints}</div>
+                <div class="text-[9px] text-[var(--muted-foreground)] mt-0.5">${plcText}</div>
               </td>
             `;
           }
           return `
-            <td class="py-2.5 px-1.5 text-center font-mono text-slate-600 text-xs">
+            <td class="py-2.5 px-2 text-center font-mono text-slate-600 text-xs">
               -
             </td>
           `;
@@ -8902,19 +8933,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     <span>${item.name}</span>
                     <span class="text-[10px] font-normal text-[var(--muted-foreground)]">(${item.mascot})</span>
                   </div>
-                  <div class="text-[10px] text-[var(--muted-foreground)] truncate max-w-[150px]">${item.full}</div>
+                  <div class="text-[10px] text-[var(--muted-foreground)] truncate max-w-[180px]">${item.full}</div>
                 </div>
               </div>
             </td>
             ${roundCells}
-            <td class="py-3 px-2 text-center font-mono font-bold text-rose-400 text-xs">
-              ${item.totalKills}
-            </td>
-            <td class="py-3 px-2 text-center font-mono font-bold text-sky-400 text-xs">
-              ${item.totalPlacementPoints}
-            </td>
             <td class="py-3 px-3 text-right">
-              <span class="px-2.5 py-1 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-300 font-mono font-black text-xs shadow-xs">
+              <span class="px-3 py-1.5 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-300 font-mono font-black text-xs shadow-xs" title="Total Accumulated: ${item.totalPoints} pts (${item.totalPlacementPoints} placement + ${item.totalKills} kills)">
                 ${item.totalPoints} pts
               </span>
             </td>
