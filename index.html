@@ -1083,9 +1083,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
     </div>
   </div>
 
-  <!-- Tournament Access Portal (Role & Esport Scoped Login Modal) -->
+  <!-- Tournament Access Portal (1 Login - Auto-Routes based on Password) -->
   <div id="adminLoginModal" onclick="if(event.target===this)closeAdminLoginModal()" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 hidden select-none transition-all duration-200">
-    <div class="w-full max-w-md rounded-3xl bg-[var(--card)] border border-[var(--border)] p-5 sm:p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
+    <div class="w-full max-w-md rounded-3xl bg-[var(--card)] border border-[var(--border)] p-5 sm:p-6 shadow-2xl space-y-4">
       
       <!-- Modal Header -->
       <div class="flex items-center justify-between pb-3 border-b border-[var(--border)]">
@@ -1095,7 +1095,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
           </div>
           <div>
             <h3 class="text-base font-black text-[var(--foreground)]">Tournament Access Portal</h3>
-            <p id="loginModalHeaderSub" class="text-xs text-[var(--muted-foreground)] font-medium">Esport-Scoped Session & Role Authentication</p>
+            <p id="loginModalHeaderSub" class="text-xs text-[var(--muted-foreground)] font-medium">Enter your security credentials to unlock</p>
           </div>
         </div>
         <button onclick="closeAdminLoginModal()" class="w-8 h-8 rounded-xl bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-[var(--muted-foreground)] hover:text-[var(--foreground)] flex items-center justify-center text-xs font-black transition cursor-pointer" aria-label="Close modal">✕</button>
@@ -1117,102 +1117,31 @@ Check your Browserslist config to be sure that your targets are set up correctly
         </div>
       </div>
 
-      <!-- Esport Scope Tabs (Choose Game Scope) -->
-      <div class="space-y-1.5">
-        <div class="flex items-center justify-between">
-          <label class="block text-[11px] font-black uppercase tracking-wider text-[var(--muted-foreground)]">1. Select Game Scope</label>
-          <span id="loginScopePill" class="text-[10px] font-bold text-sky-400">Active View: MLBB</span>
-        </div>
-        <div class="grid grid-cols-3 gap-1.5 p-1 rounded-2xl bg-[var(--card-surface)] border border-[var(--border)]">
-          <button type="button" id="scopeBtnMlbb" onclick="selectLoginScope('mlbb')" class="py-2 px-2 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer bg-blue-500 text-white shadow-xs">
-            <span class="text-sm">⚔️</span>
-            <span>MLBB</span>
-            <span class="text-[9px] font-bold opacity-80">Mobile Legends</span>
-          </button>
-          <button type="button" id="scopeBtnCodm" onclick="selectLoginScope('codm')" class="py-2 px-2 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)]/60">
-            <span class="text-sm">🛡️</span>
-            <span>CODM</span>
-            <span class="text-[9px] font-bold opacity-80">Call of Duty</span>
-          </button>
-          <button type="button" id="scopeBtnAll" onclick="selectLoginScope('all')" class="py-2 px-2 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)]/60">
-            <span class="text-sm">👑</span>
-            <span>All Games</span>
-            <span class="text-[9px] font-bold opacity-80">Director</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Role Selector Tabs -->
-      <div class="space-y-1.5">
-        <label class="block text-[11px] font-black uppercase tracking-wider text-[var(--muted-foreground)]">2. Select Authority Role</label>
-        <div class="grid grid-cols-2 gap-2 p-1 rounded-2xl bg-[var(--card-surface)] border border-[var(--border)]">
-          <button type="button" id="roleBtnMarshal" onclick="selectLoginTargetRole('marshal')" class="py-2.5 px-3 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer bg-cyan-500 text-slate-950 shadow-xs">
-            <span class="text-base" id="roleBtnMarshalIcon">⚔️</span>
-            <span id="roleBtnMarshalLabel">Table Marshal</span>
-            <span class="text-[9px] font-bold opacity-80">Score Entry Only</span>
-          </button>
-          <button type="button" id="roleBtnAdmin" onclick="selectLoginTargetRole('admin')" class="py-2.5 px-3 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)]/60">
-            <span class="text-base" id="roleBtnAdminIcon">🛡️</span>
-            <span id="roleBtnAdminLabel">Tournament Admin</span>
-            <span class="text-[9px] font-bold opacity-80">Full Authority</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Role & Scope Description Box -->
-      <div id="roleDescBox" class="p-3.5 rounded-2xl bg-[var(--secondary)]/30 border border-[var(--border)] text-xs text-[var(--muted-foreground)] leading-relaxed">
-        <div id="roleDescContent" class="space-y-1">
-          <!-- Dynamically populated description -->
-        </div>
-      </div>
-
-      <!-- Quick Account Presets / Single-Tap Selectors -->
-      <div class="space-y-1.5">
-        <span class="block text-[10px] font-black uppercase tracking-wider text-[var(--muted-foreground)]">Quick Preset Accounts</span>
-        <div class="flex flex-wrap gap-1.5 text-[11px]">
-          <button type="button" onclick="quickFillAccount('mlbb_marshal')" class="px-2.5 py-1 rounded-lg bg-blue-500/10 hover:bg-blue-500/25 border border-blue-500/30 text-blue-400 font-bold transition cursor-pointer">
-            ⚔️ MLBB Marshal
-          </button>
-          <button type="button" onclick="quickFillAccount('codm_marshal')" class="px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/25 border border-amber-500/30 text-amber-400 font-bold transition cursor-pointer">
-            🛡️ CODM Marshal
-          </button>
-          <button type="button" onclick="quickFillAccount('mlbb_admin')" class="px-2.5 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/25 border border-indigo-500/30 text-indigo-400 font-bold transition cursor-pointer">
-            👑 MLBB Admin
-          </button>
-          <button type="button" onclick="quickFillAccount('codm_admin')" class="px-2.5 py-1 rounded-lg bg-orange-500/10 hover:bg-orange-500/25 border border-orange-500/30 text-orange-400 font-bold transition cursor-pointer">
-            👑 CODM Admin
-          </button>
-          <button type="button" onclick="quickFillAccount('super_admin')" class="px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/25 border border-purple-500/30 text-purple-400 font-bold transition cursor-pointer">
-            💎 Director
-          </button>
-        </div>
-      </div>
-
-      <!-- PIN Input Form -->
-      <form onsubmit="event.preventDefault(); submitRoleLogin();" class="space-y-3">
+      <!-- Single PIN Input Form (No Choices) -->
+      <form onsubmit="event.preventDefault(); submitRoleLogin();" class="space-y-4">
         <div>
-          <div class="flex items-center justify-between mb-1">
-            <label for="adminPinInput" id="loginPinLabel" class="block text-xs font-black uppercase text-[var(--muted-foreground)]">Security PIN</label>
-            <span id="loginPinHint" class="text-[10px] text-amber-500/80 font-mono font-bold">Hint: mlbb2026</span>
-          </div>
+          <label for="adminPinInput" id="loginPinLabel" class="block text-xs font-black uppercase text-[var(--muted-foreground)] mb-1.5">Security PIN / Password</label>
           <div class="relative flex items-center">
-            <input type="password" id="adminPinInput" placeholder="Enter PIN..." autocomplete="current-password" class="w-full px-4 py-2.5 pr-10 rounded-xl bg-[var(--card-surface)] border border-[var(--border)] text-[var(--foreground)] text-base font-mono tracking-widest focus:outline-hidden focus:border-amber-500">
+            <input type="password" id="adminPinInput" placeholder="Enter security PIN..." autocomplete="current-password" class="w-full px-4 py-3 pr-10 rounded-xl bg-[var(--card-surface)] border border-[var(--border)] text-[var(--foreground)] text-base font-mono tracking-wider focus:outline-hidden focus:border-amber-500 transition">
             <button type="button" onclick="togglePinVisibility()" title="Toggle PIN visibility" class="absolute right-2.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)] text-sm p-1 cursor-pointer">
               <span id="pinVisibilityIcon">👁️</span>
             </button>
           </div>
-          <div id="adminPinError" class="text-xs text-rose-400 font-bold mt-1.5 hidden flex items-center gap-1">
+          <div id="adminPinError" class="text-xs text-rose-400 font-bold mt-2 hidden flex items-center gap-1.5">
             <span>❌</span> <span id="adminPinErrorText">Incorrect PIN. Please try again.</span>
           </div>
+          <p class="text-[11px] text-[var(--muted-foreground)] mt-2 flex items-center gap-1.5">
+            <span>ℹ️</span> <span>Your dashboard (MLBB or CODM) will automatically open based on your password.</span>
+          </p>
         </div>
 
         <div class="flex items-center justify-between gap-2 pt-2 border-t border-[var(--border)]">
-          <button type="button" onclick="closeAdminLoginModal()" class="px-3.5 py-2 rounded-xl border border-[var(--border)] text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition cursor-pointer">
+          <button type="button" onclick="closeAdminLoginModal()" class="px-3.5 py-2.5 rounded-xl border border-[var(--border)] text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition cursor-pointer">
             Cancel
           </button>
-          <button type="submit" id="submitLoginBtn" class="flex-1 py-2 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black shadow-md transition cursor-pointer flex items-center justify-center gap-1.5 active:scale-95">
-            <span id="submitLoginBtnIcon">🛡️</span>
-            <span id="submitLoginBtnText">Unlock Authority</span>
+          <button type="submit" id="submitLoginBtn" class="flex-1 py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black shadow-md transition cursor-pointer flex items-center justify-center gap-2 active:scale-95">
+            <span id="submitLoginBtnIcon">⚡</span>
+            <span id="submitLoginBtnText">Unlock & Enter Dashboard</span>
           </button>
         </div>
       </form>
@@ -1694,6 +1623,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
           history.replaceState(null, '', window.location.pathname);
         }
       } catch(e) {}
+    }
+
+    function returnToLandingHub() {
+      showEsportHub();
     }
 
     function openEsportDashboard(esportId) {
@@ -8315,18 +8248,18 @@ Check your Browserslist config to be sure that your targets are set up correctly
     function notifyAuthRequired(requiredRole = 'marshal') {
       const activeEsportName = (typeof currentEsport !== 'undefined' ? currentEsport.toUpperCase() : 'TOURNAMENT');
       if (currentSession && !isAuthorizedForEsport(currentEsport)) {
-        showToast(`🔒 Account scoped to ${currentSession.gameScope.toUpperCase()} only. Switch to ${currentSession.gameScope.toUpperCase()} or log in with a ${activeEsportName} account.`);
-        openAdminLoginModal(requiredRole, currentEsport);
+        showToast(`🔒 Account scoped to ${currentSession.gameScope.toUpperCase()} only. Enter your ${activeEsportName} PIN to switch.`);
+        openAdminLoginModal();
       } else if (!currentSession) {
         if (requiredRole === 'admin') {
-          showToast(`🔒 Please log in as ${activeEsportName} Admin to access this feature.`);
+          showToast(`🔒 Please enter your ${activeEsportName} Admin PIN to access this feature.`);
         } else {
-          showToast(`🔒 Please log in as ${activeEsportName} Marshal or Admin to score matches.`);
+          showToast(`🔒 Please enter your ${activeEsportName} PIN to score matches.`);
         }
-        openAdminLoginModal(requiredRole, currentEsport);
+        openAdminLoginModal();
       } else {
-        showToast(`🔒 Only Tournament Admin can perform this action (Active session: ${currentSession.name}).`);
-        openAdminLoginModal('admin', currentEsport);
+        showToast(`🔒 Only Tournament Admin can perform this action (Active: ${currentSession.name}).`);
+        openAdminLoginModal();
       }
     }
 
@@ -8580,7 +8513,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       }
     }
 
-    function openAdminLoginModal(defaultRole, defaultScope) {
+    function openAdminLoginModal() {
       const modal = document.getElementById('adminLoginModal');
       const input = document.getElementById('adminPinInput');
       const err = document.getElementById('adminPinError');
@@ -8594,138 +8527,16 @@ Check your Browserslist config to be sure that your targets are set up correctly
         const icon = document.getElementById('pinVisibilityIcon');
         if (icon) icon.innerText = '👁️';
       }
-
-      const initialScope = defaultScope || (currentSession && currentSession.gameScope !== 'all' ? currentSession.gameScope : currentEsport);
-      const initialRole = defaultRole || (currentSession ? currentSession.role : 'marshal');
-
-      selectLoginScope(initialScope);
-      selectLoginTargetRole(initialRole);
-
       setTimeout(() => input && input.focus(), 120);
     }
 
     function openRoleSwitchModal() {
-      openAdminLoginModal(currentSession ? currentSession.role : 'marshal', currentSession ? currentSession.gameScope : currentEsport);
+      openAdminLoginModal();
     }
 
     function closeAdminLoginModal() {
       const modal = document.getElementById('adminLoginModal');
       if (modal) modal.classList.add('hidden');
-    }
-
-    function selectLoginScope(scope) {
-      if (scope !== 'mlbb' && scope !== 'codm' && scope !== 'all') scope = 'mlbb';
-      targetLoginScope = scope;
-      updateLoginModalFields();
-    }
-
-    function selectLoginTargetRole(role) {
-      if (role !== 'admin' && role !== 'marshal') role = 'marshal';
-      targetLoginRole = role;
-      updateLoginModalFields();
-    }
-
-    function updateLoginModalFields() {
-      // 1. Scope Buttons Styling
-      const btnMlbb = document.getElementById('scopeBtnMlbb');
-      const btnCodm = document.getElementById('scopeBtnCodm');
-      const btnAll = document.getElementById('scopeBtnAll');
-      const scopePill = document.getElementById('loginScopePill');
-
-      const inactiveScopeCls = 'py-2 px-2 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)]/60';
-      if (btnMlbb) btnMlbb.className = targetLoginScope === 'mlbb' ? 'py-2 px-2 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer bg-blue-500 text-white shadow-xs' : inactiveScopeCls;
-      if (btnCodm) btnCodm.className = targetLoginScope === 'codm' ? 'py-2 px-2 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer bg-amber-500 text-slate-950 shadow-xs' : inactiveScopeCls;
-      if (btnAll) btnAll.className = targetLoginScope === 'all' ? 'py-2 px-2 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer bg-purple-600 text-white shadow-xs' : inactiveScopeCls;
-
-      if (scopePill) {
-        scopePill.innerText = `Active View: ${currentEsport.toUpperCase()}`;
-      }
-
-      // 2. Role Buttons Styling & Labels
-      const btnMarshal = document.getElementById('roleBtnMarshal');
-      const btnAdmin = document.getElementById('roleBtnAdmin');
-      const marshalIcon = document.getElementById('roleBtnMarshalIcon');
-      const adminIcon = document.getElementById('roleBtnAdminIcon');
-      const marshalLabel = document.getElementById('roleBtnMarshalLabel');
-      const adminLabel = document.getElementById('roleBtnAdminLabel');
-
-      if (targetLoginScope === 'all') {
-        if (marshalLabel) marshalLabel.innerText = 'General Marshal';
-        if (adminLabel) adminLabel.innerText = 'Tournament Director';
-      } else if (targetLoginScope === 'codm') {
-        if (marshalLabel) marshalLabel.innerText = 'CODM Marshal';
-        if (adminLabel) adminLabel.innerText = 'CODM Admin';
-      } else {
-        if (marshalLabel) marshalLabel.innerText = 'MLBB Marshal';
-        if (adminLabel) adminLabel.innerText = 'MLBB Admin';
-      }
-
-      const inactiveRoleCls = 'py-2.5 px-3 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)]/60';
-      if (btnMarshal) {
-        btnMarshal.className = targetLoginRole === 'marshal'
-          ? 'py-2.5 px-3 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer bg-cyan-500 text-slate-950 shadow-xs'
-          : inactiveRoleCls;
-      }
-      if (btnAdmin) {
-        btnAdmin.className = targetLoginRole === 'admin'
-          ? 'py-2.5 px-3 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer bg-amber-500 text-slate-950 shadow-xs'
-          : inactiveRoleCls;
-      }
-
-      // 3. Find matching account for scope + role
-      const matched = AUTH_ACCOUNTS.find(a => a.scope === targetLoginScope && a.role === targetLoginRole)
-        || (targetLoginRole === 'admin' ? AUTH_ACCOUNTS[0] : AUTH_ACCOUNTS[1]);
-
-      // 4. Update Description Box
-      const descContent = document.getElementById('roleDescContent');
-      if (descContent) {
-        const themeColor = targetLoginRole === 'admin' ? 'text-amber-400' : 'text-cyan-400';
-        descContent.innerHTML = `
-          <div class="font-black ${themeColor} flex items-center gap-1.5">
-            <span>${matched.badge}</span> <span>${matched.name} Privileges:</span>
-          </div>
-          <p class="text-[11px] leading-relaxed">${matched.desc}</p>
-        `;
-      }
-
-      // 5. Update PIN Label & Hint
-      const pinLabel = document.getElementById('loginPinLabel');
-      const pinHint = document.getElementById('loginPinHint');
-      if (pinLabel) pinLabel.innerText = `${matched.name} PIN`;
-      if (pinHint) {
-        pinHint.innerText = `Hint: ${matched.pins[0]}`;
-        pinHint.className = targetLoginRole === 'admin'
-          ? 'text-[10px] text-amber-500/80 font-mono font-bold'
-          : 'text-[10px] text-cyan-400 font-mono font-bold';
-      }
-
-      // 6. Update Submit Button
-      const submitBtn = document.getElementById('submitLoginBtn');
-      const submitText = document.getElementById('submitLoginBtnText');
-      const submitIcon = document.getElementById('submitLoginBtnIcon');
-      if (submitBtn) {
-        submitBtn.className = targetLoginRole === 'admin'
-          ? 'flex-1 py-2 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black shadow-md transition cursor-pointer flex items-center justify-center gap-1.5 active:scale-95'
-          : 'flex-1 py-2 px-4 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-slate-950 text-xs font-black shadow-md transition cursor-pointer flex items-center justify-center gap-1.5 active:scale-95';
-      }
-      if (submitIcon) submitIcon.innerText = matched.badge;
-      if (submitText) submitText.innerText = `Unlock ${matched.name}`;
-
-      const err = document.getElementById('adminPinError');
-      if (err) err.classList.add('hidden');
-    }
-
-    function quickFillAccount(accountId) {
-      const acc = AUTH_ACCOUNTS.find(a => a.id === accountId);
-      if (!acc) return;
-      targetLoginScope = acc.scope;
-      targetLoginRole = acc.role;
-      updateLoginModalFields();
-      const input = document.getElementById('adminPinInput');
-      if (input) {
-        input.value = acc.pins[0];
-        input.focus();
-      }
     }
 
     function togglePinVisibility() {
@@ -8753,34 +8564,51 @@ Check your Browserslist config to be sure that your targets are set up correctly
         return;
       }
 
-      // 1. Direct match for selected scope & role
-      let matched = AUTH_ACCOUNTS.find(a => a.scope === targetLoginScope && a.role === targetLoginRole && a.pins.includes(pin));
+      // Find matching account based on the inputted password/PIN
+      const matched = AUTH_ACCOUNTS.find(a => a.pins.includes(pin));
 
-      // 2. Direct match for selected scope (opposite role)
       if (!matched) {
-        matched = AUTH_ACCOUNTS.find(a => a.scope === targetLoginScope && a.pins.includes(pin));
-      }
-
-      // 3. Smart cross-account match (e.g. entered codm PIN while on mlbb tab, or superadmin)
-      if (!matched) {
-        matched = AUTH_ACCOUNTS.find(a => a.pins.includes(pin));
-      }
-
-      if (matched) {
-        if (err) err.classList.add('hidden');
-        loginWithAccount(matched);
-        closeAdminLoginModal();
+        if (err) err.classList.remove('hidden');
+        if (errText) errText.innerText = 'Incorrect PIN. Check your credentials (e.g. mlbb2026, codm2026, admin2026).';
+        if (input) {
+          input.classList.add('border-rose-500');
+          setTimeout(() => input.classList.remove('border-rose-500'), 1500);
+        }
         return;
       }
 
-      // Incorrect PIN
-      if (err) err.classList.remove('hidden');
-      const targetAcc = AUTH_ACCOUNTS.find(a => a.scope === targetLoginScope && a.role === targetLoginRole);
-      const defaultHint = targetAcc ? targetAcc.pins[0] : 'admin2026';
-      if (errText) errText.innerText = `Incorrect PIN. (Hint: ${defaultHint})`;
-      if (input) {
-        input.classList.add('border-rose-500');
-        setTimeout(() => input.classList.remove('border-rose-500'), 1500);
+      // Valid account found!
+      if (err) err.classList.add('hidden');
+      loginWithAccount(matched, false);
+      closeAdminLoginModal();
+
+      // Automatically route to the dashboard based on the inputted password!
+      if (matched.scope === 'mlbb') {
+        openEsportDashboard('mlbb');
+        showToast(`${matched.badge} Logged in as ${matched.name} · Loaded Mobile Legends Dashboard`);
+      } else if (matched.scope === 'codm') {
+        openEsportDashboard('codm');
+        showToast(`${matched.badge} Logged in as ${matched.name} · Loaded Call of Duty: Mobile Dashboard`);
+      } else {
+        // All games (Tournament Director / General Marshal)
+        const hub = document.getElementById('esportLandingHub');
+        const isHubVisible = hub && !hub.classList.contains('hidden');
+        if (isHubVisible) {
+          openEsportDashboard(currentEsport || 'mlbb');
+        }
+        showToast(`${matched.badge} Logged in as ${matched.name} (All Tournaments Authorized)`);
+      }
+    }
+
+    // Stubs for backward compatibility
+    function selectLoginScope(scope) { targetLoginScope = scope; }
+    function selectLoginTargetRole(role) { targetLoginRole = role; }
+    function updateLoginModalFields() {}
+    function quickFillAccount(accId) {
+      const acc = AUTH_ACCOUNTS.find(a => a.id === accId);
+      if (acc) {
+        const inp = document.getElementById('adminPinInput');
+        if (inp) { inp.value = acc.pins[0]; inp.focus(); }
       }
     }
 
