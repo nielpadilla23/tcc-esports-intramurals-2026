@@ -1934,7 +1934,24 @@ Check your Browserslist config to be sure that your targets are set up correctly
         try { localStorage.setItem('tcc_codm_mode_v1', mode); } catch(e) {}
       }
 
-      switchEsport(esportId);
+      if (esportId === currentEsport) {
+        loadTournamentDataForEsport(currentEsport);
+        updateEsportBrandingUI();
+        renderHeaderTeamBadges();
+        updateTournamentModeUI();
+        updatePlayoffBracket();
+        renderCollegeRoster();
+        renderLiveBroadcastHero();
+        if (currentTab === 'matches') renderMatchScheduleList();
+        if (currentTab === 'database' && typeof TournamentResultsDB !== 'undefined') {
+          TournamentResultsDB.renderDatabaseView('resultsDatabaseInlineContainer');
+        }
+        if (typeof updateAdminUI === 'function') updateAdminUI();
+        if (typeof updateCodmModeUI === 'function') updateCodmModeUI();
+      } else {
+        switchEsport(esportId);
+      }
+
       try {
         const hashMode = (esportId === 'codm' && mode) ? `&mode=${mode}` : '';
         window.location.hash = 'game=' + esportId + hashMode;
@@ -2279,8 +2296,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
         try {
           const savedConfig = localStorage.getItem('tcc_firebase_config_v1');
           const baseChannel = localStorage.getItem('tcc_firebase_channel_v1') || 'tcc_tournament_2026';
-          if (savedConfig) {
-            connectToFirebase(savedConfig, baseChannel, false);
+          const activeConfig = savedConfig || (typeof DEFAULT_FIREBASE_DB_URL !== 'undefined' && DEFAULT_FIREBASE_DB_URL.trim() ? DEFAULT_FIREBASE_DB_URL.trim() : null);
+          if (activeConfig) {
+            connectToFirebase(activeConfig, baseChannel, false);
           }
         } catch(e) {}
       }
@@ -11507,10 +11525,26 @@ Check your Browserslist config to be sure that your targets are set up correctly
       }
     }
 
+    let firebaseActiveRefs = [];
+
     function connectToFirebase(configStr, channel, notify = true) {
       if (typeof firebase === 'undefined') {
-        console.warn('Firebase SDK not loaded.');
-        updateCloudStatusBadge(false, 'Cloud: Offline');
+        updateCloudStatusBadge(false, 'Cloud: Connecting...');
+        if (!window._firebaseRetryTimer) {
+          let attempts = 0;
+          window._firebaseRetryTimer = setInterval(() => {
+            attempts++;
+            if (typeof firebase !== 'undefined') {
+              clearInterval(window._firebaseRetryTimer);
+              window._firebaseRetryTimer = null;
+              connectToFirebase(configStr, channel, notify);
+            } else if (attempts > 30) {
+              clearInterval(window._firebaseRetryTimer);
+              window._firebaseRetryTimer = null;
+              updateCloudStatusBadge(false, 'Cloud: Offline');
+            }
+          }, 250);
+        }
         return;
       }
 
@@ -11531,19 +11565,64 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
         const db = firebase.database(app);
         cloudChannelKey = channel || 'tcc_tournament_2026';
-        firebaseDbRef = db.ref(cloudChannelKey + '_' + currentEsport);
 
+        // Detach any previous listeners to prevent duplicates
+        if (firebaseActiveRefs && firebaseActiveRefs.length > 0) {
+          firebaseActiveRefs.forEach(r => {
+            try { r.off(); } catch(e) {}
+          });
+        }
+        firebaseActiveRefs = [];
+
+        // 1. Current Esport Realtime Stream
+        firebaseDbRef = db.ref(cloudChannelKey + '_' + currentEsport);
         firebaseDbRef.on('value', (snapshot) => {
           const val = snapshot.val();
           if (val) {
-            handleCloudSyncUpdate(val);
-          } else if (isAdmin) {
-            // New empty room - push existing local data up to cloud
-            pushToCloud();
-          } else if (PLAYOFF_DATA && Object.keys(PLAYOFF_DATA).length > 0) {
+            handleCloudSyncUpdate(val, currentEsport);
+          } else if (typeof isAdmin === 'function' && isAdmin() && PLAYOFF_DATA && Object.keys(PLAYOFF_DATA).length > 0) {
+            // Only authenticated admins push to an empty room
             pushToCloud();
           }
         });
+        firebaseActiveRefs.push(firebaseDbRef);
+
+        // 2. Parallel Stream for Other Esport (keeps MLBB & CODM always in sync on spectator phones)
+        const otherEsport = currentEsport === 'mlbb' ? 'codm' : 'mlbb';
+        const otherDbRef = db.ref(cloudChannelKey + '_' + otherEsport);
+        otherDbRef.on('value', (snapshot) => {
+          const val = snapshot.val();
+          if (val && val.PLAYOFF_DATA) {
+            try {
+              localStorage.setItem(otherEsport + '_playoff_data_v9', JSON.stringify(val.PLAYOFF_DATA));
+              if (val.TEAMS) localStorage.setItem(otherEsport + '_teams_v9', JSON.stringify(val.TEAMS));
+              if (val.tournamentMode) localStorage.setItem(otherEsport + '_tournament_mode_v9', val.tournamentMode);
+            } catch(e) {}
+            if (typeof TournamentResultsDB !== 'undefined' && TournamentResultsDB.syncPlayoffs) {
+              TournamentResultsDB.syncPlayoffs(otherEsport);
+            }
+          }
+        });
+        firebaseActiveRefs.push(otherDbRef);
+
+        // 3. Battle Royale Stream (Rounds 1-8 for all 7 colleges)
+        const brDbRef = db.ref(cloudChannelKey + '_codm_br');
+        brDbRef.on('value', (snapshot) => {
+          const brVal = snapshot.val();
+          if (brVal && brVal.rounds) {
+            CODM_BR_DATA = brVal;
+            try { localStorage.setItem('tcc_codm_br_data_v1', JSON.stringify(CODM_BR_DATA)); } catch(e) {}
+            if (typeof renderCodmBattleRoyale === 'function' && currentEsport === 'codm' && typeof codmMode !== 'undefined' && codmMode === 'br') {
+              renderCodmBattleRoyale();
+            }
+            if (typeof TournamentResultsDB !== 'undefined') {
+              TournamentResultsDB.hydrateBrRounds();
+              TournamentResultsDB.recalculateStandings();
+              TournamentResultsDB.refreshActiveContainers();
+            }
+          }
+        });
+        firebaseActiveRefs.push(brDbRef);
 
         isCloudSyncConnected = true;
         updateCloudStatusBadge(true, 'Cloud: Live');
@@ -11554,13 +11633,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
         } catch(e) {}
 
         if (notify) {
-          alert('🟢 Connected to Firebase Realtime Database! Live sync active.');
+          showToast('🟢 Connected to Firebase Realtime Database! Live sync active.');
         }
       } catch(err) {
         console.error('Firebase connection error:', err);
         isCloudSyncConnected = false;
         updateCloudStatusBadge(false, 'Cloud: Error');
-        if (notify) alert('❌ Failed to connect to Firebase: ' + err.message);
+        if (notify) showToast('❌ Failed to connect to Firebase: ' + err.message);
       }
     }
 
