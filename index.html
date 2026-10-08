@@ -428,9 +428,14 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
       <!-- Quick College Roster Badges Preview -->
       <div class="mt-10 pt-6 border-t border-white/10 max-w-3xl w-full flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
-        <span class="font-bold flex items-center gap-1.5">
-          <span>🏛️</span> 8 Official College Departments Participating
-        </span>
+        <div class="flex items-center gap-3">
+          <span class="font-bold flex items-center gap-1.5">
+            <span>🏛️</span> 8 Official College Departments
+          </span>
+          <button type="button" onclick="openResultsDatabaseModal()" class="px-2.5 py-1 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 border border-sky-500/40 text-sky-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95">
+            <span>🗄️</span> <span>Results Database</span>
+          </button>
+        </div>
         <div class="flex items-center gap-1.5 flex-wrap justify-center">
           <span class="px-2 py-0.5 rounded bg-white/5 text-[10px] font-mono">CIT</span>
           <span class="px-2 py-0.5 rounded bg-white/5 text-[10px] font-mono">CBA</span>
@@ -520,6 +525,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
           <span id="cloudSyncIcon">☁️</span> <span id="cloudStatusText" class="hidden sm:inline">Cloud: Local</span>
         </button>
 
+        <!-- Tournament Results Database Viewer -->
+        <button id="btnHeaderDatabase" onclick="openResultsDatabaseModal()" title="Official Tournament Results Database & Archives" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-sky-500/40 bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 text-xs font-black transition cursor-pointer shadow-xs active:scale-95">
+          <span>🗄️</span> <span class="hidden sm:inline">Database</span>
+        </button>
+
         <!-- Admin / Marshal Auth Status & Role Switcher Container -->
         <div id="adminAuthContainer" class="flex items-center">
           <div class="flex items-center gap-1.5">
@@ -537,7 +547,20 @@ Check your Browserslist config to be sure that your targets are set up correctly
           <button onclick="toggleDataMenu()" class="px-2.5 py-1.5 rounded-xl border border-[var(--border)] hover:bg-[var(--secondary)] text-xs font-bold transition text-[var(--foreground)] cursor-pointer flex items-center gap-1" title="Data Backup / Restore">
             <span>💾</span> Data
           </button>
-          <div id="dataMenuDropdown" class="hidden absolute right-0 mt-2 w-48 rounded-xl bg-[var(--card)] border border-[var(--border)] shadow-xl z-50 py-1.5 text-xs">
+          <div id="dataMenuDropdown" class="hidden absolute right-0 mt-2 w-52 rounded-xl bg-[var(--card)] border border-[var(--border)] shadow-xl z-50 py-1.5 text-xs">
+            <button onclick="openResultsDatabaseModal()" class="w-full text-left px-4 py-2 hover:bg-[var(--secondary)] flex items-center gap-2 text-sky-400 font-bold cursor-pointer">
+              <span>🗄️</span> Results Database
+            </button>
+            <button onclick="exportDatabaseAsSQL()" class="w-full text-left px-4 py-2 hover:bg-[var(--secondary)] flex items-center gap-2 text-[var(--foreground)] cursor-pointer">
+              <span>📄</span> Export Database (SQL)
+            </button>
+            <button onclick="exportDatabaseAsCSV('matches')" class="w-full text-left px-4 py-2 hover:bg-[var(--secondary)] flex items-center gap-2 text-[var(--foreground)] cursor-pointer">
+              <span>📊</span> Export Matches (CSV)
+            </button>
+            <button onclick="exportDatabaseAsCSV('br_scores')" class="w-full text-left px-4 py-2 hover:bg-[var(--secondary)] flex items-center gap-2 text-[var(--foreground)] cursor-pointer">
+              <span>🪂</span> Export Battle Royale (CSV)
+            </button>
+            <div class="my-1 border-t border-[var(--border)]/60"></div>
             <button onclick="exportTournamentData()" class="w-full text-left px-4 py-2 hover:bg-[var(--secondary)] flex items-center gap-2 text-[var(--foreground)] cursor-pointer">
               <span>📥</span> Export Backup (JSON)
             </button>
@@ -650,8 +673,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
     <!-- Official Tournament 3-Day Match Sequence Roadmap Container (Admin Only) -->
     <div id="tournamentRoadmapContainer" class="admin-only"></div>
 
-    <!-- Main Navigation Tabs (Admin Only) -->
-    <div class="admin-only flex items-center gap-2 border-b border-[var(--border)] pb-3 overflow-x-auto text-sm font-black">
+    <!-- Main Navigation Tabs -->
+    <div class="flex items-center gap-2 border-b border-[var(--border)] pb-3 overflow-x-auto text-sm font-black">
       <button id="tab-bracket" onclick="switchTab('bracket')" class="px-4 py-2 rounded-xl bg-[var(--card)] border border-amber-500/40 text-amber-400 shadow-sm shrink-0 flex items-center gap-2 cursor-pointer font-black transition">
         <span>🏆</span> Tournament Bracket
       </button>
@@ -660,6 +683,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
       </button>
       <button id="tab-teams" onclick="switchTab('teams')" class="px-4 py-2 rounded-xl border border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)] shrink-0 flex items-center gap-2 cursor-pointer font-bold transition">
         <span>🏫</span> Colleges & Seeding Draw
+      </button>
+      <button id="tab-database" onclick="switchTab('database')" class="px-4 py-2 rounded-xl border border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)] shrink-0 flex items-center gap-2 cursor-pointer font-bold transition">
+        <span>🗄️</span> Results Database
       </button>
     </div>
 
@@ -708,6 +734,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
       </div>
       <div id="collegeRosterContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- Injected via renderCollegeRoster() -->
+      </div>
+    </div>
+
+    <!-- TAB 4: Results Database & Archives View -->
+    <div id="view-database" class="hidden space-y-6">
+      <div id="resultsDatabaseInlineContainer">
+        <!-- Injected via TournamentResultsDB.renderDatabaseView('resultsDatabaseInlineContainer') -->
       </div>
     </div>
   </div><!-- /#mainMpTournamentContainer -->
@@ -1373,6 +1406,35 @@ Check your Browserslist config to be sure that your targets are set up correctly
           </div>
         </div>
       </form>
+
+    </div>
+  </div>
+
+  <!-- Comprehensive Results Database & Archives Modal -->
+  <div id="tournamentDatabaseModal" onclick="if(event.target===this)closeResultsDatabaseModal()" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 hidden select-none transition-all duration-200">
+    <div class="w-full max-w-5xl rounded-3xl bg-[var(--card)] border border-[var(--border)] p-4 sm:p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-3 border-b border-[var(--border)]">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-xl text-sky-400 shrink-0 shadow-inner">
+            🗄️
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 class="text-base sm:text-lg font-black text-[var(--foreground)]">Official Tournament Results Database</h3>
+              <span id="dbLiveStatusBadge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">🟢 Active & Synced</span>
+            </div>
+            <p class="text-xs text-[var(--muted-foreground)] font-medium">Relational records for MLBB match series, CODM 5v5 Multiplayer, and Battle Royale rounds.</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeResultsDatabaseModal()" class="w-8 h-8 rounded-xl bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-[var(--muted-foreground)] hover:text-[var(--foreground)] flex items-center justify-center text-xs font-black transition cursor-pointer" aria-label="Close database modal">✕</button>
+      </div>
+
+      <!-- Container Injected with Full Database Browser -->
+      <div id="resultsDatabaseModalBody" class="space-y-4">
+        <!-- Injected via TournamentResultsDB.renderDatabaseView('resultsDatabaseModalBody') -->
+      </div>
 
     </div>
   </div>
@@ -2231,6 +2293,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
       renderCollegeRoster();
       renderLiveBroadcastHero();
       if (currentTab === 'matches') renderMatchScheduleList();
+      if (currentTab === 'database' && typeof TournamentResultsDB !== 'undefined') {
+        TournamentResultsDB.renderDatabaseView('resultsDatabaseInlineContainer');
+      }
       if (typeof isTheaterModeOpen !== 'undefined' && isTheaterModeOpen) renderTheaterCurrentSlide();
 
       // Update Auth RBAC & Headers for the new esport
@@ -2420,7 +2485,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function switchTab(tabId) {
       currentTab = tabId;
-      ['bracket', 'matches', 'teams'].forEach(t => {
+      ['bracket', 'matches', 'teams', 'database'].forEach(t => {
         const btn = document.getElementById(`tab-${t}`);
         const view = document.getElementById(`view-${t}`);
         if (btn && view) {
@@ -2435,6 +2500,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
       });
       if (tabId === 'matches') renderMatchScheduleList();
       if (tabId === 'teams') renderCollegeRoster();
+      if (tabId === 'database' && typeof TournamentResultsDB !== 'undefined') {
+        TournamentResultsDB.renderDatabaseView('resultsDatabaseInlineContainer');
+      }
     }
 
     // --- 3. TOURNAMENT MODE TOGGLE ---
@@ -5162,7 +5230,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
       updatePlayoffBracket();
       savePlayoffsToStorage();
+      if (typeof TournamentResultsDB !== 'undefined' && TournamentResultsDB.recordMatch) {
+        TournamentResultsDB.recordMatch(currentEsport, matchKey, match);
+      }
       if (currentTab === 'matches') renderMatchScheduleList();
+      if (currentTab === 'database' && typeof TournamentResultsDB !== 'undefined') {
+        TournamentResultsDB.renderDatabaseView('resultsDatabaseInlineContainer');
+      }
       if (isTheaterModeOpen) renderTheaterCurrentSlide();
     }
 
@@ -5181,7 +5255,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
       }
       updatePlayoffBracket();
       savePlayoffsToStorage();
+      if (typeof TournamentResultsDB !== 'undefined' && TournamentResultsDB.recordMatchReset) {
+        TournamentResultsDB.recordMatchReset(currentEsport, matchKey);
+      }
       if (currentTab === 'matches') renderMatchScheduleList();
+      if (currentTab === 'database' && typeof TournamentResultsDB !== 'undefined') {
+        TournamentResultsDB.renderDatabaseView('resultsDatabaseInlineContainer');
+      }
       if (isTheaterModeOpen) renderTheaterCurrentSlide();
       showToast('Match score reset to pending.');
     }
@@ -5313,8 +5393,14 @@ Check your Browserslist config to be sure that your targets are set up correctly
       }
       updatePlayoffBracket();
       savePlayoffsToStorage();
+      if (typeof TournamentResultsDB !== 'undefined' && TournamentResultsDB.recordTournamentReset) {
+        TournamentResultsDB.recordTournamentReset(currentEsport);
+      }
       renderHeaderTeamBadges();
       if (currentTab === 'matches') renderMatchScheduleList();
+      if (currentTab === 'database' && typeof TournamentResultsDB !== 'undefined') {
+        TournamentResultsDB.renderDatabaseView('resultsDatabaseInlineContainer');
+      }
       renderLiveBroadcastHero();
       if (isTheaterModeOpen) renderTheaterCurrentSlide();
       showToast('All tournament match scores reset to pending & synced.');
@@ -5333,6 +5419,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
           if (PLAYOFF_DATA[k].loser === 'COM') PLAYOFF_DATA[k].loser = 'CMID';
         }
         localStorage.setItem(getStorageKey('playoff_data_v9'), JSON.stringify(PLAYOFF_DATA));
+        if (typeof TournamentResultsDB !== 'undefined' && TournamentResultsDB.syncPlayoffs) {
+          TournamentResultsDB.syncPlayoffs(currentEsport);
+        }
         pushToCloud();
       } catch(e) {}
     }
@@ -7676,6 +7765,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
+        const dbModal = document.getElementById('tournamentDatabaseModal');
+        if (dbModal && !dbModal.classList.contains('hidden')) {
+          closeResultsDatabaseModal();
+          return;
+        }
         const brModal = document.getElementById('codmBrScoreModal');
         if (brModal && !brModal.classList.contains('hidden')) {
           closeBrScoreModal();
@@ -9099,6 +9193,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
       };
 
       saveBrDataToStorage();
+      if (typeof TournamentResultsDB !== 'undefined' && TournamentResultsDB.recordBrRound) {
+        TournamentResultsDB.recordBrRound(activeBrModalRound, CODM_BR_DATA.rounds[activeBrModalRound]);
+      }
       closeBrScoreModal();
       selectBrRound(activeBrModalRound);
       renderCodmBattleRoyale();
@@ -9133,6 +9230,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
       });
 
       saveBrDataToStorage();
+      if (typeof TournamentResultsDB !== 'undefined' && TournamentResultsDB.recordBrRoundReset) {
+        TournamentResultsDB.recordBrRoundReset(activeBrModalRound);
+      }
       renderBrModalTeamRows();
       renderCodmBattleRoyale();
       showToast(`🗑️ Round ${activeBrModalRound} reset to pending.`);
@@ -9184,6 +9284,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
       }
 
       saveBrDataToStorage();
+      if (typeof TournamentResultsDB !== 'undefined' && TournamentResultsDB.syncAllBrRounds) {
+        TournamentResultsDB.syncAllBrRounds();
+      }
       renderCodmBattleRoyale();
       triggerConfetti();
       showToast('🏆 All 8 CODM Battle Royale rounds simulated successfully!');
@@ -9204,6 +9307,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
       }
       CODM_BR_DATA = getDefaultBrData();
       saveBrDataToStorage();
+      if (typeof TournamentResultsDB !== 'undefined' && TournamentResultsDB.recordBrReset) {
+        TournamentResultsDB.recordBrReset();
+      }
       renderCodmBattleRoyale();
       showToast('🔄 Battle Royale scores reset to Round 1.');
     }
@@ -9815,6 +9921,1528 @@ Check your Browserslist config to be sure that your targets are set up correctly
     function lockAdminMode() { setRole('viewer'); }
     function submitAdminPin(optionalPin) { submitRoleLogin(optionalPin); }
 
+    // =========================================================================
+    // --- 13.5 COMPREHENSIVE RESULTS DATABASE & ARCHIVES ENGINE (TournamentResultsDB) ---
+    // Multi-game relational persistence (IndexedDB + LocalStorage mirror + Cloud Sync)
+    // Supports MLBB 5v5, CODM 5v5 Multiplayer, and CODM 8-Round Battle Royale.
+    // Instant score recording, dynamic filtering, ANSI SQL/CSV/JSON exports, live audit logs.
+    // =========================================================================
+
+    const TournamentResultsDB = {
+      dbName: 'TCC_ESPORTS_RESULTS_DB_V1',
+      dbVersion: 1,
+      idb: null,
+      isIdbReady: false,
+
+      // State and filters
+      activeSubTab: 'all', // 'all' | 'mlbb' | 'codm_mp' | 'codm_br' | 'standings' | 'audit'
+      searchQuery: '',
+      filterCollege: 'ALL',
+      filterStatus: 'ALL',
+      filterRound: 'ALL',
+
+      // In-memory relational tables
+      tables: {
+        matches: {},           // key: `${esport}_${matchKey}`
+        codm_br_scores: {},    // key: `br_r${roundNum}_${teamId}`
+        college_standings: {}, // key: teamId
+        audit_logs: []         // array of audit log entries (max 250)
+      },
+
+      init() {
+        this.loadFromStorage();
+        this.initIndexedDB();
+        this.syncWithCurrentAppState();
+        this.recalculateStandings();
+        this.persist();
+        this.updateHeaderBadge();
+      },
+
+      initIndexedDB() {
+        if (!window.indexedDB) {
+          console.log('[ResultsDB] IndexedDB unavailable; running on LocalStorage mirror.');
+          this.updateHeaderBadge();
+          return;
+        }
+        try {
+          const req = window.indexedDB.open(this.dbName, this.dbVersion);
+          req.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains('matches')) {
+              db.createObjectStore('matches', { keyPath: 'id' });
+            }
+            if (!db.objectStoreNames.contains('codm_br_scores')) {
+              db.createObjectStore('codm_br_scores', { keyPath: 'id' });
+            }
+            if (!db.objectStoreNames.contains('college_standings')) {
+              db.createObjectStore('college_standings', { keyPath: 'team_id' });
+            }
+            if (!db.objectStoreNames.contains('audit_logs')) {
+              db.createObjectStore('audit_logs', { keyPath: 'id' });
+            }
+          };
+          req.onsuccess = (e) => {
+            this.idb = e.target.result;
+            this.isIdbReady = true;
+            this.persistToIndexedDB();
+            this.updateHeaderBadge();
+          };
+          req.onerror = () => {
+            this.isIdbReady = false;
+            this.updateHeaderBadge();
+          };
+        } catch(err) {
+          this.isIdbReady = false;
+        }
+      },
+
+      loadFromStorage() {
+        try {
+          const mRaw = localStorage.getItem('tcc_results_db_matches_v1');
+          if (mRaw) this.tables.matches = JSON.parse(mRaw) || {};
+          const brRaw = localStorage.getItem('tcc_results_db_br_scores_v1');
+          if (brRaw) this.tables.codm_br_scores = JSON.parse(brRaw) || {};
+          const aRaw = localStorage.getItem('tcc_results_db_audit_logs_v1');
+          if (aRaw) this.tables.audit_logs = JSON.parse(aRaw) || [];
+        } catch(e) {
+          console.warn('[ResultsDB] Error loading LocalStorage mirror:', e);
+        }
+      },
+
+      syncWithCurrentAppState() {
+        this.hydratePlayoffMatches('mlbb');
+        this.hydratePlayoffMatches('codm');
+        this.hydrateBrRounds();
+      },
+
+      hydratePlayoffMatches(esport) {
+        let pData = null;
+        if (typeof currentEsport !== 'undefined' && currentEsport === esport && typeof PLAYOFF_DATA !== 'undefined' && PLAYOFF_DATA) {
+          pData = PLAYOFF_DATA;
+        } else {
+          try {
+            const saved = localStorage.getItem(esport + '_playoff_data_v9');
+            if (saved) pData = JSON.parse(saved);
+          } catch(e) {}
+        }
+        if (!pData) return;
+
+        for (let k in pData) {
+          const m = pData[k];
+          if (!m) continue;
+          const id = esport + '_' + k;
+          let status = 'scheduled';
+          if (m.winner) {
+            status = 'completed';
+          } else if ((m.s1 !== null && m.s1 !== undefined && m.s1 !== '') || (m.s2 !== null && m.s2 !== undefined && m.s2 !== '')) {
+            status = 'in_progress';
+          }
+
+          const existing = this.tables.matches[id];
+          const bestOf = m.bestOf || (typeof getMatchBestOf === 'function' ? getMatchBestOf(k, m) : 3);
+          const label = m.label || (typeof getMatchCanonicalLabel === 'function' ? getMatchCanonicalLabel(k) : k.toUpperCase());
+          const stageDay = m.day || (typeof MATCH_DAYS !== 'undefined' && MATCH_DAYS[k]) || 'DAY 1';
+
+          this.tables.matches[id] = {
+            id: id,
+            esport: esport,
+            game_title: esport === 'mlbb' ? 'Mobile Legends: Bang Bang' : 'Call of Duty: Mobile (5v5 MP)',
+            match_key: k,
+            label: label,
+            stage_day: stageDay,
+            best_of: bestOf,
+            team1: m.team1 || null,
+            team2: m.team2 || null,
+            team1_name: this.getCollege(m.team1).full,
+            team2_name: this.getCollege(m.team2).full,
+            score1: (m.s1 !== null && m.s1 !== undefined && m.s1 !== '') ? Number(m.s1) : null,
+            score2: (m.s2 !== null && m.s2 !== undefined && m.s2 !== '') ? Number(m.s2) : null,
+            winner: m.winner || null,
+            loser: m.loser || null,
+            status: status,
+            games: m.games || null,
+            recorded_by: existing ? existing.recorded_by : 'System / Local Sync',
+            recorded_at: existing ? existing.recorded_at : new Date().toISOString(),
+            updated_at: Date.now()
+          };
+        }
+      },
+
+      hydrateBrRounds() {
+        let brData = (typeof CODM_BR_DATA !== 'undefined' && CODM_BR_DATA && CODM_BR_DATA.rounds) ? CODM_BR_DATA : null;
+        if (!brData) {
+          try {
+            const raw = localStorage.getItem('tcc_codm_br_data_v1');
+            if (raw) brData = JSON.parse(raw);
+          } catch(e) {}
+        }
+        if (!brData || !brData.rounds) return;
+
+        const teamsList = typeof CODM_BR_TEAMS !== 'undefined' ? CODM_BR_TEAMS : ['CCJPS', 'CBA', 'CHM', 'CLIS', 'CIT', 'COED', 'CAS'];
+
+        for (let r = 1; r <= 8; r++) {
+          const roundObj = brData.rounds[r];
+          if (!roundObj) continue;
+          const isRoundCompleted = roundObj.status === 'completed';
+          const results = roundObj.results || {};
+
+          teamsList.forEach(tId => {
+            const res = results[tId] || {};
+            const id = `br_r${r}_${tId}`;
+            const col = this.getCollege(tId);
+            const existing = this.tables.codm_br_scores[id];
+            const plcPts = res.placementPoints || (res.placement && typeof BR_PLACEMENT_POINTS !== 'undefined' ? (BR_PLACEMENT_POINTS[res.placement] || 0) : 0);
+
+            this.tables.codm_br_scores[id] = {
+              id: id,
+              round_num: r,
+              team_id: tId,
+              team_name: col.full,
+              mascot: col.mascot,
+              placement: res.placement !== undefined ? res.placement : null,
+              placement_points: plcPts,
+              squad_kills: res.kills || 0,
+              total_points: res.totalPoints || (plcPts + (res.kills || 0)),
+              status: isRoundCompleted ? 'completed' : (res.placement ? 'in_progress' : 'pending'),
+              recorded_by: existing ? existing.recorded_by : 'Table Marshal / System',
+              recorded_at: existing ? existing.recorded_at : new Date().toISOString(),
+              updated_at: Date.now()
+            };
+          });
+        }
+      },
+
+      getCollege(teamId) {
+        if (!teamId) return { id: 'TBD', name: 'TBD', full: 'To Be Determined', mascot: 'Contender', color: '#64748b' };
+        const id = teamId === 'COM' ? 'CMID' : teamId;
+        const found = (typeof DEFAULT_TEAMS !== 'undefined') ? DEFAULT_TEAMS.find(t => t.id === id || t.name === id) : null;
+        return found || { id: id, name: id, full: id, mascot: 'Team', color: '#64748b' };
+      },
+
+      getRecordedByLabel() {
+        if (typeof getCurrentAccount === 'function') {
+          const acc = getCurrentAccount();
+          if (acc && acc.name) return acc.name;
+        }
+        if (typeof currentSession !== 'undefined' && currentSession && currentSession.name) {
+          return currentSession.name;
+        }
+        if (typeof currentAuthRole !== 'undefined' && currentAuthRole) {
+          if (currentAuthRole === 'admin') return 'Tournament Admin';
+          if (currentAuthRole === 'marshal') return 'Table Marshal';
+        }
+        return 'Table Marshal';
+      },
+
+      recordMatch(esport, matchKey, match) {
+        if (!match) return;
+        const id = esport + '_' + matchKey;
+        const operator = this.getRecordedByLabel();
+        const bestOf = match.bestOf || (typeof getMatchBestOf === 'function' ? getMatchBestOf(matchKey, match) : 3);
+        const label = match.label || (typeof getMatchCanonicalLabel === 'function' ? getMatchCanonicalLabel(matchKey) : matchKey.toUpperCase());
+        const stageDay = match.day || (typeof MATCH_DAYS !== 'undefined' && MATCH_DAYS[matchKey]) || 'DAY 1';
+
+        let status = 'scheduled';
+        if (match.winner) {
+          status = 'completed';
+        } else if ((match.s1 !== null && match.s1 !== undefined && match.s1 !== '') || (match.s2 !== null && match.s2 !== undefined && match.s2 !== '')) {
+          status = 'in_progress';
+        }
+
+        const s1 = (match.s1 !== null && match.s1 !== undefined && match.s1 !== '') ? Number(match.s1) : null;
+        const s2 = (match.s2 !== null && match.s2 !== undefined && match.s2 !== '') ? Number(match.s2) : null;
+
+        this.tables.matches[id] = {
+          id: id,
+          esport: esport,
+          game_title: esport === 'mlbb' ? 'Mobile Legends: Bang Bang' : 'Call of Duty: Mobile (5v5 MP)',
+          match_key: matchKey,
+          label: label,
+          stage_day: stageDay,
+          best_of: bestOf,
+          team1: match.team1 || null,
+          team2: match.team2 || null,
+          team1_name: this.getCollege(match.team1).full,
+          team2_name: this.getCollege(match.team2).full,
+          score1: s1,
+          score2: s2,
+          winner: match.winner || null,
+          loser: match.loser || null,
+          status: status,
+          games: match.games || null,
+          recorded_by: operator,
+          recorded_at: new Date().toISOString(),
+          updated_at: Date.now()
+        };
+
+        const scoreText = (s1 !== null && s2 !== null) ? `${s1} - ${s2}` : 'Score Updated';
+        const winText = match.winner ? `(Winner: ${match.winner})` : (status === 'in_progress' ? '(In Progress)' : '');
+        this.addAuditLog(esport, 'SCORE_UPDATE', `${esport.toUpperCase()} · ${label}: ${match.team1 || 'TBD'} vs ${match.team2 || 'TBD'} -> ${scoreText} ${winText}`, operator);
+
+        this.recalculateStandings();
+        this.persist();
+        this.refreshActiveContainers();
+      },
+
+      recordMatchReset(esport, matchKey) {
+        const id = esport + '_' + matchKey;
+        const operator = this.getRecordedByLabel();
+        const existing = this.tables.matches[id];
+        const label = existing ? existing.label : matchKey;
+
+        if (existing) {
+          existing.score1 = null;
+          existing.score2 = null;
+          existing.winner = null;
+          existing.loser = null;
+          existing.status = 'scheduled';
+          delete existing.games;
+          existing.updated_at = Date.now();
+          existing.recorded_by = operator;
+        }
+
+        this.addAuditLog(esport, 'MATCH_RESET', `${esport.toUpperCase()} · ${label} score reset to pending`, operator);
+        this.recalculateStandings();
+        this.persist();
+        this.refreshActiveContainers();
+      },
+
+      syncPlayoffs(esport) {
+        this.hydratePlayoffMatches(esport);
+        this.recalculateStandings();
+        this.persist();
+        this.refreshActiveContainers();
+      },
+
+      recordBrRound(roundNum, roundData) {
+        if (!roundData) return;
+        const operator = this.getRecordedByLabel();
+        const results = roundData.results || {};
+        const isCompleted = roundData.status === 'completed';
+        const teamsList = typeof CODM_BR_TEAMS !== 'undefined' ? CODM_BR_TEAMS : ['CCJPS', 'CBA', 'CHM', 'CLIS', 'CIT', 'COED', 'CAS'];
+
+        teamsList.forEach(tId => {
+          const res = results[tId] || {};
+          const id = `br_r${roundNum}_${tId}`;
+          const col = this.getCollege(tId);
+
+          this.tables.codm_br_scores[id] = {
+            id: id,
+            round_num: roundNum,
+            team_id: tId,
+            team_name: col.full,
+            mascot: col.mascot,
+            placement: res.placement !== undefined ? res.placement : null,
+            placement_points: res.placementPoints || 0,
+            squad_kills: res.kills || 0,
+            total_points: res.totalPoints || 0,
+            status: isCompleted ? 'completed' : (res.placement ? 'in_progress' : 'pending'),
+            recorded_by: operator,
+            recorded_at: new Date().toISOString(),
+            updated_at: Date.now()
+          };
+        });
+
+        this.addAuditLog('codm', 'BR_ROUND_SAVE', `CODM Battle Royale · Round ${roundNum} results saved (${isCompleted ? 'Official' : 'Draft'})`, operator);
+        this.recalculateStandings();
+        this.persist();
+        this.refreshActiveContainers();
+      },
+
+      recordBrRoundReset(roundNum) {
+        const operator = this.getRecordedByLabel();
+        const teamsList = typeof CODM_BR_TEAMS !== 'undefined' ? CODM_BR_TEAMS : ['CCJPS', 'CBA', 'CHM', 'CLIS', 'CIT', 'COED', 'CAS'];
+        teamsList.forEach(tId => {
+          const id = `br_r${roundNum}_${tId}`;
+          if (this.tables.codm_br_scores[id]) {
+            this.tables.codm_br_scores[id].placement = null;
+            this.tables.codm_br_scores[id].placement_points = 0;
+            this.tables.codm_br_scores[id].squad_kills = 0;
+            this.tables.codm_br_scores[id].total_points = 0;
+            this.tables.codm_br_scores[id].status = 'pending';
+            this.tables.codm_br_scores[id].updated_at = Date.now();
+          }
+        });
+
+        this.addAuditLog('codm', 'BR_ROUND_RESET', `CODM Battle Royale · Round ${roundNum} scores reset to pending`, operator);
+        this.recalculateStandings();
+        this.persist();
+        this.refreshActiveContainers();
+      },
+
+      syncAllBrRounds() {
+        this.hydrateBrRounds();
+        const operator = this.getRecordedByLabel();
+        this.addAuditLog('codm', 'BR_SIMULATION', `CODM Battle Royale · All 8 rounds simulated & committed to database`, operator);
+        this.recalculateStandings();
+        this.persist();
+        this.refreshActiveContainers();
+      },
+
+      recordBrReset() {
+        const operator = this.getRecordedByLabel();
+        for (let k in this.tables.codm_br_scores) {
+          const s = this.tables.codm_br_scores[k];
+          s.placement = null;
+          s.placement_points = 0;
+          s.squad_kills = 0;
+          s.total_points = 0;
+          s.status = 'pending';
+          s.updated_at = Date.now();
+        }
+        this.addAuditLog('codm', 'BR_RESET', `CODM Battle Royale · All 8 rounds reset to clean state`, operator);
+        this.recalculateStandings();
+        this.persist();
+        this.refreshActiveContainers();
+      },
+
+      recordTournamentReset(esport) {
+        const operator = this.getRecordedByLabel();
+        for (let k in this.tables.matches) {
+          if (k.startsWith(esport + '_')) {
+            const m = this.tables.matches[k];
+            m.score1 = null;
+            m.score2 = null;
+            m.winner = null;
+            m.loser = null;
+            m.status = 'scheduled';
+            delete m.games;
+            m.updated_at = Date.now();
+          }
+        }
+        this.addAuditLog(esport, 'TOURNAMENT_RESET', `All ${esport.toUpperCase()} playoff match scores reset to pending`, operator);
+        this.recalculateStandings();
+        this.persist();
+        this.refreshActiveContainers();
+      },
+
+      addAuditLog(esport, action, details, operator) {
+        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const dateStr = new Date().toLocaleDateString([], { month: 'short', day: 'numeric' });
+        const entry = {
+          id: 'log_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+          timestamp: `${timeStr} · ${dateStr}`,
+          iso: new Date().toISOString(),
+          esport: esport || 'general',
+          action: action || 'UPDATE',
+          details: details || '',
+          operator: operator || this.getRecordedByLabel()
+        };
+        this.tables.audit_logs.unshift(entry);
+        if (this.tables.audit_logs.length > 250) {
+          this.tables.audit_logs = this.tables.audit_logs.slice(0, 250);
+        }
+      },
+
+      recalculateStandings() {
+        const colleges = (typeof DEFAULT_TEAMS !== 'undefined' ? DEFAULT_TEAMS : []).map(t => ({
+          team_id: t.id,
+          name: t.name,
+          full: t.full,
+          mascot: t.mascot,
+          color: t.color,
+          mlbb_played: 0,
+          mlbb_wins: 0,
+          mlbb_losses: 0,
+          codm_mp_played: 0,
+          codm_mp_wins: 0,
+          codm_mp_losses: 0,
+          codm_br_rounds: 0,
+          codm_br_wins: 0, // 1st placements
+          codm_br_points: 0,
+          codm_br_kills: 0,
+          championship_points: 0,
+          rank: 1
+        }));
+
+        const collegeMap = {};
+        colleges.forEach(c => { collegeMap[c.team_id] = c; });
+
+        // Aggregate 5v5 matches
+        Object.values(this.tables.matches).forEach(m => {
+          if (m.status !== 'completed' && !m.winner) return;
+          const isMlbb = m.esport === 'mlbb';
+          const isCodmMp = m.esport === 'codm';
+
+          if (m.team1 && collegeMap[m.team1]) {
+            if (isMlbb) collegeMap[m.team1].mlbb_played++;
+            if (isCodmMp) collegeMap[m.team1].codm_mp_played++;
+          }
+          if (m.team2 && collegeMap[m.team2]) {
+            if (isMlbb) collegeMap[m.team2].mlbb_played++;
+            if (isCodmMp) collegeMap[m.team2].codm_mp_played++;
+          }
+
+          if (m.winner && collegeMap[m.winner]) {
+            if (isMlbb) collegeMap[m.winner].mlbb_wins++;
+            if (isCodmMp) collegeMap[m.winner].codm_mp_wins++;
+          }
+          if (m.loser && collegeMap[m.loser]) {
+            if (isMlbb) collegeMap[m.loser].mlbb_losses++;
+            if (isCodmMp) collegeMap[m.loser].codm_mp_losses++;
+          }
+        });
+
+        // Aggregate Battle Royale scores
+        Object.values(this.tables.codm_br_scores).forEach(s => {
+          if (!s.team_id || !collegeMap[s.team_id]) return;
+          if (s.placement) {
+            collegeMap[s.team_id].codm_br_rounds++;
+            if (s.placement === 1) collegeMap[s.team_id].codm_br_wins++;
+            collegeMap[s.team_id].codm_br_points += (s.total_points || 0);
+            collegeMap[s.team_id].codm_br_kills += (s.squad_kills || 0);
+          }
+        });
+
+        // Compute Championship Points:
+        // MLBB series win: 10 pts | CODM MP series win: 10 pts | CODM BR total points: 1 pt each
+        colleges.forEach(c => {
+          c.championship_points = (c.mlbb_wins * 10) + (c.codm_mp_wins * 10) + c.codm_br_points;
+        });
+
+        // Sort rankings
+        colleges.sort((a, b) => {
+          if (b.championship_points !== a.championship_points) return b.championship_points - a.championship_points;
+          const aTotalWins = a.mlbb_wins + a.codm_mp_wins + a.codm_br_wins;
+          const bTotalWins = b.mlbb_wins + b.codm_mp_wins + b.codm_br_wins;
+          if (bTotalWins !== aTotalWins) return bTotalWins - aTotalWins;
+          return b.codm_br_kills - a.codm_br_kills;
+        });
+
+        colleges.forEach((c, idx) => {
+          c.rank = idx + 1;
+        });
+
+        this.tables.college_standings = {};
+        colleges.forEach(c => {
+          this.tables.college_standings[c.team_id] = c;
+        });
+      },
+
+      persist() {
+        try {
+          localStorage.setItem('tcc_results_db_matches_v1', JSON.stringify(this.tables.matches));
+          localStorage.setItem('tcc_results_db_br_scores_v1', JSON.stringify(this.tables.codm_br_scores));
+          localStorage.setItem('tcc_results_db_audit_logs_v1', JSON.stringify(this.tables.audit_logs.slice(0, 200)));
+        } catch(e) {
+          console.warn('[ResultsDB] Error saving to LocalStorage mirror:', e);
+        }
+        this.persistToIndexedDB();
+        this.updateHeaderBadge();
+      },
+
+      persistToIndexedDB() {
+        if (!this.isIdbReady || !this.idb) return;
+        try {
+          const tx = this.idb.transaction(['matches', 'codm_br_scores', 'college_standings', 'audit_logs'], 'readwrite');
+          const mStore = tx.objectStore('matches');
+          Object.values(this.tables.matches).forEach(m => mStore.put(m));
+          const bStore = tx.objectStore('codm_br_scores');
+          Object.values(this.tables.codm_br_scores).forEach(b => bStore.put(b));
+          const sStore = tx.objectStore('college_standings');
+          Object.values(this.tables.college_standings).forEach(s => sStore.put(s));
+          const aStore = tx.objectStore('audit_logs');
+          this.tables.audit_logs.slice(0, 100).forEach(a => aStore.put(a));
+        } catch(e) {
+          console.warn('[ResultsDB] Error persisting to IndexedDB:', e);
+        }
+      },
+
+      updateHeaderBadge() {
+        const badge = document.getElementById('dbLiveStatusBadge');
+        if (!badge) return;
+        const totalMatches = Object.keys(this.tables.matches).length;
+        const totalBr = Object.keys(this.tables.codm_br_scores).length;
+        const storageLabel = this.isIdbReady ? 'IndexedDB + LocalStorage' : 'LocalStorage Mirror';
+        badge.textContent = `🟢 Active (${storageLabel} · ${totalMatches + totalBr} records)`;
+      },
+
+      refreshActiveContainers() {
+        const inlineCont = document.getElementById('resultsDatabaseInlineContainer');
+        const viewDb = document.getElementById('view-database');
+        if (inlineCont && viewDb && !viewDb.classList.contains('hidden')) {
+          this.renderDatabaseView('resultsDatabaseInlineContainer');
+        }
+        const modal = document.getElementById('tournamentDatabaseModal');
+        const modalBody = document.getElementById('resultsDatabaseModalBody');
+        if (modal && !modal.classList.contains('hidden') && modalBody) {
+          this.renderDatabaseView('resultsDatabaseModalBody');
+        }
+      },
+
+      // Sub-tab & Filter Mutators
+      setSubTab(subTab) {
+        this.activeSubTab = subTab;
+        this.refreshActiveContainers();
+      },
+
+      setFilterCollege(col) {
+        this.filterCollege = col;
+        this.refreshActiveContainers();
+      },
+
+      setFilterStatus(st) {
+        this.filterStatus = st;
+        this.refreshActiveContainers();
+      },
+
+      setFilterRound(rd) {
+        this.filterRound = rd;
+        this.refreshActiveContainers();
+      },
+
+      setSearchQuery(q) {
+        this.searchQuery = (q || '').toLowerCase().trim();
+        this.refreshActiveContainers();
+      },
+
+      clearFilters() {
+        this.filterCollege = 'ALL';
+        this.filterStatus = 'ALL';
+        this.filterRound = 'ALL';
+        this.searchQuery = '';
+        this.refreshActiveContainers();
+      },
+
+      // Filtering Queries
+      getFilteredMatches(targetEsport = null) {
+        let list = Object.values(this.tables.matches);
+        if (targetEsport) {
+          list = list.filter(m => m.esport === targetEsport);
+        } else if (this.activeSubTab === 'mlbb') {
+          list = list.filter(m => m.esport === 'mlbb');
+        } else if (this.activeSubTab === 'codm_mp') {
+          list = list.filter(m => m.esport === 'codm');
+        }
+
+        if (this.filterCollege !== 'ALL') {
+          list = list.filter(m => m.team1 === this.filterCollege || m.team2 === this.filterCollege || m.winner === this.filterCollege);
+        }
+
+        if (this.filterStatus !== 'ALL') {
+          list = list.filter(m => m.status === this.filterStatus);
+        }
+
+        if (this.searchQuery) {
+          const q = this.searchQuery;
+          list = list.filter(m => 
+            (m.label && m.label.toLowerCase().includes(q)) ||
+            (m.team1 && m.team1.toLowerCase().includes(q)) ||
+            (m.team2 && m.team2.toLowerCase().includes(q)) ||
+            (m.team1_name && m.team1_name.toLowerCase().includes(q)) ||
+            (m.team2_name && m.team2_name.toLowerCase().includes(q)) ||
+            (m.winner && m.winner.toLowerCase().includes(q)) ||
+            (m.match_key && m.match_key.toLowerCase().includes(q)) ||
+            (m.stage_day && m.stage_day.toLowerCase().includes(q)) ||
+            (m.recorded_by && m.recorded_by.toLowerCase().includes(q))
+          );
+        }
+
+        // Sort: completed first, then by match_key
+        return list.sort((a, b) => {
+          if (a.status === 'completed' && b.status !== 'completed') return -1;
+          if (b.status === 'completed' && a.status !== 'completed') return 1;
+          return (a.label || '').localeCompare(b.label || '');
+        });
+      },
+
+      getFilteredBrScores() {
+        let list = Object.values(this.tables.codm_br_scores);
+
+        if (this.filterRound !== 'ALL') {
+          const rNum = parseInt(this.filterRound, 10);
+          list = list.filter(b => b.round_num === rNum);
+        }
+
+        if (this.filterCollege !== 'ALL') {
+          list = list.filter(b => b.team_id === this.filterCollege);
+        }
+
+        if (this.filterStatus !== 'ALL') {
+          list = list.filter(b => b.status === this.filterStatus);
+        }
+
+        if (this.searchQuery) {
+          const q = this.searchQuery;
+          list = list.filter(b =>
+            (b.team_id && b.team_id.toLowerCase().includes(q)) ||
+            (b.team_name && b.team_name.toLowerCase().includes(q)) ||
+            (b.mascot && b.mascot.toLowerCase().includes(q)) ||
+            (`round ${b.round_num}`.includes(q))
+          );
+        }
+
+        // Sort by round, then placement
+        return list.sort((a, b) => {
+          if (a.round_num !== b.round_num) return a.round_num - b.round_num;
+          const aPlc = a.placement !== null ? a.placement : 99;
+          const bPlc = b.placement !== null ? b.placement : 99;
+          return aPlc - bPlc;
+        });
+      },
+
+      getFilteredStandings() {
+        let list = Object.values(this.tables.college_standings);
+
+        if (this.filterCollege !== 'ALL') {
+          list = list.filter(s => s.team_id === this.filterCollege);
+        }
+
+        if (this.searchQuery) {
+          const q = this.searchQuery;
+          list = list.filter(s =>
+            (s.team_id && s.team_id.toLowerCase().includes(q)) ||
+            (s.full && s.full.toLowerCase().includes(q)) ||
+            (s.mascot && s.mascot.toLowerCase().includes(q))
+          );
+        }
+
+        return list.sort((a, b) => (a.rank || 1) - (b.rank || 1));
+      },
+
+      getFilteredAuditLogs() {
+        let list = [...this.tables.audit_logs];
+
+        if (this.filterCollege !== 'ALL') {
+          list = list.filter(a => a.details.includes(this.filterCollege));
+        }
+
+        if (this.searchQuery) {
+          const q = this.searchQuery;
+          list = list.filter(a =>
+            (a.details && a.details.toLowerCase().includes(q)) ||
+            (a.action && a.action.toLowerCase().includes(q)) ||
+            (a.operator && a.operator.toLowerCase().includes(q)) ||
+            (a.esport && a.esport.toLowerCase().includes(q))
+          );
+        }
+
+        return list;
+      },
+
+      // Render View Engine
+      renderDatabaseView(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        // Statistics computations
+        const allMatches = Object.values(this.tables.matches);
+        const mlbbMatches = allMatches.filter(m => m.esport === 'mlbb');
+        const mlbbCompleted = mlbbMatches.filter(m => m.status === 'completed').length;
+        const codmMpMatches = allMatches.filter(m => m.esport === 'codm');
+        const codmMpCompleted = codmMpMatches.filter(m => m.status === 'completed').length;
+
+        const brScores = Object.values(this.tables.codm_br_scores);
+        const brRoundsCompleted = new Set(brScores.filter(s => s.status === 'completed').map(s => s.round_num)).size;
+
+        const standings = Object.values(this.tables.college_standings).sort((a, b) => (a.rank || 1) - (b.rank || 1));
+        const leader = standings[0] || { name: 'CIT', mascot: 'Fox', championship_points: 0 };
+
+        const totalRecords = allMatches.length + brScores.length;
+
+        // Subtabs definition
+        const subTabs = [
+          { id: 'all', label: 'All Records', icon: '🌐', count: totalRecords },
+          { id: 'mlbb', label: 'MLBB 5v5', icon: '🎮', count: mlbbMatches.length },
+          { id: 'codm_mp', label: 'CODM MP 5v5', icon: '🔫', count: codmMpMatches.length },
+          { id: 'codm_br', label: 'CODM Battle Royale', icon: '🪂', count: brScores.length },
+          { id: 'standings', label: 'College Standings', icon: '🏆', count: standings.length },
+          { id: 'audit', label: 'Live Audit Log', icon: '📜', count: this.tables.audit_logs.length }
+        ];
+
+        // HTML construction
+        let html = `
+          <!-- Analytics Top Banner -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 text-xs">
+            
+            <div class="p-3 rounded-2xl bg-[var(--card)] border border-sky-500/30 flex items-center gap-3 shadow-xs">
+              <div class="w-9 h-9 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center text-lg shrink-0">
+                🎮
+              </div>
+              <div class="min-w-0">
+                <span class="text-[10px] uppercase font-bold text-[var(--muted-foreground)] block">MLBB Series</span>
+                <span class="text-sm font-black text-[var(--foreground)] truncate">${mlbbCompleted} / ${mlbbMatches.length || 14}</span>
+                <span class="text-[9px] text-emerald-400 block">${mlbbCompleted > 0 ? `${Math.round(mlbbCompleted / (mlbbMatches.length || 14) * 100)}% Finished` : 'Scheduled'}</span>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-2xl bg-[var(--card)] border border-amber-500/30 flex items-center gap-3 shadow-xs">
+              <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg shrink-0">
+                🔫
+              </div>
+              <div class="min-w-0">
+                <span class="text-[10px] uppercase font-bold text-[var(--muted-foreground)] block">CODM MP 5v5</span>
+                <span class="text-sm font-black text-[var(--foreground)] truncate">${codmMpCompleted} / ${codmMpMatches.length || 14}</span>
+                <span class="text-[9px] text-amber-400 block">${codmMpCompleted > 0 ? `${Math.round(codmMpCompleted / (codmMpMatches.length || 14) * 100)}% Finished` : 'Scheduled'}</span>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-2xl bg-[var(--card)] border border-rose-500/30 flex items-center gap-3 shadow-xs">
+              <div class="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-lg shrink-0">
+                🪂
+              </div>
+              <div class="min-w-0">
+                <span class="text-[10px] uppercase font-bold text-[var(--muted-foreground)] block">CODM BR Rounds</span>
+                <span class="text-sm font-black text-[var(--foreground)] truncate">${brRoundsCompleted} / 8 Rounds</span>
+                <span class="text-[9px] text-rose-400 block">${brRoundsCompleted === 8 ? 'Championship Complete' : `${8 - brRoundsCompleted} Pending`}</span>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-2xl bg-[var(--card)] border border-emerald-500/30 flex items-center gap-3 shadow-xs">
+              <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg shrink-0">
+                👑
+              </div>
+              <div class="min-w-0">
+                <span class="text-[10px] uppercase font-bold text-[var(--muted-foreground)] block">Leader College</span>
+                <span class="text-sm font-black text-amber-400 truncate">${leader.name}</span>
+                <span class="text-[9px] text-[var(--muted-foreground)] block">${leader.championship_points || 0} Total Pts</span>
+              </div>
+            </div>
+
+            <div class="col-span-2 sm:col-span-1 p-3 rounded-2xl bg-[var(--card)] border border-[var(--border)] flex items-center gap-3 shadow-xs">
+              <div class="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-lg shrink-0">
+                💾
+              </div>
+              <div class="min-w-0">
+                <span class="text-[10px] uppercase font-bold text-[var(--muted-foreground)] block">Engine Status</span>
+                <span class="text-xs font-black text-[var(--foreground)] truncate">${this.isIdbReady ? 'IndexedDB v1' : 'LocalStorage'}</span>
+                <span class="text-[9px] text-emerald-400 block">${totalRecords} Records Synced</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Sub-Tabs Navigation Bar -->
+          <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none border-b border-[var(--border)] pt-1">
+            ${subTabs.map(t => {
+              const isActive = this.activeSubTab === t.id;
+              const activeClass = isActive 
+                ? 'bg-sky-500/20 text-sky-400 border-sky-500/40 shadow-xs' 
+                : 'bg-[var(--card)] hover:bg-[var(--secondary)] text-[var(--muted-foreground)] border-transparent';
+              return `
+                <button type="button" onclick="TournamentResultsDB.setSubTab('${t.id}')" class="px-3 py-1.5 rounded-xl border text-xs font-bold whitespace-nowrap transition cursor-pointer flex items-center gap-1.5 ${activeClass}">
+                  <span>${t.icon}</span>
+                  <span>${t.label}</span>
+                  <span class="text-[10px] px-1.5 py-0.2 rounded-full ${isActive ? 'bg-sky-500/30 text-sky-300' : 'bg-[var(--secondary)] text-[var(--muted-foreground)]'} font-mono">${t.count}</span>
+                </button>
+              `;
+            }).join('')}
+          </div>
+
+          <!-- Filter & Export Toolbar -->
+          <div class="bg-[var(--card)] p-3 rounded-2xl border border-[var(--border)] flex flex-wrap items-center justify-between gap-3 text-xs shadow-xs">
+            
+            <!-- Filters Group -->
+            <div class="flex flex-wrap items-center gap-2 grow">
+              
+              <!-- Search Input -->
+              <div class="relative min-w-[160px] grow sm:grow-0">
+                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] text-xs">🔍</span>
+                <input 
+                  type="text" 
+                  value="${this.searchQuery}" 
+                  oninput="TournamentResultsDB.setSearchQuery(this.value)" 
+                  placeholder="Search matches, colleges, winners..." 
+                  class="w-full pl-8 pr-3 py-1.5 rounded-xl bg-[var(--secondary)] border border-[var(--border)] text-xs text-[var(--foreground)] placeholder-[var(--muted-foreground)] focus:outline-hidden focus:border-sky-500/50 transition">
+              </div>
+
+              <!-- College Dropdown Filter -->
+              <select 
+                onchange="TournamentResultsDB.setFilterCollege(this.value)" 
+                class="px-2.5 py-1.5 rounded-xl bg-[var(--secondary)] border border-[var(--border)] text-xs text-[var(--foreground)] font-medium focus:outline-hidden transition cursor-pointer">
+                <option value="ALL" ${this.filterCollege === 'ALL' ? 'selected' : ''}>🏢 All Colleges</option>
+                ${(typeof DEFAULT_TEAMS !== 'undefined' ? DEFAULT_TEAMS : []).map(t => `
+                  <option value="${t.id}" ${this.filterCollege === t.id ? 'selected' : ''}>${t.id} · ${t.mascot}</option>
+                `).join('')}
+              </select>
+
+              <!-- Status Dropdown Filter -->
+              <select 
+                onchange="TournamentResultsDB.setFilterStatus(this.value)" 
+                class="px-2.5 py-1.5 rounded-xl bg-[var(--secondary)] border border-[var(--border)] text-xs text-[var(--foreground)] font-medium focus:outline-hidden transition cursor-pointer">
+                <option value="ALL" ${this.filterStatus === 'ALL' ? 'selected' : ''}>⚡ All Statuses</option>
+                <option value="completed" ${this.filterStatus === 'completed' ? 'selected' : ''}>✅ Completed</option>
+                <option value="in_progress" ${this.filterStatus === 'in_progress' ? 'selected' : ''}>⏳ In Progress</option>
+                <option value="scheduled" ${this.filterStatus === 'scheduled' ? 'selected' : ''}>📅 Scheduled / Pending</option>
+              </select>
+
+              <!-- Round Filter (when relevant) -->
+              ${(this.activeSubTab === 'codm_br' || this.activeSubTab === 'all') ? `
+                <select 
+                  onchange="TournamentResultsDB.setFilterRound(this.value)" 
+                  class="px-2.5 py-1.5 rounded-xl bg-[var(--secondary)] border border-[var(--border)] text-xs text-[var(--foreground)] font-medium focus:outline-hidden transition cursor-pointer">
+                  <option value="ALL" ${this.filterRound === 'ALL' ? 'selected' : ''}>🪂 All Rounds (1-8)</option>
+                  ${[1, 2, 3, 4, 5, 6, 7, 8].map(r => `
+                    <option value="${r}" ${this.filterRound === String(r) ? 'selected' : ''}>Round ${r}</option>
+                  `).join('')}
+                </select>
+              ` : ''}
+
+              <!-- Clear Filters -->
+              ${(this.filterCollege !== 'ALL' || this.filterStatus !== 'ALL' || this.filterRound !== 'ALL' || this.searchQuery) ? `
+                <button type="button" onclick="TournamentResultsDB.clearFilters()" class="px-2.5 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-bold border border-rose-500/20 transition cursor-pointer" title="Reset all search filters">
+                  ✕ Clear
+                </button>
+              ` : ''}
+
+            </div>
+
+            <!-- Export Buttons -->
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button type="button" onclick="exportDatabaseAsSQL()" title="Export ANSI SQL file with schema & inserts" class="px-2.5 py-1.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 font-black border border-sky-500/30 transition cursor-pointer flex items-center gap-1 active:scale-95 shadow-xs">
+                <span>📄</span> <span>SQL</span>
+              </button>
+
+              <button type="button" onclick="exportDatabaseAsCSV('${this.activeSubTab === 'codm_br' ? 'br_scores' : (this.activeSubTab === 'standings' ? 'standings' : 'matches')}')" title="Export CSV spreadsheet file" class="px-2.5 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 font-black border border-emerald-500/30 transition cursor-pointer flex items-center gap-1 active:scale-95 shadow-xs">
+                <span>📊</span> <span>CSV</span>
+              </button>
+
+              <button type="button" onclick="exportTournamentDatabaseJSON()" title="Export full JSON database backup" class="px-2.5 py-1.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 font-black border border-purple-500/30 transition cursor-pointer flex items-center gap-1 active:scale-95 shadow-xs">
+                <span>📥</span> <span class="hidden sm:inline">JSON</span>
+              </button>
+            </div>
+
+          </div>
+        `;
+
+        // Content Area rendering based on sub-tab
+        html += `<div class="space-y-4">`;
+
+        if (this.activeSubTab === 'all') {
+          html += this.renderAllViewSection();
+        } else if (this.activeSubTab === 'mlbb') {
+          html += this.renderMatchesTableSection('mlbb', 'Mobile Legends: Bang Bang (5v5 MOBA)');
+        } else if (this.activeSubTab === 'codm_mp') {
+          html += this.renderMatchesTableSection('codm', 'Call of Duty: Mobile (5v5 Multiplayer)');
+        } else if (this.activeSubTab === 'codm_br') {
+          html += this.renderBrScoresTableSection();
+        } else if (this.activeSubTab === 'standings') {
+          html += this.renderStandingsTableSection();
+        } else if (this.activeSubTab === 'audit') {
+          html += this.renderAuditLogTableSection();
+        }
+
+        html += `</div>`;
+
+        container.innerHTML = html;
+      },
+
+      renderAllViewSection() {
+        const mlbbList = this.getFilteredMatches('mlbb');
+        const codmList = this.getFilteredMatches('codm');
+        const brList = this.getFilteredBrScores();
+
+        return `
+          <div class="space-y-6">
+            
+            <!-- Quick Subtab Jump Notice -->
+            <div class="p-3 rounded-2xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-between text-xs">
+              <div class="flex items-center gap-2">
+                <span>ℹ️</span>
+                <span>Unified tournament view active. Switch to specific esport sub-tabs above for dedicated tables.</span>
+              </div>
+              <button onclick="TournamentResultsDB.setSubTab('standings')" class="underline font-bold cursor-pointer">View Overall Standings →</button>
+            </div>
+
+            <!-- MLBB Table Section -->
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <h4 class="text-sm font-black text-[var(--foreground)] flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                  Mobile Legends: Bang Bang (5v5)
+                </h4>
+                <button onclick="TournamentResultsDB.setSubTab('mlbb')" class="text-xs text-sky-400 hover:underline font-bold cursor-pointer">View All MLBB Matches (${mlbbList.length}) →</button>
+              </div>
+              ${this.buildMatchesTableHtml(mlbbList.slice(0, 6))}
+            </div>
+
+            <!-- CODM MP Table Section -->
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <h4 class="text-sm font-black text-[var(--foreground)] flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                  Call of Duty: Mobile (5v5 Multiplayer)
+                </h4>
+                <button onclick="TournamentResultsDB.setSubTab('codm_mp')" class="text-xs text-amber-400 hover:underline font-bold cursor-pointer">View All CODM Matches (${codmList.length}) →</button>
+              </div>
+              ${this.buildMatchesTableHtml(codmList.slice(0, 6))}
+            </div>
+
+            <!-- Battle Royale Section -->
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <h4 class="text-sm font-black text-[var(--foreground)] flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                  CODM Battle Royale (8-Round Championship)
+                </h4>
+                <button onclick="TournamentResultsDB.setSubTab('codm_br')" class="text-xs text-rose-400 hover:underline font-bold cursor-pointer">View All Rounds (${brList.length} rows) →</button>
+              </div>
+              ${this.buildBrScoresTableHtml(brList.slice(0, 7))}
+            </div>
+
+          </div>
+        `;
+      },
+
+      renderMatchesTableSection(esport, title) {
+        const list = this.getFilteredMatches(esport);
+        return `
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="text-sm font-black text-[var(--foreground)]">${title}</h4>
+              <span class="text-xs font-mono text-[var(--muted-foreground)]">${list.length} Records</span>
+            </div>
+            ${this.buildMatchesTableHtml(list)}
+          </div>
+        `;
+      },
+
+      buildMatchesTableHtml(matches) {
+        if (!matches || matches.length === 0) {
+          return `
+            <div class="p-8 rounded-2xl bg-[var(--card)] border border-[var(--border)] text-center text-xs text-[var(--muted-foreground)] space-y-2">
+              <div class="text-2xl">🔍</div>
+              <p class="font-bold text-[var(--foreground)]">No match records matched your current filters.</p>
+              <button onclick="TournamentResultsDB.clearFilters()" class="text-sky-400 underline cursor-pointer">Reset Filters</button>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="overflow-x-auto rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-xs">
+            <table class="w-full text-left text-xs whitespace-nowrap">
+              <thead class="bg-[var(--secondary)]/60 text-[var(--muted-foreground)] uppercase text-[10px] font-black border-b border-[var(--border)]">
+                <tr>
+                  <th class="py-2.5 px-3">Stage / Day</th>
+                  <th class="py-2.5 px-3">College Matchup</th>
+                  <th class="py-2.5 px-3 text-center">Score</th>
+                  <th class="py-2.5 px-3">Winner</th>
+                  <th class="py-2.5 px-3">Format</th>
+                  <th class="py-2.5 px-3">Status</th>
+                  <th class="py-2.5 px-3">Marshal / Operator</th>
+                  <th class="py-2.5 px-3">Timestamp</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[var(--border)]/60">
+                ${matches.map(m => {
+                  const t1 = this.getCollege(m.team1);
+                  const t2 = this.getCollege(m.team2);
+                  const s1 = m.score1 !== null ? m.score1 : '-';
+                  const s2 = m.score2 !== null ? m.score2 : '-';
+                  const isCompleted = m.status === 'completed';
+                  const isProgress = m.status === 'in_progress';
+
+                  let statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-500/20 text-slate-400 border border-slate-500/30">📅 Scheduled</span>`;
+                  if (isCompleted) {
+                    statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">✅ Finished</span>`;
+                  } else if (isProgress) {
+                    statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 animate-pulse">⏳ Live (${s1}-${s2})</span>`;
+                  }
+
+                  const dateFormatted = m.recorded_at ? new Date(m.recorded_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-';
+
+                  return `
+                    <tr class="hover:bg-[var(--secondary)]/40 transition">
+                      
+                      <!-- Stage / Day -->
+                      <td class="py-2.5 px-3">
+                        <div class="font-bold text-[var(--foreground)]">${m.label}</div>
+                        <div class="text-[10px] text-[var(--muted-foreground)] font-mono">${m.stage_day || 'DAY 1'} · ${m.id}</div>
+                      </td>
+
+                      <!-- Matchup -->
+                      <td class="py-2.5 px-3">
+                        <div class="flex items-center gap-2">
+                          <span class="font-black px-1.5 py-0.5 rounded-md text-[11px]" style="background-color: ${t1.color}20; color: ${t1.color}; border: 1px solid ${t1.color}40">${m.team1 || 'TBD'}</span>
+                          <span class="text-[var(--muted-foreground)] font-black text-[10px]">vs</span>
+                          <span class="font-black px-1.5 py-0.5 rounded-md text-[11px]" style="background-color: ${t2.color}20; color: ${t2.color}; border: 1px solid ${t2.color}40">${m.team2 || 'TBD'}</span>
+                        </div>
+                        <div class="text-[10px] text-[var(--muted-foreground)] truncate max-w-[220px]">
+                          ${t1.name} (${t1.mascot}) vs ${t2.name} (${t2.mascot})
+                        </div>
+                      </td>
+
+                      <!-- Score -->
+                      <td class="py-2.5 px-3 text-center">
+                        <span class="inline-block px-2.5 py-1 rounded-xl font-mono font-black text-xs ${isCompleted ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30' : (isProgress ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-[var(--secondary)] text-[var(--muted-foreground)]')}">
+                          ${s1} - ${s2}
+                        </span>
+                      </td>
+
+                      <!-- Winner -->
+                      <td class="py-2.5 px-3">
+                        ${m.winner ? `
+                          <div class="flex items-center gap-1.5 text-emerald-400 font-bold">
+                            <span>🏆</span>
+                            <span class="font-black">${m.winner}</span>
+                            <span class="text-[10px] text-[var(--muted-foreground)]">(${this.getCollege(m.winner).mascot})</span>
+                          </div>
+                        ` : `<span class="text-[var(--muted-foreground)] font-mono text-[11px]">TBD</span>`}
+                      </td>
+
+                      <!-- Format -->
+                      <td class="py-2.5 px-3">
+                        <span class="px-2 py-0.5 rounded-md bg-[var(--secondary)] text-[var(--muted-foreground)] text-[10px] font-mono font-bold">
+                          BO${m.best_of || 3}
+                        </span>
+                      </td>
+
+                      <!-- Status -->
+                      <td class="py-2.5 px-3">${statusBadge}</td>
+
+                      <!-- Recorded By -->
+                      <td class="py-2.5 px-3 text-[11px] text-[var(--muted-foreground)]">
+                        <span>👤 ${m.recorded_by || 'Marshal'}</span>
+                      </td>
+
+                      <!-- Timestamp -->
+                      <td class="py-2.5 px-3 font-mono text-[10px] text-[var(--muted-foreground)]">
+                        ${dateFormatted}
+                      </td>
+
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      },
+
+      renderBrScoresTableSection() {
+        const list = this.getFilteredBrScores();
+        return `
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="text-sm font-black text-[var(--foreground)]">Call of Duty: Mobile Battle Royale (8 Rounds · 7 Colleges)</h4>
+              <span class="text-xs font-mono text-[var(--muted-foreground)]">${list.length} Round Records</span>
+            </div>
+            ${this.buildBrScoresTableHtml(list)}
+          </div>
+        `;
+      },
+
+      buildBrScoresTableHtml(scores) {
+        if (!scores || scores.length === 0) {
+          return `
+            <div class="p-8 rounded-2xl bg-[var(--card)] border border-[var(--border)] text-center text-xs text-[var(--muted-foreground)] space-y-2">
+              <div class="text-2xl">🪂</div>
+              <p class="font-bold text-[var(--foreground)]">No Battle Royale records match your filter.</p>
+              <button onclick="TournamentResultsDB.clearFilters()" class="text-sky-400 underline cursor-pointer">Reset Filters</button>
+            </div>
+          `;
+        }
+
+        const placementBadge = (plc) => {
+          if (!plc) return `<span class="text-[var(--muted-foreground)] font-mono">-</span>`;
+          if (plc === 1) return `<span class="px-2 py-0.5 rounded-md bg-amber-500/20 text-yellow-300 font-black border border-yellow-500/40">🥇 1st Place</span>`;
+          if (plc === 2) return `<span class="px-2 py-0.5 rounded-md bg-slate-400/20 text-slate-300 font-black border border-slate-400/40">🥈 2nd Place</span>`;
+          if (plc === 3) return `<span class="px-2 py-0.5 rounded-md bg-amber-700/20 text-amber-500 font-black border border-amber-700/40">🥉 3rd Place</span>`;
+          return `<span class="px-1.5 py-0.5 rounded-md bg-[var(--secondary)] text-[var(--muted-foreground)] font-bold text-[10px]">${plc}th</span>`;
+        };
+
+        return `
+          <div class="overflow-x-auto rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-xs">
+            <table class="w-full text-left text-xs whitespace-nowrap">
+              <thead class="bg-[var(--secondary)]/60 text-[var(--muted-foreground)] uppercase text-[10px] font-black border-b border-[var(--border)]">
+                <tr>
+                  <th class="py-2.5 px-3">Round</th>
+                  <th class="py-2.5 px-3">College Squad</th>
+                  <th class="py-2.5 px-3">Placement</th>
+                  <th class="py-2.5 px-3 text-center">Placement Pts</th>
+                  <th class="py-2.5 px-3 text-center">Squad Kills</th>
+                  <th class="py-2.5 px-3 text-center">Total Round Pts</th>
+                  <th class="py-2.5 px-3">Status</th>
+                  <th class="py-2.5 px-3">Recorded At</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[var(--border)]/60">
+                ${scores.map(s => {
+                  const col = this.getCollege(s.team_id);
+                  const isCompleted = s.status === 'completed';
+                  return `
+                    <tr class="hover:bg-[var(--secondary)]/40 transition">
+                      <td class="py-2.5 px-3 font-mono font-black text-rose-400">Round ${s.round_num}</td>
+                      <td class="py-2.5 px-3">
+                        <div class="flex items-center gap-2">
+                          <span class="font-black px-1.5 py-0.5 rounded-md text-[11px]" style="background-color: ${col.color}20; color: ${col.color}; border: 1px solid ${col.color}40">${s.team_id}</span>
+                          <span class="font-bold text-[var(--foreground)]">${col.name}</span>
+                          <span class="text-[10px] text-[var(--muted-foreground)]">(${col.mascot})</span>
+                        </div>
+                      </td>
+                      <td class="py-2.5 px-3">${placementBadge(s.placement)}</td>
+                      <td class="py-2.5 px-3 text-center font-mono font-bold text-[var(--foreground)]">${s.placement_points || 0}</td>
+                      <td class="py-2.5 px-3 text-center font-mono font-bold text-rose-400">${s.squad_kills || 0}</td>
+                      <td class="py-2.5 px-3 text-center">
+                        <span class="px-2 py-0.5 rounded-lg font-mono font-black text-amber-400 bg-amber-500/10 border border-amber-500/20">
+                          ${s.total_points || 0} pts
+                        </span>
+                      </td>
+                      <td class="py-2.5 px-3">
+                        ${isCompleted 
+                          ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Official</span>`
+                          : `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-500/20 text-slate-400 border border-slate-500/30">Draft</span>`}
+                      </td>
+                      <td class="py-2.5 px-3 font-mono text-[10px] text-[var(--muted-foreground)]">
+                        ${s.recorded_at ? new Date(s.recorded_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      },
+
+      renderStandingsTableSection() {
+        const standings = this.getFilteredStandings();
+        return `
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="text-sm font-black text-[var(--foreground)]">Official Overall College Standings & Medal Tally</h4>
+                <p class="text-[11px] text-[var(--muted-foreground)]">Aggregated from MLBB 5v5 (10 pts/win), CODM MP 5v5 (10 pts/win), and CODM Battle Royale (Placement + Kill points).</p>
+              </div>
+              <button onclick="exportDatabaseAsCSV('standings')" class="text-xs text-emerald-400 hover:underline font-bold cursor-pointer">Export Standings CSV →</button>
+            </div>
+
+            <div class="overflow-x-auto rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-xs">
+              <table class="w-full text-left text-xs whitespace-nowrap">
+                <thead class="bg-[var(--secondary)]/60 text-[var(--muted-foreground)] uppercase text-[10px] font-black border-b border-[var(--border)]">
+                  <tr>
+                    <th class="py-2.5 px-3 text-center">Rank</th>
+                    <th class="py-2.5 px-3">College Department</th>
+                    <th class="py-2.5 px-3 text-center">MLBB (W-L)</th>
+                    <th class="py-2.5 px-3 text-center">CODM MP (W-L)</th>
+                    <th class="py-2.5 px-3 text-center">CODM BR (Pts · Kills)</th>
+                    <th class="py-2.5 px-3 text-center">Championship Points</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-[var(--border)]/60">
+                  ${standings.map(s => {
+                    const col = this.getCollege(s.team_id);
+                    let rankBadge = `<span class="font-mono font-black text-xs text-[var(--muted-foreground)]">#${s.rank}</span>`;
+                    if (s.rank === 1) rankBadge = `<span class="text-base" title="Championship Gold">🥇</span>`;
+                    else if (s.rank === 2) rankBadge = `<span class="text-base" title="Silver Medal">🥈</span>`;
+                    else if (s.rank === 3) rankBadge = `<span class="text-base" title="Bronze Medal">🥉</span>`;
+
+                    return `
+                      <tr class="hover:bg-[var(--secondary)]/40 transition">
+                        <td class="py-3 px-3 text-center">${rankBadge}</td>
+                        <td class="py-3 px-3">
+                          <div class="flex items-center gap-2">
+                            <span class="font-black px-2 py-0.5 rounded-lg text-xs" style="background-color: ${col.color}20; color: ${col.color}; border: 1px solid ${col.color}40">${s.team_id}</span>
+                            <div>
+                              <div class="font-black text-[var(--foreground)]">${col.name} · ${col.mascot}</div>
+                              <div class="text-[10px] text-[var(--muted-foreground)] truncate max-w-[280px]">${col.full}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="py-3 px-3 text-center font-mono font-bold">
+                          <span class="text-emerald-400">${s.mlbb_wins}W</span> - <span class="text-rose-400">${s.mlbb_losses}L</span>
+                        </td>
+                        <td class="py-3 px-3 text-center font-mono font-bold">
+                          <span class="text-emerald-400">${s.codm_mp_wins}W</span> - <span class="text-rose-400">${s.codm_mp_losses}L</span>
+                        </td>
+                        <td class="py-3 px-3 text-center font-mono font-bold">
+                          <span class="text-amber-400">${s.codm_br_points} pts</span> <span class="text-[10px] text-[var(--muted-foreground)]">(${s.codm_br_kills} kills)</span>
+                        </td>
+                        <td class="py-3 px-3 text-center">
+                          <span class="px-3 py-1 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 font-mono font-black text-xs shadow-inner">
+                            ${s.championship_points} PTS
+                          </span>
+                        </td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        `;
+      },
+
+      renderAuditLogTableSection() {
+        const logs = this.getFilteredAuditLogs();
+        return `
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="text-sm font-black text-[var(--foreground)]">Real-Time Scorekeeper & Admin Audit Log</h4>
+                <p class="text-[11px] text-[var(--muted-foreground)]">Immutable audit trail of every official score submission, bracket advance, reset, and simulation.</p>
+              </div>
+              <span class="text-xs font-mono text-[var(--muted-foreground)]">${logs.length} Entries</span>
+            </div>
+
+            <div class="overflow-x-auto rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-xs">
+              <table class="w-full text-left text-xs whitespace-nowrap">
+                <thead class="bg-[var(--secondary)]/60 text-[var(--muted-foreground)] uppercase text-[10px] font-black border-b border-[var(--border)]">
+                  <tr>
+                    <th class="py-2.5 px-3">Timestamp</th>
+                    <th class="py-2.5 px-3">Esport</th>
+                    <th class="py-2.5 px-3">Action</th>
+                    <th class="py-2.5 px-3">Change Description</th>
+                    <th class="py-2.5 px-3">Operator</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-[var(--border)]/60 font-mono">
+                  ${logs.length === 0 ? `
+                    <tr><td colspan="5" class="py-6 text-center text-xs text-[var(--muted-foreground)]">No audit entries found.</td></tr>
+                  ` : logs.map(a => {
+                    const isMlbb = a.esport === 'mlbb';
+                    const isCodm = a.esport === 'codm';
+                    const esportBadge = isMlbb 
+                      ? `<span class="px-1.5 py-0.5 rounded-md bg-blue-500/20 text-blue-400 border border-blue-500/30 text-[10px] font-bold">MLBB</span>`
+                      : (isCodm 
+                        ? `<span class="px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[10px] font-bold">CODM</span>`
+                        : `<span class="px-1.5 py-0.5 rounded-md bg-slate-500/20 text-slate-400 text-[10px] font-bold">SYSTEM</span>`);
+
+                    return `
+                      <tr class="hover:bg-[var(--secondary)]/40 transition">
+                        <td class="py-2 px-3 text-[10px] text-[var(--muted-foreground)]">${a.timestamp}</td>
+                        <td class="py-2 px-3">${esportBadge}</td>
+                        <td class="py-2 px-3 text-[10px] font-bold text-[var(--foreground)]">${a.action}</td>
+                        <td class="py-2 px-3 text-[11px] text-[var(--foreground)] font-sans whitespace-normal min-w-[280px]">${a.details}</td>
+                        <td class="py-2 px-3 text-[10px] text-sky-400">${a.operator}</td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        `;
+      },
+
+      // File Exports
+      exportDatabaseAsSQL() {
+        const matches = Object.values(this.tables.matches);
+        const brScores = Object.values(this.tables.codm_br_scores);
+        const standings = Object.values(this.tables.college_standings);
+        const audits = this.tables.audit_logs;
+
+        let sql = `-- =========================================================================\n`;
+        sql += `-- TCC ESPORTS INTRAMURALS 2026 - OFFICIAL RESULTS DATABASE EXPORT\n`;
+        sql += `-- Generated: ${new Date().toISOString()}\n`;
+        sql += `-- Compatible with: MySQL, SQLite, PostgreSQL (ANSI SQL standard)\n`;
+        sql += `-- =========================================================================\n\n`;
+
+        sql += `-- Table: tournament_matches (MLBB 5v5 & CODM 5v5)\n`;
+        sql += `CREATE TABLE IF NOT EXISTS tournament_matches (\n`;
+        sql += `  id VARCHAR(64) PRIMARY KEY,\n`;
+        sql += `  esport VARCHAR(32) NOT NULL,\n`;
+        sql += `  game_title VARCHAR(128),\n`;
+        sql += `  match_key VARCHAR(32) NOT NULL,\n`;
+        sql += `  label VARCHAR(128) NOT NULL,\n`;
+        sql += `  stage_day VARCHAR(32),\n`;
+        sql += `  best_of INT DEFAULT 3,\n`;
+        sql += `  team1 VARCHAR(32),\n`;
+        sql += `  team2 VARCHAR(32),\n`;
+        sql += `  score1 INT,\n`;
+        sql += `  score2 INT,\n`;
+        sql += `  winner VARCHAR(32),\n`;
+        sql += `  loser VARCHAR(32),\n`;
+        sql += `  status VARCHAR(32) NOT NULL,\n`;
+        sql += `  recorded_by VARCHAR(64),\n`;
+        sql += `  recorded_at VARCHAR(64)\n`;
+        sql += `);\n\n`;
+
+        if (matches.length > 0) {
+          sql += `-- Inserts: tournament_matches\n`;
+          matches.forEach(m => {
+            const esc = (v) => (v === null || v === undefined) ? 'NULL' : `'${String(v).replace(/'/g, "''")}'`;
+            const num = (v) => (v === null || v === undefined) ? 'NULL' : Number(v);
+            sql += `INSERT INTO tournament_matches VALUES (${esc(m.id)}, ${esc(m.esport)}, ${esc(m.game_title)}, ${esc(m.match_key)}, ${esc(m.label)}, ${esc(m.stage_day)}, ${num(m.best_of)}, ${esc(m.team1)}, ${esc(m.team2)}, ${num(m.score1)}, ${num(m.score2)}, ${esc(m.winner)}, ${esc(m.loser)}, ${esc(m.status)}, ${esc(m.recorded_by)}, ${esc(m.recorded_at)});\n`;
+          });
+          sql += `\n`;
+        }
+
+        sql += `-- Table: codm_br_scores (Call of Duty: Mobile Battle Royale)\n`;
+        sql += `CREATE TABLE IF NOT EXISTS codm_br_scores (\n`;
+        sql += `  id VARCHAR(64) PRIMARY KEY,\n`;
+        sql += `  round_num INT NOT NULL,\n`;
+        sql += `  team_id VARCHAR(32) NOT NULL,\n`;
+        sql += `  team_name VARCHAR(128),\n`;
+        sql += `  mascot VARCHAR(64),\n`;
+        sql += `  placement INT,\n`;
+        sql += `  placement_points INT DEFAULT 0,\n`;
+        sql += `  squad_kills INT DEFAULT 0,\n`;
+        sql += `  total_points INT DEFAULT 0,\n`;
+        sql += `  status VARCHAR(32),\n`;
+        sql += `  recorded_at VARCHAR(64)\n`;
+        sql += `);\n\n`;
+
+        if (brScores.length > 0) {
+          sql += `-- Inserts: codm_br_scores\n`;
+          brScores.forEach(b => {
+            const esc = (v) => (v === null || v === undefined) ? 'NULL' : `'${String(v).replace(/'/g, "''")}'`;
+            const num = (v) => (v === null || v === undefined) ? 'NULL' : Number(v);
+            sql += `INSERT INTO codm_br_scores VALUES (${esc(b.id)}, ${num(b.round_num)}, ${esc(b.team_id)}, ${esc(b.team_name)}, ${esc(b.mascot)}, ${num(b.placement)}, ${num(b.placement_points)}, ${num(b.squad_kills)}, ${num(b.total_points)}, ${esc(b.status)}, ${esc(b.recorded_at)});\n`;
+          });
+          sql += `\n`;
+        }
+
+        sql += `-- Table: college_standings (Overall aggregated rankings)\n`;
+        sql += `CREATE TABLE IF NOT EXISTS college_standings (\n`;
+        sql += `  team_id VARCHAR(32) PRIMARY KEY,\n`;
+        sql += `  college_name VARCHAR(128),\n`;
+        sql += `  mascot VARCHAR(64),\n`;
+        sql += `  rank INT,\n`;
+        sql += `  mlbb_wins INT DEFAULT 0,\n`;
+        sql += `  mlbb_losses INT DEFAULT 0,\n`;
+        sql += `  codm_mp_wins INT DEFAULT 0,\n`;
+        sql += `  codm_mp_losses INT DEFAULT 0,\n`;
+        sql += `  codm_br_points INT DEFAULT 0,\n`;
+        sql += `  codm_br_kills INT DEFAULT 0,\n`;
+        sql += `  championship_points INT DEFAULT 0\n`;
+        sql += `);\n\n`;
+
+        if (standings.length > 0) {
+          sql += `-- Inserts: college_standings\n`;
+          standings.forEach(s => {
+            const esc = (v) => (v === null || v === undefined) ? 'NULL' : `'${String(v).replace(/'/g, "''")}'`;
+            const num = (v) => (v === null || v === undefined) ? 'NULL' : Number(v);
+            sql += `INSERT INTO college_standings VALUES (${esc(s.team_id)}, ${esc(s.full)}, ${esc(s.mascot)}, ${num(s.rank)}, ${num(s.mlbb_wins)}, ${num(s.mlbb_losses)}, ${num(s.codm_mp_wins)}, ${num(s.codm_mp_losses)}, ${num(s.codm_br_points)}, ${num(s.codm_br_kills)}, ${num(s.championship_points)});\n`;
+          });
+          sql += `\n`;
+        }
+
+        sql += `-- Table: audit_logs (Official scorekeepers change log)\n`;
+        sql += `CREATE TABLE IF NOT EXISTS audit_logs (\n`;
+        sql += `  id VARCHAR(64) PRIMARY KEY,\n`;
+        sql += `  timestamp VARCHAR(64),\n`;
+        sql += `  esport VARCHAR(32),\n`;
+        sql += `  action VARCHAR(64),\n`;
+        sql += `  details TEXT,\n`;
+        sql += `  operator VARCHAR(64)\n`;
+        sql += `);\n\n`;
+
+        if (audits.length > 0) {
+          sql += `-- Inserts: audit_logs\n`;
+          audits.forEach(a => {
+            const esc = (v) => (v === null || v === undefined) ? 'NULL' : `'${String(v).replace(/'/g, "''")}'`;
+            sql += `INSERT INTO audit_logs VALUES (${esc(a.id)}, ${esc(a.timestamp)}, ${esc(a.esport)}, ${esc(a.action)}, ${esc(a.details)}, ${esc(a.operator)});\n`;
+          });
+          sql += `\n`;
+        }
+
+        this.downloadFile(sql, 'tcc_esports_results_database_2026.sql', 'text/sql;charset=utf-8;');
+        showToast('✅ Database exported as ANSI SQL file!');
+      },
+
+      exportDatabaseAsCSV(tableType) {
+        let csv = '';
+        let filename = '';
+
+        if (tableType === 'br_scores') {
+          filename = 'tcc_codm_battle_royale_scores_2026.csv';
+          const headers = ['id', 'round_num', 'team_id', 'team_name', 'mascot', 'placement', 'placement_points', 'squad_kills', 'total_points', 'status', 'recorded_at'];
+          csv += headers.join(',') + '\n';
+          Object.values(this.tables.codm_br_scores).forEach(b => {
+            const row = [
+              b.id, b.round_num, b.team_id, b.team_name, b.mascot,
+              b.placement !== null ? b.placement : '', b.placement_points, b.squad_kills, b.total_points,
+              b.status, b.recorded_at
+            ].map(val => `"${String(val ?? '').replace(/"/g, '""')}"`);
+            csv += row.join(',') + '\n';
+          });
+        } else if (tableType === 'standings') {
+          filename = 'tcc_college_standings_results_2026.csv';
+          const headers = ['rank', 'team_id', 'college_name', 'mascot', 'mlbb_wins', 'mlbb_losses', 'codm_mp_wins', 'codm_mp_losses', 'codm_br_points', 'codm_br_kills', 'championship_points'];
+          csv += headers.join(',') + '\n';
+          Object.values(this.tables.college_standings).forEach(s => {
+            const row = [
+              s.rank, s.team_id, s.full, s.mascot,
+              s.mlbb_wins, s.mlbb_losses, s.codm_mp_wins, s.codm_mp_losses,
+              s.codm_br_points, s.codm_br_kills, s.championship_points
+            ].map(val => `"${String(val ?? '').replace(/"/g, '""')}"`);
+            csv += row.join(',') + '\n';
+          });
+        } else {
+          filename = 'tcc_tournament_matches_results_2026.csv';
+          const headers = ['id', 'esport', 'game_title', 'match_key', 'label', 'stage_day', 'best_of', 'team1', 'team2', 'score1', 'score2', 'winner', 'loser', 'status', 'recorded_by', 'recorded_at'];
+          csv += headers.join(',') + '\n';
+          Object.values(this.tables.matches).forEach(m => {
+            const row = [
+              m.id, m.esport, m.game_title, m.match_key, m.label, m.stage_day, m.best_of,
+              m.team1 ?? '', m.team2 ?? '', m.score1 !== null ? m.score1 : '', m.score2 !== null ? m.score2 : '',
+              m.winner ?? '', m.loser ?? '', m.status, m.recorded_by, m.recorded_at
+            ].map(val => `"${String(val ?? '').replace(/"/g, '""')}"`);
+            csv += row.join(',') + '\n';
+          });
+        }
+
+        this.downloadFile(csv, filename, 'text/csv;charset=utf-8;');
+        showToast(`✅ Exported ${filename}`);
+      },
+
+      exportDatabaseAsJSON() {
+        const payload = {
+          metadata: {
+            title: 'TCC Esports Intramurals 2026 Official Results Database',
+            exportedAt: new Date().toISOString(),
+            engine: this.isIdbReady ? 'IndexedDB + LocalStorage' : 'LocalStorage'
+          },
+          tables: this.tables
+        };
+        const jsonStr = JSON.stringify(payload, null, 2);
+        this.downloadFile(jsonStr, 'tcc_esports_database_full_backup_2026.json', 'application/json;charset=utf-8;');
+        showToast('✅ Full JSON database backup exported!');
+      },
+
+      downloadFile(content, fileName, mimeType) {
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+    };
+
+    // Global Controllers & Legacy Helpers
+    function openResultsDatabaseModal(initialTab) {
+      if (initialTab && typeof TournamentResultsDB !== 'undefined') {
+        TournamentResultsDB.activeSubTab = initialTab;
+      }
+      const modal = document.getElementById('tournamentDatabaseModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        if (typeof TournamentResultsDB !== 'undefined') {
+          TournamentResultsDB.renderDatabaseView('resultsDatabaseModalBody');
+        }
+      }
+    }
+
+    function closeResultsDatabaseModal() {
+      const modal = document.getElementById('tournamentDatabaseModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function exportDatabaseAsSQL() {
+      if (typeof TournamentResultsDB !== 'undefined') {
+        TournamentResultsDB.exportDatabaseAsSQL();
+      }
+    }
+
+    function exportDatabaseAsCSV(tableType) {
+      if (typeof TournamentResultsDB !== 'undefined') {
+        TournamentResultsDB.exportDatabaseAsCSV(tableType || 'matches');
+      }
+    }
+
+    function exportTournamentDatabaseJSON() {
+      if (typeof TournamentResultsDB !== 'undefined') {
+        TournamentResultsDB.exportDatabaseAsJSON();
+      }
+    }
+
     // --- 14. REAL-TIME CLOUD SYNC (FIREBASE REALTIME DATABASE) ---
     // When a Firebase URL is set here, all devices (spectator phones, marshal PCs, projector screens)
     // automatically sync in real-time (<100ms) with zero configuration required by visitors.
@@ -10171,6 +11799,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
       updateTournamentModeUI();
       initAdminAuth();
       initCloudSync();
+      if (typeof TournamentResultsDB !== 'undefined' && TournamentResultsDB.init) {
+        TournamentResultsDB.init();
+      }
       updatePlayoffBracket();
       renderLiveBroadcastHero();
     }
