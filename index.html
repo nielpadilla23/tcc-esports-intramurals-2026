@@ -377,15 +377,21 @@ Check your Browserslist config to be sure that your targets are set up correctly
         </div>
 
         <!-- CARD 2: Call of Duty Mobile (CODM) -->
+        <!-- CARD 2: Call of Duty Mobile (Multiplayer & Battle Royale) -->
         <div onclick="openEsportDashboard('codm')" class="group relative rounded-3xl p-6 sm:p-8 bg-gradient-to-b from-[#1a1608]/95 to-[#0d0b05]/95 border-2 border-amber-500/40 hover:border-amber-400 shadow-2xl hover:shadow-yellow-500/25 transition-all duration-300 cursor-pointer flex flex-col justify-between space-y-6 hover:-translate-y-1.5 active:translate-y-0 overflow-hidden">
           <div class="absolute -top-24 -right-24 w-48 h-48 bg-amber-500/20 rounded-full blur-2xl group-hover:bg-amber-500/30 transition duration-300"></div>
           
-          <div class="relative z-10 flex items-center justify-between">
-            <span class="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-amber-500/20 text-yellow-400 border border-yellow-500/30 shadow-inner">
-              🎯 5v5 Multi-Player (MP)
-            </span>
+          <div class="relative z-10 flex items-center justify-between flex-wrap gap-2">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500/20 text-yellow-400 border border-yellow-500/30 shadow-inner">
+                🎯 5v5 Multi-Player
+              </span>
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/30 shadow-inner">
+                🪂 Battle Royale
+              </span>
+            </div>
             <span class="text-[10px] font-mono font-bold text-amber-300 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">
-              Double Elim · BO3
+              2 Modes Active
             </span>
           </div>
 
@@ -399,21 +405,22 @@ Check your Browserslist config to be sure that your targets are set up correctly
               <span>Call of Duty: Mobile</span>
             </h3>
             <p class="text-xs text-slate-400 leading-relaxed font-medium">
-              Multi-Player Double Elimination tournament. All matches are Best-of-3 (BO3) across 3 distinct competitive game modes: Search and Destroy, Control, and Hardpoint.
+              Features 2 championship modes: the 5v5 Multiplayer Double Elimination tournament (S&D, Control, Hardpoint) and the 7-College 8-Round Battle Royale with full round-by-round points & squad kills leaderboard.
             </p>
             <div class="flex items-center gap-1.5 pt-1 flex-wrap text-[10px] font-bold">
-              <span class="px-2 py-0.5 rounded-md bg-rose-500/15 border border-rose-500/30 text-rose-300 font-mono">💣 G1: Search & Destroy</span>
-              <span class="px-2 py-0.5 rounded-md bg-blue-500/15 border border-blue-500/30 text-blue-300 font-mono">🎮 G2: Control</span>
-              <span class="px-2 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-300 font-mono">📍 G3: Hardpoint</span>
+              <span class="px-2 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-300 font-mono">🎯 MP: 5v5 BO3 Rotation</span>
+              <span class="px-2 py-0.5 rounded-md bg-purple-500/15 border border-purple-500/30 text-purple-300 font-mono">🪂 BR: 7 Teams · 8 Rounds</span>
             </div>
           </div>
 
-          <!-- Card CTA Button -->
-          <div class="relative z-10 pt-2">
-            <div class="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-500 hover:from-amber-400 hover:to-yellow-400 text-black font-black text-sm text-center shadow-lg shadow-yellow-500/30 flex items-center justify-center gap-2 group-hover:gap-3 transition-all">
-              <span>Enter CODM Dashboard</span>
-              <span>→</span>
-            </div>
+          <!-- Card Dual CTA Buttons -->
+          <div class="relative z-10 pt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <button type="button" onclick="event.stopPropagation(); openEsportDashboard('codm', 'mp');" class="w-full py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs text-center shadow-md flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95">
+              <span>🎯</span> <span>5v5 Multi-Player</span>
+            </button>
+            <button type="button" onclick="event.stopPropagation(); openEsportDashboard('codm', 'br');" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-xs text-center shadow-md flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95">
+              <span>🪂</span> <span>Battle Royale</span>
+            </button>
           </div>
         </div>
 
@@ -554,8 +561,36 @@ Check your Browserslist config to be sure that your targets are set up correctly
   <!-- Main Tournament Dashboard Container -->
   <main id="appMain" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-1 w-full">
 
-    <!-- Real-Time Esports Broadcast Hero: LIVE NOW & UP NEXT -->
-    <div id="liveBroadcastHeroContainer" class="w-full"></div>
+    <!-- CODM Tournament Mode Switcher Bar (Visible strictly in CODM) -->
+    <div id="codmModeBar" class="hidden flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 sm:p-4 rounded-3xl bg-gradient-to-r from-amber-500/15 via-[var(--card)] to-purple-600/15 border border-amber-500/30 shadow-md">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xl text-amber-400 shrink-0 shadow-inner">
+          🎯
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h3 class="text-sm sm:text-base font-black text-[var(--foreground)]">CODM Tournament Competition Modes</h3>
+            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">Official 2026</span>
+          </div>
+          <p class="text-xs text-[var(--muted-foreground)]">Select between the 5v5 Multiplayer tournament and the 7-College 8-Round Battle Royale.</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-1.5 p-1 rounded-2xl bg-[var(--secondary)] border border-[var(--border)] shrink-0 w-full sm:w-auto justify-center">
+        <button type="button" id="codmModeBtnMP" onclick="switchCodmMode('mp')" class="flex-1 sm:flex-none px-3.5 py-1.5 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 cursor-pointer bg-amber-500 text-slate-950 shadow-sm active:scale-95">
+          <span>🎮</span> <span>5v5 Multi-Player</span>
+        </button>
+        <button type="button" id="codmModeBtnBR" onclick="switchCodmMode('br')" class="flex-1 sm:flex-none px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)] active:scale-95">
+          <span>🪂</span> <span>Battle Royale (8 Rnds)</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 5v5 Multi-Player Tournament View Container (Active in MLBB or CODM MP Mode) -->
+    <div id="mainMpTournamentContainer" class="space-y-6">
+
+      <!-- Real-Time Esports Broadcast Hero: LIVE NOW & UP NEXT -->
+      <div id="liveBroadcastHeroContainer" class="w-full"></div>
 
     <!-- Overview Metrics Cards (Esports Broadcast Stat Tickers - Admin Only) -->
     <div class="admin-only grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -675,6 +710,121 @@ Check your Browserslist config to be sure that your targets are set up correctly
         <!-- Injected via renderCollegeRoster() -->
       </div>
     </div>
+  </div><!-- /#mainMpTournamentContainer -->
+
+  <!-- CODM Battle Royale Championship View Container (Active in CODM BR Mode) -->
+  <div id="codmBattleRoyaleContainer" class="hidden space-y-6">
+
+    <!-- BR Championship Header Banner & Controls -->
+    <div class="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-purple-950/40 via-[var(--card)] to-amber-950/30 border border-purple-500/30 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="space-y-1.5">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/30">
+            🪂 Battle Royale Championship
+          </span>
+          <span id="brProgressBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+            Round 0 of 8 Complete
+          </span>
+        </div>
+        <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight uppercase">
+          CODM 7-College Battle Royale
+        </h2>
+        <p class="text-xs text-[var(--muted-foreground)] max-w-xl">
+          Official 8-Round competitive series. Each round awards placement points (1st: 12, 2nd: 10, 3rd: 8, 4th: 6, 5th: 4, 6th: 2, 7th: 1) plus 1 point per squad kill. Final placements decided by cumulative points.
+        </p>
+      </div>
+
+      <!-- Marshal / Admin Control Buttons -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <button type="button" onclick="openBrScoreModal()" class="marshal-only flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-black shadow-md shadow-purple-600/25 transition cursor-pointer active:scale-95">
+          <span>✏️</span> <span>Enter / Edit Scores</span>
+        </button>
+        <button type="button" onclick="confirmSimulateBr()" class="admin-only flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-sm transition cursor-pointer active:scale-95">
+          <span>⚡</span> <span>Fast Sim BR</span>
+        </button>
+        <button type="button" onclick="confirmResetBrScores()" class="admin-only px-3 py-2 rounded-xl border border-[var(--border)] hover:bg-[var(--secondary)] text-xs font-semibold text-[var(--muted-foreground)] hover:text-amber-400 transition cursor-pointer">
+          <span>🔄</span> <span>Reset BR</span>
+        </button>
+        <button type="button" onclick="printBrStandings()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[var(--border)] hover:bg-[var(--secondary)] text-xs font-bold text-[var(--foreground)] transition cursor-pointer">
+          <span>🖨️</span> <span class="hidden sm:inline">Print Standings</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Championship Podium / Glory Showcase (Top 3 Teams) -->
+    <div id="brPodiumContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
+      <!-- Injected via renderBrPodium() -->
+    </div>
+
+    <!-- Master Overall Leaderboard Table -->
+    <div class="rounded-3xl bg-[var(--card)] border border-[var(--border)] p-4 sm:p-6 shadow-xl space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--border)] pb-3">
+        <div>
+          <h3 class="text-base font-black text-[var(--foreground)] uppercase tracking-wide flex items-center gap-2">
+            <span>🏆</span> <span>Overall Cumulative Leaderboard & Standings</span>
+          </h3>
+          <p class="text-xs text-[var(--muted-foreground)]">Official tournament placements ranked by Total Points (Placement Points + Squad Kills) across all 8 rounds.</p>
+        </div>
+        <div class="text-[11px] text-[var(--muted-foreground)] font-mono font-bold">
+          Points Table: 1st=12 · 2nd=10 · 3rd=8 · 4th=6 · 5th=4 · 6th=2 · 7th=1
+        </div>
+      </div>
+
+      <!-- Responsive Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead>
+            <tr class="border-b border-[var(--border)] text-[10px] font-black uppercase text-[var(--muted-foreground)] tracking-wider">
+              <th class="py-2.5 px-2 text-center w-12">Rank</th>
+              <th class="py-2.5 px-3 min-w-[170px]">College Squad</th>
+              <th class="py-2.5 px-1.5 text-center font-mono">R1</th>
+              <th class="py-2.5 px-1.5 text-center font-mono">R2</th>
+              <th class="py-2.5 px-1.5 text-center font-mono">R3</th>
+              <th class="py-2.5 px-1.5 text-center font-mono">R4</th>
+              <th class="py-2.5 px-1.5 text-center font-mono">R5</th>
+              <th class="py-2.5 px-1.5 text-center font-mono">R6</th>
+              <th class="py-2.5 px-1.5 text-center font-mono">R7</th>
+              <th class="py-2.5 px-1.5 text-center font-mono">R8</th>
+              <th class="py-2.5 px-2 text-center">Kills 💀</th>
+              <th class="py-2.5 px-2 text-center">Place Pts 🎯</th>
+              <th class="py-2.5 px-3 text-right">Total Pts ⚡</th>
+            </tr>
+          </thead>
+          <tbody id="brStandingsTableBody" class="divide-y divide-[var(--border)]/50 font-medium">
+            <!-- Injected via renderBrStandingsTable() -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Round-by-Round Breakdown Section -->
+    <div class="rounded-3xl bg-[var(--card)] border border-[var(--border)] p-4 sm:p-6 shadow-xl space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--border)] pb-3">
+        <div>
+          <h3 class="text-base font-black text-[var(--foreground)] uppercase tracking-wide flex items-center gap-2">
+            <span>📋</span> <span>Round-by-Round Scoreboards</span>
+          </h3>
+          <p class="text-xs text-[var(--muted-foreground)]">Detailed results for each of the 8 individual competitive rounds.</p>
+        </div>
+
+        <!-- Quick Edit Current Selected Round Button (Marshals only) -->
+        <button type="button" id="btnEditSelectedRound" onclick="openBrScoreModal(selectedBrRound)" class="marshal-only px-3 py-1.5 rounded-xl bg-purple-600/20 hover:bg-purple-600 border border-purple-500/40 text-purple-300 hover:text-white text-xs font-black transition cursor-pointer flex items-center gap-1.5 active:scale-95">
+          <span>✏️</span> <span id="btnEditSelectedRoundText">Edit Round 1</span>
+        </button>
+      </div>
+
+      <!-- Round Tabs 1 to 8 -->
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-1" id="brRoundTabsContainer">
+        <!-- Injected via renderBrRoundTabs() -->
+      </div>
+
+      <!-- Active Round Detailed Scoreboard Table -->
+      <div id="brActiveRoundContainer">
+        <!-- Injected via renderBrActiveRound() -->
+      </div>
+    </div>
+
+  </div><!-- /#codmBattleRoyaleContainer -->
   </main>
 
   <!-- Live Stage Screen Overlay (Theater Mode) -->
@@ -1145,6 +1295,85 @@ Check your Browserslist config to be sure that your targets are set up correctly
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- CODM Battle Royale Round Score Entry / Edit Modal -->
+  <div id="codmBrScoreModal" onclick="if(event.target===this)closeBrScoreModal()" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 hidden select-none transition-all duration-200">
+    <div class="w-full max-w-2xl rounded-3xl bg-[var(--card)] border border-[var(--border)] p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-3 border-b border-[var(--border)]">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-xl text-purple-300 shrink-0">
+            🪂
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-base font-black text-[var(--foreground)]">CODM Battle Royale · Round Score Editor</h3>
+              <span id="brModalRoundBadge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">Round 1</span>
+            </div>
+            <p class="text-xs text-[var(--muted-foreground)] font-medium">Input each squad's Placement (1st-7th) and Total Kills at round end.</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeBrScoreModal()" class="w-8 h-8 rounded-xl bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-[var(--muted-foreground)] hover:text-[var(--foreground)] flex items-center justify-center text-xs font-black transition cursor-pointer" aria-label="Close modal">✕</button>
+      </div>
+
+      <!-- Round Selector & Points Scheme Reminder -->
+      <div class="p-3 rounded-2xl bg-[var(--secondary)]/40 border border-[var(--border)] flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <label for="brModalRoundSelect" class="text-xs font-bold text-[var(--muted-foreground)] uppercase shrink-0">Select Round:</label>
+          <select id="brModalRoundSelect" onchange="onBrModalRoundChange(this.value)" class="px-3 py-1.5 rounded-xl bg-[var(--card)] border border-[var(--border)] text-xs font-black text-[var(--foreground)] focus:outline-hidden focus:border-amber-500 cursor-pointer">
+            <option value="1">Round 1</option>
+            <option value="2">Round 2</option>
+            <option value="3">Round 3</option>
+            <option value="4">Round 4</option>
+            <option value="5">Round 5</option>
+            <option value="6">Round 6</option>
+            <option value="7">Round 7</option>
+            <option value="8">Round 8</option>
+          </select>
+        </div>
+        <div class="text-[11px] text-[var(--muted-foreground)] flex items-center gap-1.5 flex-wrap">
+          <span class="font-bold text-amber-400">Points Scale:</span>
+          <span class="font-mono">1st=12 · 2nd=10 · 3rd=8 · 4th=6 · 5th=4 · 6th=2 · 7th=1 (+1 pt/kill)</span>
+        </div>
+      </div>
+
+      <!-- Real-Time Placement Validation Alert Banner -->
+      <div id="brModalValidationAlert" class="p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+        <span>✅</span> <span id="brModalValidationText">All 7 placements (1st to 7th) are uniquely assigned.</span>
+      </div>
+
+      <!-- 7 College Rows Form -->
+      <form id="brRoundScoreForm" onsubmit="event.preventDefault(); saveBrRoundFromModal();" class="space-y-2.5">
+        <div class="hidden sm:grid sm:grid-cols-12 gap-2 text-[10px] font-black uppercase text-[var(--muted-foreground)] px-2">
+          <div class="col-span-5">College Squad</div>
+          <div class="col-span-3 text-center">Placement (Pts)</div>
+          <div class="col-span-2 text-center">Squad Kills</div>
+          <div class="col-span-2 text-right">Round Pts</div>
+        </div>
+        
+        <div id="brModalTeamRowsContainer" class="space-y-2">
+          <!-- Injected via renderBrModalTeamRows() -->
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-between gap-2 pt-3 border-t border-[var(--border)]">
+          <button type="button" onclick="clearBrCurrentRoundModal()" class="px-3 py-2 rounded-xl border border-rose-500/30 hover:bg-rose-500/10 text-xs font-bold text-rose-400 transition cursor-pointer">
+            🗑️ Clear Round
+          </button>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="closeBrScoreModal()" class="px-4 py-2 rounded-xl border border-[var(--border)] text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition cursor-pointer">
+              Cancel
+            </button>
+            <button type="submit" id="brModalSubmitBtn" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-black shadow-md transition cursor-pointer flex items-center gap-1.5 active:scale-95">
+              <span>💾</span> <span>Save Round Results</span>
+            </button>
+          </div>
+        </div>
+      </form>
+
     </div>
   </div>
 
@@ -1629,7 +1858,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       showEsportHub();
     }
 
-    function openEsportDashboard(esportId) {
+    function openEsportDashboard(esportId, mode) {
       const hub = document.getElementById('esportLandingHub');
       const appHeader = document.getElementById('appHeader');
       const appMain = document.getElementById('appMain');
@@ -1638,9 +1867,15 @@ Check your Browserslist config to be sure that your targets are set up correctly
       if (appHeader) appHeader.classList.remove('hidden');
       if (appMain) appMain.classList.remove('hidden');
 
+      if (esportId === 'codm' && (mode === 'br' || mode === 'mp')) {
+        codmMode = mode;
+        try { localStorage.setItem('tcc_codm_mode_v1', mode); } catch(e) {}
+      }
+
       switchEsport(esportId);
       try {
-        window.location.hash = 'game=' + esportId;
+        const hashMode = (esportId === 'codm' && mode) ? `&mode=${mode}` : '';
+        window.location.hash = 'game=' + esportId + hashMode;
       } catch(e) {}
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -1654,9 +1889,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const hash = (window.location.hash || '').toLowerCase();
       const searchParams = new URLSearchParams(window.location.search || '');
       const gameParam = (searchParams.get('game') || searchParams.get('esport') || '').toLowerCase();
+      const modeParam = (searchParams.get('mode') || (hash.includes('mode=br') ? 'br' : (hash.includes('mode=mp') ? 'mp' : ''))).toLowerCase();
 
       if (gameParam === 'mlbb' || gameParam === 'codm') {
-        openEsportDashboard(gameParam);
+        openEsportDashboard(gameParam, modeParam);
         return true;
       }
 
@@ -1666,7 +1902,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       }
 
       if (hash.includes('game=codm') || hash === '#codm') {
-        openEsportDashboard('codm');
+        openEsportDashboard('codm', modeParam || (hash.includes('mode=br') ? 'br' : 'mp'));
         return true;
       }
 
@@ -1947,6 +2183,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
           PLAYOFF_DATA[k].games = getCodmMatchGames(PLAYOFF_DATA[k]);
         }
       }
+      if (currentEsport === 'codm' && typeof loadBrDataFromStorage === 'function') {
+        CODM_BR_DATA = loadBrDataFromStorage();
+      }
       normalizeAllPlayoffData();
     }
 
@@ -1954,6 +2193,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       if (!newEsport || !ESPORTS_CONFIG[newEsport]) return;
       if (newEsport === currentEsport) {
         updateEsportBrandingUI();
+        if (typeof updateCodmModeUI === 'function') updateCodmModeUI();
         return;
       }
 
@@ -1995,6 +2235,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
       // Update Auth RBAC & Headers for the new esport
       if (typeof updateAdminUI === 'function') updateAdminUI();
+      if (typeof updateCodmModeUI === 'function') updateCodmModeUI();
 
       const cfg = getCurrentEsportConfig();
       if (typeof currentSession !== 'undefined' && currentSession && currentSession.gameScope !== 'all') {
@@ -4560,6 +4801,32 @@ Check your Browserslist config to be sure that your targets are set up correctly
         if (submitBtn) submitBtn.classList.add('bg-rose-600', 'hover:bg-rose-700', 'shadow-rose-600/30');
         if (btnIcon) btnIcon.innerText = '🚪';
         if (btnText) btnText.innerText = 'Proceed & Exit';
+      } else if (actionType === 'simulate_br') {
+        if (iconBg) iconBg.classList.add('bg-purple-500/15', 'text-purple-400', 'border', 'border-purple-500/30');
+        if (icon) icon.innerText = '🪂';
+        if (badge) {
+          badge.classList.add('bg-purple-500/10', 'text-purple-400', 'border-purple-500/30');
+          badge.innerText = 'BR Simulation';
+        }
+        if (title) title.innerText = 'Simulate All 8 BR Rounds?';
+        if (msg) msg.innerText = 'This will generate realistic placements (1st to 7th) and squad kill counts across all 8 rounds for the 7 participating colleges.';
+        if (subnote) subnote.innerHTML = '<span>⚡</span> <span>Any currently recorded round results will be replaced with new simulated match data.</span>';
+        if (submitBtn) submitBtn.classList.add('bg-purple-600', 'hover:bg-purple-700', 'shadow-purple-600/30');
+        if (btnIcon) btnIcon.innerText = '🪂';
+        if (btnText) btnText.innerText = 'Proceed & Simulate BR';
+      } else if (actionType === 'reset_br_scores') {
+        if (iconBg) iconBg.classList.add('bg-rose-500/15', 'text-rose-400', 'border', 'border-rose-500/30');
+        if (icon) icon.innerText = '🔄';
+        if (badge) {
+          badge.classList.add('bg-rose-500/10', 'text-rose-400', 'border-rose-500/30');
+          badge.innerText = 'BR Score Reset';
+        }
+        if (title) title.innerText = 'Reset Battle Royale Scores?';
+        if (msg) msg.innerText = 'Are you sure you want to clear all 8 rounds of Battle Royale scores? All placements and kill counts will revert to pending status.';
+        if (subnote) subnote.innerHTML = '<span>⚠️</span> <span>Cumulative points will reset to 0. This action cannot be undone.</span>';
+        if (submitBtn) submitBtn.classList.add('bg-rose-600', 'hover:bg-rose-700', 'shadow-rose-600/30');
+        if (btnIcon) btnIcon.innerText = '🔄';
+        if (btnText) btnText.innerText = 'Reset BR Scores';
       }
 
       modal.classList.remove('hidden');
@@ -4583,6 +4850,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
         resetToBlankBracket();
       } else if (action === 'exit_session') {
         logoutSession();
+      } else if (action === 'simulate_br') {
+        simulateCodmBrTournament();
+      } else if (action === 'reset_br_scores') {
+        resetCodmBrScores();
       }
     }
 
@@ -7405,6 +7676,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
+        const brModal = document.getElementById('codmBrScoreModal');
+        if (brModal && !brModal.classList.contains('hidden')) {
+          closeBrScoreModal();
+          return;
+        }
         const confirmModal = document.getElementById('actionConfirmModal');
         if (confirmModal && !confirmModal.classList.contains('hidden')) {
           closeActionConfirmModal();
@@ -7427,6 +7703,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const data = {
         version: 'v9_bracket',
         timestamp: new Date().toISOString(),
+        esport: currentEsport,
+        codmMode: codmMode,
+        codmBrData: CODM_BR_DATA,
         tournamentMode: tournamentMode,
         teams: TEAMS,
         playoffs: PLAYOFF_DATA,
@@ -7437,7 +7716,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `mlbb_tournament_${tournamentMode}_backup.json`;
+      a.download = `${currentEsport}_tournament_${tournamentMode}_backup.json`;
       a.click();
       URL.revokeObjectURL(url);
     }
@@ -7452,6 +7731,14 @@ Check your Browserslist config to be sure that your targets are set up correctly
           if (data.tournamentMode) {
             tournamentMode = data.tournamentMode;
             localStorage.setItem(getStorageKey('tournament_mode_v9'), tournamentMode);
+          }
+          if (data.codmBrData) {
+            CODM_BR_DATA = data.codmBrData;
+            saveBrDataToStorage();
+          }
+          if (data.codmMode) {
+            codmMode = data.codmMode;
+            try { localStorage.setItem('tcc_codm_mode_v1', codmMode); } catch(e) {}
           }
           if (data.teams && Array.isArray(data.teams)) {
             TEAMS = data.teams.map(t => {
@@ -7482,6 +7769,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
           renderHeaderTeamBadges();
           updateTournamentModeUI();
           updatePlayoffBracket();
+          if (typeof updateCodmModeUI === 'function') updateCodmModeUI();
           alert('Tournament data restored successfully!');
         } catch(err) {
           alert('Invalid backup JSON file.');
@@ -8104,6 +8392,887 @@ Check your Browserslist config to be sure that your targets are set up correctly
       `;
     }
 
+    // --- 12.5 CODM BATTLE ROYALE (8-ROUND CHAMPIONSHIP SYSTEM) ---
+    let codmMode = 'mp';
+    try { codmMode = localStorage.getItem('tcc_codm_mode_v1') || 'mp'; } catch(e) {}
+
+    const CODM_BR_TEAMS = ['CCJPS', 'CBA', 'CHM', 'CLIS', 'CIT', 'COED', 'CAS'];
+    const BR_PLACEMENT_POINTS = { 1: 12, 2: 10, 3: 8, 4: 6, 5: 4, 6: 2, 7: 1 };
+    let selectedBrRound = 1;
+    let activeBrModalRound = 1;
+
+    function getDefaultBrData() {
+      const data = {
+        rounds: {},
+        updatedAt: Date.now()
+      };
+      for (let r = 1; r <= 8; r++) {
+        data.rounds[r] = {
+          roundNum: r,
+          status: 'pending', // 'pending' | 'completed' | 'in_progress'
+          results: {}
+        };
+        CODM_BR_TEAMS.forEach(teamId => {
+          data.rounds[r].results[teamId] = {
+            team: teamId,
+            placement: null,
+            kills: 0,
+            placementPoints: 0,
+            totalPoints: 0
+          };
+        });
+      }
+      return data;
+    }
+
+    let CODM_BR_DATA = loadBrDataFromStorage();
+
+    function loadBrDataFromStorage() {
+      try {
+        const raw = localStorage.getItem('tcc_codm_br_data_v1');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && parsed.rounds && parsed.rounds[8]) {
+            return parsed;
+          }
+        }
+      } catch(e) {}
+      return getDefaultBrData();
+    }
+
+    function saveBrDataToStorage() {
+      try {
+        CODM_BR_DATA.updatedAt = Date.now();
+        localStorage.setItem('tcc_codm_br_data_v1', JSON.stringify(CODM_BR_DATA));
+      } catch(e) {}
+      if (typeof isCloudSyncConnected !== 'undefined' && isCloudSyncConnected && typeof syncToFirebase === 'function') {
+        try {
+          syncToFirebase('codm_br', CODM_BR_DATA);
+        } catch(e) {}
+      }
+    }
+
+    function calculateBrStandings() {
+      const standingsMap = {};
+
+      CODM_BR_TEAMS.forEach(teamId => {
+        const college = DEFAULT_TEAMS.find(t => t.name === teamId) || { name: teamId, full: teamId, mascot: 'Team', color: '#94a3b8' };
+        standingsMap[teamId] = {
+          id: teamId,
+          name: college.name,
+          full: college.full,
+          mascot: college.mascot,
+          color: college.color,
+          icon: TEAM_ICONS[teamId] || '',
+          totalKills: 0,
+          totalPlacementPoints: 0,
+          totalPoints: 0,
+          winsCount: 0,
+          top3Count: 0,
+          roundHistory: [] // 1..8
+        };
+      });
+
+      for (let r = 1; r <= 8; r++) {
+        const rnd = CODM_BR_DATA.rounds[r] || { status: 'pending', results: {} };
+        const isCompleted = (rnd.status === 'completed');
+
+        CODM_BR_TEAMS.forEach(teamId => {
+          const res = (rnd.results && rnd.results[teamId]) ? rnd.results[teamId] : { placement: null, kills: 0 };
+          const plc = (res.placement !== null && res.placement !== undefined && res.placement !== '') ? parseInt(res.placement, 10) : null;
+          const kls = parseInt(res.kills || 0, 10) || 0;
+          const plcPts = (plc && BR_PLACEMENT_POINTS[plc]) ? BR_PLACEMENT_POINTS[plc] : 0;
+          const totPts = plcPts + kls;
+
+          standingsMap[teamId].roundHistory.push({
+            round: r,
+            placement: plc,
+            kills: kls,
+            placementPoints: plcPts,
+            totalPoints: totPts,
+            status: rnd.status
+          });
+
+          if (isCompleted || plc !== null) {
+            standingsMap[teamId].totalKills += kls;
+            standingsMap[teamId].totalPlacementPoints += plcPts;
+            standingsMap[teamId].totalPoints += totPts;
+            if (plc === 1) standingsMap[teamId].winsCount++;
+            if (plc && plc <= 3) standingsMap[teamId].top3Count++;
+          }
+        });
+      }
+
+      const list = Object.values(standingsMap);
+      list.sort((a, b) => {
+        if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
+        if (b.totalKills !== a.totalKills) return b.totalKills - a.totalKills;
+        if (b.totalPlacementPoints !== a.totalPlacementPoints) return b.totalPlacementPoints - a.totalPlacementPoints;
+        return b.winsCount - a.winsCount;
+      });
+
+      list.forEach((item, idx) => {
+        item.rank = idx + 1;
+      });
+
+      return list;
+    }
+
+    function switchCodmMode(mode) {
+      if (mode !== 'mp' && mode !== 'br') return;
+      codmMode = mode;
+      try { localStorage.setItem('tcc_codm_mode_v1', mode); } catch(e) {}
+      try {
+        const hash = window.location.hash || '';
+        if (hash.includes('game=codm')) {
+          window.location.hash = 'game=codm&mode=' + mode;
+        }
+      } catch(e) {}
+      updateCodmModeUI();
+    }
+
+    function updateCodmModeUI() {
+      const modeBar = document.getElementById('codmModeBar');
+      const mpContainer = document.getElementById('mainMpTournamentContainer');
+      const brContainer = document.getElementById('codmBattleRoyaleContainer');
+      const btnMP = document.getElementById('codmModeBtnMP');
+      const btnBR = document.getElementById('codmModeBtnBR');
+
+      if (currentEsport !== 'codm') {
+        if (modeBar) modeBar.classList.add('hidden');
+        if (brContainer) brContainer.classList.add('hidden');
+        if (mpContainer) mpContainer.classList.remove('hidden');
+        return;
+      }
+
+      // CODM is active
+      if (modeBar) modeBar.classList.remove('hidden');
+
+      if (codmMode === 'br') {
+        if (btnBR) {
+          btnBR.className = "flex-1 sm:flex-none px-3.5 py-1.5 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 cursor-pointer bg-purple-600 text-white shadow-md active:scale-95";
+        }
+        if (btnMP) {
+          btnMP.className = "flex-1 sm:flex-none px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)] active:scale-95";
+        }
+        if (mpContainer) mpContainer.classList.add('hidden');
+        if (brContainer) brContainer.classList.remove('hidden');
+        renderCodmBattleRoyale();
+      } else {
+        if (btnMP) {
+          btnMP.className = "flex-1 sm:flex-none px-3.5 py-1.5 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 cursor-pointer bg-amber-500 text-slate-950 shadow-sm active:scale-95";
+        }
+        if (btnBR) {
+          btnBR.className = "flex-1 sm:flex-none px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)] active:scale-95";
+        }
+        if (mpContainer) mpContainer.classList.remove('hidden');
+        if (brContainer) brContainer.classList.add('hidden');
+      }
+    }
+
+    function renderCodmBattleRoyale() {
+      const standings = calculateBrStandings();
+      const completedCount = Object.values(CODM_BR_DATA.rounds).filter(r => r.status === 'completed').length;
+
+      // Update progress badge
+      const progBadge = document.getElementById('brProgressBadge');
+      if (progBadge) {
+        if (completedCount === 8) {
+          progBadge.innerText = '🏆 8 of 8 Complete · Champion Decided';
+          progBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+        } else {
+          progBadge.innerText = `Round ${completedCount} of 8 Complete`;
+          progBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30';
+        }
+      }
+
+      renderBrPodium(standings, completedCount);
+      renderBrStandingsTable(standings);
+      renderBrRoundTabs();
+      renderBrActiveRound();
+    }
+
+    function renderBrPodium(standings, completedCount) {
+      const container = document.getElementById('brPodiumContainer');
+      if (!container) return;
+
+      const top1 = standings[0];
+      const top2 = standings[1];
+      const top3 = standings[2];
+
+      const hasActivity = completedCount > 0 || (top1 && top1.totalPoints > 0);
+
+      if (!hasActivity) {
+        container.innerHTML = `
+          <div class="col-span-1 md:col-span-3 p-6 rounded-3xl bg-[var(--card)] border border-[var(--border)] text-center space-y-2">
+            <div class="text-3xl">🪂 🎮 🏆</div>
+            <h4 class="text-base font-black text-[var(--foreground)] uppercase tracking-wide">8-Round Battle Royale Championship Awaiting Round 1</h4>
+            <p class="text-xs text-[var(--muted-foreground)] max-w-lg mx-auto">
+              7 college squads (CCJPS, CBA, CHM, CLIS, CIT, COED, CAS) are ready to drop. Enter match placements and squad kills per round or use Fast Sim to preview tournament standings.
+            </p>
+            <div class="pt-2 flex items-center justify-center gap-2">
+              <button onclick="openBrScoreModal(1)" class="marshal-only px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-black shadow-md cursor-pointer transition">
+                ✏️ Enter Round 1 Results
+              </button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = `
+        <!-- 2nd Place: 1st Runner Up (Silver) -->
+        <div class="order-2 md:order-1 p-5 rounded-3xl bg-gradient-to-b from-slate-800/40 via-[var(--card)] to-[var(--card)] border border-slate-500/30 shadow-lg flex flex-col justify-between space-y-4">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-500/20 text-slate-300 border border-slate-500/30">
+                🥈 1st Runner Up
+              </span>
+              <span class="text-xs font-mono font-bold text-slate-400">#2 Overall</span>
+            </div>
+            <div class="flex items-center gap-3 pt-1">
+              ${top2.icon ? `<img src="${top2.icon}" alt="${top2.name}" class="w-12 h-12 object-contain rounded-xl p-1 bg-white/5 border border-white/10 shrink-0">` : `<div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center font-black text-sm">${top2.name}</div>`}
+              <div>
+                <h4 class="text-lg font-black text-white">${top2.name}</h4>
+                <p class="text-xs text-[var(--muted-foreground)] font-semibold">${top2.mascot}</p>
+                <p class="text-[10px] text-slate-400 truncate max-w-[170px]">${top2.full}</p>
+              </div>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-[var(--border)] flex items-center justify-between text-xs">
+            <div>
+              <div class="text-[10px] text-[var(--muted-foreground)] uppercase font-bold">Total Points</div>
+              <div class="text-2xl font-black text-slate-200 font-mono">${top2.totalPoints} <span class="text-xs text-slate-400">pts</span></div>
+            </div>
+            <div class="text-right text-[11px] text-[var(--muted-foreground)]">
+              <div>💀 ${top2.totalKills} Kills</div>
+              <div>🎯 ${top2.totalPlacementPoints} Place Pts</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1st Place: Champion (Gold) -->
+        <div class="order-1 md:order-2 p-5 rounded-3xl bg-gradient-to-b from-amber-500/20 via-[var(--card)] to-[var(--card)] border-2 border-amber-500/50 shadow-xl shadow-amber-500/10 flex flex-col justify-between space-y-4 relative overflow-hidden">
+          <div class="absolute -right-6 -top-6 text-7xl opacity-10 select-none pointer-events-none">👑</div>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500 text-slate-950 shadow-xs">
+                🥇 Champion
+              </span>
+              <span class="text-xs font-mono font-black text-amber-400">#1 Leader</span>
+            </div>
+            <div class="flex items-center gap-3 pt-1">
+              ${top1.icon ? `<img src="${top1.icon}" alt="${top1.name}" class="w-14 h-14 object-contain rounded-2xl p-1 bg-amber-500/10 border border-amber-500/30 shrink-0">` : `<div class="w-14 h-14 rounded-2xl bg-amber-500/20 flex items-center justify-center font-black text-base text-amber-300">${top1.name}</div>`}
+              <div>
+                <h4 class="text-xl font-black text-amber-300 flex items-center gap-1.5">
+                  <span>${top1.name}</span>
+                  <span class="text-sm">👑</span>
+                </h4>
+                <p class="text-xs text-amber-200/80 font-bold">${top1.mascot}</p>
+                <p class="text-[10px] text-slate-300 truncate max-w-[190px]">${top1.full}</p>
+              </div>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-amber-500/20 flex items-center justify-between text-xs">
+            <div>
+              <div class="text-[10px] text-amber-400/80 uppercase font-bold">Championship Score</div>
+              <div class="text-3xl font-black text-amber-400 font-mono">${top1.totalPoints} <span class="text-xs text-amber-300 font-bold">PTS</span></div>
+            </div>
+            <div class="text-right text-[11px] text-slate-300 font-medium">
+              <div class="text-emerald-400 font-bold">💀 ${top1.totalKills} Squad Kills</div>
+              <div>🎯 ${top1.totalPlacementPoints} Place Pts</div>
+              <div class="text-amber-300 font-bold text-[10px]">${top1.winsCount} Round Wins 🏆</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3rd Place: 2nd Runner Up (Bronze) -->
+        <div class="order-3 md:order-3 p-5 rounded-3xl bg-gradient-to-b from-amber-900/30 via-[var(--card)] to-[var(--card)] border border-amber-700/30 shadow-lg flex flex-col justify-between space-y-4">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-800/30 text-amber-400 border border-amber-700/40">
+                🥉 2nd Runner Up
+              </span>
+              <span class="text-xs font-mono font-bold text-amber-600">#3 Overall</span>
+            </div>
+            <div class="flex items-center gap-3 pt-1">
+              ${top3.icon ? `<img src="${top3.icon}" alt="${top3.name}" class="w-12 h-12 object-contain rounded-xl p-1 bg-white/5 border border-white/10 shrink-0">` : `<div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center font-black text-sm">${top3.name}</div>`}
+              <div>
+                <h4 class="text-lg font-black text-white">${top3.name}</h4>
+                <p class="text-xs text-[var(--muted-foreground)] font-semibold">${top3.mascot}</p>
+                <p class="text-[10px] text-slate-400 truncate max-w-[170px]">${top3.full}</p>
+              </div>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-[var(--border)] flex items-center justify-between text-xs">
+            <div>
+              <div class="text-[10px] text-[var(--muted-foreground)] uppercase font-bold">Total Points</div>
+              <div class="text-2xl font-black text-amber-200/90 font-mono">${top3.totalPoints} <span class="text-xs text-amber-400/80">pts</span></div>
+            </div>
+            <div class="text-right text-[11px] text-[var(--muted-foreground)]">
+              <div>💀 ${top3.totalKills} Kills</div>
+              <div>🎯 ${top3.totalPlacementPoints} Place Pts</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderBrStandingsTable(standings) {
+      const tbody = document.getElementById('brStandingsTableBody');
+      if (!tbody) return;
+
+      tbody.innerHTML = standings.map((item, idx) => {
+        const rankMedal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${item.rank}`;
+        const rankClass = idx === 0 ? 'text-amber-400 font-black text-base' : idx === 1 ? 'text-slate-300 font-black text-base' : idx === 2 ? 'text-amber-600 font-black text-base' : 'text-[var(--muted-foreground)] font-mono font-bold';
+        const rowBg = idx === 0 ? 'bg-amber-500/5' : idx === 1 ? 'bg-slate-500/5' : idx === 2 ? 'bg-amber-800/5' : '';
+
+        // 8 round cells
+        const roundCells = item.roundHistory.map(rh => {
+          if (rh.status === 'completed' || rh.placement !== null) {
+            const plcText = rh.placement ? `#${rh.placement}` : '-';
+            const tooltip = `${plcText} (${rh.placementPoints} pts) + ${rh.kills} kills = ${rh.totalPoints} pts`;
+            const highlight = rh.placement === 1 ? 'text-amber-400 font-black' : rh.placement <= 3 ? 'text-white font-bold' : 'text-slate-300';
+            return `
+              <td class="py-2.5 px-1.5 text-center font-mono" title="${tooltip}">
+                <div class="${highlight} text-xs leading-none">${rh.totalPoints}</div>
+                <div class="text-[9px] text-[var(--muted-foreground)]">${plcText}</div>
+              </td>
+            `;
+          }
+          return `
+            <td class="py-2.5 px-1.5 text-center font-mono text-slate-600 text-xs">
+              -
+            </td>
+          `;
+        }).join('');
+
+        return `
+          <tr class="${rowBg} hover:bg-[var(--secondary)]/40 transition">
+            <td class="py-3 px-2 text-center ${rankClass}">${rankMedal}</td>
+            <td class="py-3 px-3">
+              <div class="flex items-center gap-2.5">
+                ${item.icon ? `<img src="${item.icon}" alt="${item.name}" class="w-7 h-7 object-contain rounded-md shrink-0">` : `<div class="w-7 h-7 rounded-md bg-white/10 flex items-center justify-center font-bold text-xs">${item.name}</div>`}
+                <div class="truncate">
+                  <div class="font-black text-white text-xs flex items-center gap-1.5">
+                    <span>${item.name}</span>
+                    <span class="text-[10px] font-normal text-[var(--muted-foreground)]">(${item.mascot})</span>
+                  </div>
+                  <div class="text-[10px] text-[var(--muted-foreground)] truncate max-w-[150px]">${item.full}</div>
+                </div>
+              </div>
+            </td>
+            ${roundCells}
+            <td class="py-3 px-2 text-center font-mono font-bold text-rose-400 text-xs">
+              ${item.totalKills}
+            </td>
+            <td class="py-3 px-2 text-center font-mono font-bold text-sky-400 text-xs">
+              ${item.totalPlacementPoints}
+            </td>
+            <td class="py-3 px-3 text-right">
+              <span class="px-2.5 py-1 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-300 font-mono font-black text-xs shadow-xs">
+                ${item.totalPoints} pts
+              </span>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderBrRoundTabs() {
+      const container = document.getElementById('brRoundTabsContainer');
+      if (!container) return;
+
+      let html = '';
+      for (let r = 1; r <= 8; r++) {
+        const rnd = CODM_BR_DATA.rounds[r] || { status: 'pending' };
+        const isSel = (r === selectedBrRound);
+        const isComp = (rnd.status === 'completed');
+
+        const btnClass = isSel
+          ? 'bg-purple-600 text-white font-black shadow-md border-purple-500'
+          : isComp
+          ? 'bg-[var(--secondary)]/80 text-white font-bold hover:bg-[var(--secondary)] border-[var(--border)]'
+          : 'bg-[var(--card)] text-[var(--muted-foreground)] hover:text-white border-[var(--border)]';
+
+        const statusDot = isComp ? '<span class="text-emerald-400">●</span>' : '<span class="text-slate-500">○</span>';
+
+        html += `
+          <button type="button" onclick="selectBrRound(${r})" class="px-3 py-1.5 rounded-xl border text-xs transition cursor-pointer flex items-center gap-1.5 shrink-0 ${btnClass} active:scale-95">
+            ${statusDot}
+            <span>Round ${r}</span>
+          </button>
+        `;
+      }
+      container.innerHTML = html;
+    }
+
+    function selectBrRound(rndNum) {
+      selectedBrRound = parseInt(rndNum, 10) || 1;
+      const btnEdit = document.getElementById('btnEditSelectedRoundText');
+      if (btnEdit) btnEdit.innerText = `Edit Round ${selectedBrRound}`;
+      renderBrRoundTabs();
+      renderBrActiveRound();
+    }
+
+    function renderBrActiveRound() {
+      const container = document.getElementById('brActiveRoundContainer');
+      if (!container) return;
+
+      const rnd = CODM_BR_DATA.rounds[selectedBrRound] || { status: 'pending', results: {} };
+
+      // Rank the 7 squads for this selected round
+      const roundSquads = CODM_BR_TEAMS.map(teamId => {
+        const college = DEFAULT_TEAMS.find(t => t.name === teamId) || { name: teamId, full: teamId, mascot: 'Team' };
+        const res = (rnd.results && rnd.results[teamId]) ? rnd.results[teamId] : { placement: null, kills: 0 };
+        const plc = (res.placement !== null && res.placement !== undefined && res.placement !== '') ? parseInt(res.placement, 10) : null;
+        const kls = parseInt(res.kills || 0, 10) || 0;
+        const plcPts = (plc && BR_PLACEMENT_POINTS[plc]) ? BR_PLACEMENT_POINTS[plc] : 0;
+        const totPts = plcPts + kls;
+        return {
+          id: teamId,
+          name: college.name,
+          mascot: college.mascot,
+          full: college.full,
+          icon: TEAM_ICONS[teamId] || '',
+          placement: plc,
+          kills: kls,
+          placementPoints: plcPts,
+          totalPoints: totPts
+        };
+      });
+
+      // Sort by placement (1st to 7th). If not placed, sort by teamId
+      roundSquads.sort((a, b) => {
+        if (a.placement && b.placement) return a.placement - b.placement;
+        if (a.placement) return -1;
+        if (b.placement) return 1;
+        return 0;
+      });
+
+      container.innerHTML = `
+        <div class="overflow-x-auto pt-1">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="border-b border-[var(--border)] text-[10px] font-black uppercase text-[var(--muted-foreground)] tracking-wider">
+                <th class="py-2.5 px-3 w-28">Round Placement</th>
+                <th class="py-2.5 px-3 min-w-[180px]">College Squad</th>
+                <th class="py-2.5 px-3 text-center">Placement Points</th>
+                <th class="py-2.5 px-3 text-center">Squad Kills</th>
+                <th class="py-2.5 px-3 text-right">Round Total</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[var(--border)]/50 font-medium">
+              ${roundSquads.map(sq => {
+                const plcBadge = sq.placement === 1
+                  ? '<span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-black">🥇 1st Place</span>'
+                  : sq.placement === 2
+                  ? '<span class="px-2.5 py-0.5 rounded-full bg-slate-500/20 text-slate-300 border border-slate-500/40 font-black">🥈 2nd Place</span>'
+                  : sq.placement === 3
+                  ? '<span class="px-2.5 py-0.5 rounded-full bg-amber-800/25 text-amber-400 border border-amber-700/40 font-black">🥉 3rd Place</span>'
+                  : sq.placement
+                  ? `<span class="px-2.5 py-0.5 rounded-full bg-white/5 text-slate-300 font-bold border border-white/10 font-mono">#${sq.placement} Place</span>`
+                  : '<span class="text-slate-600 font-mono">- Pending -</span>';
+
+                return `
+                  <tr class="hover:bg-[var(--secondary)]/40 transition">
+                    <td class="py-3 px-3">${plcBadge}</td>
+                    <td class="py-3 px-3">
+                      <div class="flex items-center gap-2.5">
+                        ${sq.icon ? `<img src="${sq.icon}" alt="${sq.name}" class="w-6 h-6 object-contain rounded shrink-0">` : `<div class="w-6 h-6 rounded bg-white/10 flex items-center justify-center font-bold text-[10px]">${sq.name}</div>`}
+                        <div>
+                          <span class="font-black text-white">${sq.name}</span>
+                          <span class="text-[11px] text-[var(--muted-foreground)]"> · ${sq.mascot}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="py-3 px-3 text-center font-mono font-bold text-sky-400 text-xs">
+                      ${sq.placement ? `${sq.placementPoints} pts` : '-'}
+                    </td>
+                    <td class="py-3 px-3 text-center font-mono font-bold text-rose-400 text-xs">
+                      ${sq.placement !== null ? `💀 ${sq.kills}` : '-'}
+                    </td>
+                    <td class="py-3 px-3 text-right font-mono font-black text-xs text-purple-300">
+                      ${sq.placement !== null ? `${sq.totalPoints} pts` : '-'}
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function openBrScoreModal(roundNum) {
+      if (!canScore('codm')) {
+        notifyAuthRequired('marshal');
+        return;
+      }
+      activeBrModalRound = parseInt(roundNum || selectedBrRound || 1, 10);
+      const modal = document.getElementById('codmBrScoreModal');
+      const select = document.getElementById('brModalRoundSelect');
+      const badge = document.getElementById('brModalRoundBadge');
+      if (select) select.value = activeBrModalRound;
+      if (badge) badge.innerText = `Round ${activeBrModalRound}`;
+
+      renderBrModalTeamRows();
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeBrScoreModal() {
+      const modal = document.getElementById('codmBrScoreModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function onBrModalRoundChange(val) {
+      activeBrModalRound = parseInt(val, 10) || 1;
+      const badge = document.getElementById('brModalRoundBadge');
+      if (badge) badge.innerText = `Round ${activeBrModalRound}`;
+      renderBrModalTeamRows();
+    }
+
+    function renderBrModalTeamRows() {
+      const container = document.getElementById('brModalTeamRowsContainer');
+      if (!container) return;
+
+      const rnd = CODM_BR_DATA.rounds[activeBrModalRound] || { results: {} };
+
+      container.innerHTML = CODM_BR_TEAMS.map(teamId => {
+        const college = DEFAULT_TEAMS.find(t => t.name === teamId) || { name: teamId, mascot: 'Team' };
+        const res = (rnd.results && rnd.results[teamId]) ? rnd.results[teamId] : { placement: null, kills: 0 };
+        const curPlc = (res.placement !== null && res.placement !== undefined) ? res.placement : '';
+        const curKills = parseInt(res.kills || 0, 10);
+
+        return `
+          <div class="p-2.5 rounded-2xl bg-[var(--card-surface)] border border-[var(--border)] flex flex-col sm:grid sm:grid-cols-12 gap-2.5 items-center">
+            <!-- College Info -->
+            <div class="col-span-5 flex items-center gap-2.5 w-full">
+              ${TEAM_ICONS[teamId] ? `<img src="${TEAM_ICONS[teamId]}" alt="${teamId}" class="w-7 h-7 object-contain rounded shrink-0">` : `<div class="w-7 h-7 rounded bg-white/10 flex items-center justify-center font-bold text-xs">${teamId}</div>`}
+              <div class="truncate">
+                <div class="font-black text-white text-xs">${teamId}</div>
+                <div class="text-[10px] text-[var(--muted-foreground)]">${college.mascot}</div>
+              </div>
+            </div>
+
+            <!-- Placement Select -->
+            <div class="col-span-3 w-full">
+              <select id="brPlacement_${teamId}" onchange="updateBrModalCalculations()" class="w-full px-2.5 py-1.5 rounded-xl bg-[var(--card)] border border-[var(--border)] text-xs font-bold text-white focus:outline-hidden focus:border-purple-500 cursor-pointer">
+                <option value="">-- Placement --</option>
+                <option value="1" ${curPlc == 1 ? 'selected' : ''}>1st (12 pts)</option>
+                <option value="2" ${curPlc == 2 ? 'selected' : ''}>2nd (10 pts)</option>
+                <option value="3" ${curPlc == 3 ? 'selected' : ''}>3rd (8 pts)</option>
+                <option value="4" ${curPlc == 4 ? 'selected' : ''}>4th (6 pts)</option>
+                <option value="5" ${curPlc == 5 ? 'selected' : ''}>5th (4 pts)</option>
+                <option value="6" ${curPlc == 6 ? 'selected' : ''}>6th (2 pts)</option>
+                <option value="7" ${curPlc == 7 ? 'selected' : ''}>7th (1 pt)</option>
+              </select>
+            </div>
+
+            <!-- Squad Kills Counter -->
+            <div class="col-span-2 flex items-center gap-1 justify-center w-full">
+              <button type="button" onclick="stepBrKills('${teamId}', -1)" class="w-7 h-7 rounded-lg bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-white font-black text-xs cursor-pointer flex items-center justify-center">-</button>
+              <input type="number" id="brKills_${teamId}" value="${curKills}" min="0" max="99" oninput="updateBrModalCalculations()" class="w-12 px-1 py-1 rounded-lg bg-[var(--card)] border border-[var(--border)] text-center text-xs font-mono font-bold text-rose-400 focus:outline-hidden">
+              <button type="button" onclick="stepBrKills('${teamId}', 1)" class="w-7 h-7 rounded-lg bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-white font-black text-xs cursor-pointer flex items-center justify-center">+</button>
+            </div>
+
+            <!-- Calculated Points Badge -->
+            <div class="col-span-2 text-right w-full sm:w-auto">
+              <span id="brPts_${teamId}" class="px-2 py-0.5 rounded-lg bg-purple-500/20 text-purple-300 font-mono font-black text-xs border border-purple-500/30">
+                0 pts
+              </span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      updateBrModalCalculations();
+    }
+
+    function stepBrKills(teamId, delta) {
+      const input = document.getElementById(`brKills_${teamId}`);
+      if (!input) return;
+      let val = parseInt(input.value || 0, 10) + delta;
+      if (val < 0) val = 0;
+      input.value = val;
+      updateBrModalCalculations();
+    }
+
+    function updateBrModalCalculations() {
+      const placementsMap = {};
+      let placedCount = 0;
+      let hasDuplicates = false;
+      const duplicates = [];
+
+      CODM_BR_TEAMS.forEach(teamId => {
+        const plcSelect = document.getElementById(`brPlacement_${teamId}`);
+        const killsInput = document.getElementById(`brKills_${teamId}`);
+        const ptsBadge = document.getElementById(`brPts_${teamId}`);
+
+        const plc = (plcSelect && plcSelect.value) ? parseInt(plcSelect.value, 10) : null;
+        const kls = (killsInput && killsInput.value) ? parseInt(killsInput.value, 10) : 0;
+        const plcPts = (plc && BR_PLACEMENT_POINTS[plc]) ? BR_PLACEMENT_POINTS[plc] : 0;
+        const totPts = plcPts + kls;
+
+        if (ptsBadge) {
+          ptsBadge.innerText = `${totPts} pts`;
+        }
+
+        if (plc) {
+          placedCount++;
+          if (placementsMap[plc]) {
+            hasDuplicates = true;
+            if (!duplicates.includes(plc)) duplicates.push(plc);
+          } else {
+            placementsMap[plc] = teamId;
+          }
+        }
+      });
+
+      const alertBanner = document.getElementById('brModalValidationAlert');
+      const alertText = document.getElementById('brModalValidationText');
+
+      if (alertBanner && alertText) {
+        if (hasDuplicates) {
+          alertBanner.className = "p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 bg-rose-500/10 border border-rose-500/30 text-rose-400";
+          alertText.innerText = `⚠️ Duplicate placement: Multiple teams have #${duplicates.join(', #')}. Each team must have a unique rank (1st to 7th).`;
+        } else if (placedCount === 7) {
+          alertBanner.className = "p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400";
+          alertText.innerText = `✅ Perfect! All 7 placements (1st to 7th) are uniquely assigned.`;
+        } else {
+          alertBanner.className = "p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-400";
+          alertText.innerText = `ℹ️ ${placedCount} of 7 college placements assigned so far.`;
+        }
+      }
+    }
+
+    function saveBrRoundFromModal() {
+      if (!canScore('codm')) {
+        notifyAuthRequired('marshal');
+        return;
+      }
+
+      // Check duplicates
+      const seen = {};
+      let hasDuplicates = false;
+      let allPlaced = true;
+
+      CODM_BR_TEAMS.forEach(teamId => {
+        const plcSelect = document.getElementById(`brPlacement_${teamId}`);
+        const plc = (plcSelect && plcSelect.value) ? parseInt(plcSelect.value, 10) : null;
+        if (plc) {
+          if (seen[plc]) hasDuplicates = true;
+          seen[plc] = true;
+        } else {
+          allPlaced = false;
+        }
+      });
+
+      if (hasDuplicates) {
+        showToast('⚠️ Duplicate placement detected. Each college must have a unique placement 1st to 7th.');
+        return;
+      }
+
+      // Save results
+      const results = {};
+      CODM_BR_TEAMS.forEach(teamId => {
+        const plcSelect = document.getElementById(`brPlacement_${teamId}`);
+        const killsInput = document.getElementById(`brKills_${teamId}`);
+        const plc = (plcSelect && plcSelect.value) ? parseInt(plcSelect.value, 10) : null;
+        const kls = (killsInput && killsInput.value) ? Math.max(0, parseInt(killsInput.value, 10) || 0) : 0;
+        const plcPts = (plc && BR_PLACEMENT_POINTS[plc]) ? BR_PLACEMENT_POINTS[plc] : 0;
+        const totPts = plcPts + kls;
+
+        results[teamId] = {
+          team: teamId,
+          placement: plc,
+          kills: kls,
+          placementPoints: plcPts,
+          totalPoints: totPts
+        };
+      });
+
+      CODM_BR_DATA.rounds[activeBrModalRound] = {
+        roundNum: activeBrModalRound,
+        status: allPlaced ? 'completed' : 'in_progress',
+        results: results
+      };
+
+      saveBrDataToStorage();
+      closeBrScoreModal();
+      selectBrRound(activeBrModalRound);
+      renderCodmBattleRoyale();
+
+      showToast(`✅ Round ${activeBrModalRound} scores saved successfully!`);
+
+      const completedCount = Object.values(CODM_BR_DATA.rounds).filter(r => r.status === 'completed').length;
+      if (completedCount === 8) {
+        triggerConfetti();
+      }
+    }
+
+    function clearBrCurrentRoundModal() {
+      if (!canScore('codm')) {
+        notifyAuthRequired('marshal');
+        return;
+      }
+
+      CODM_BR_DATA.rounds[activeBrModalRound] = {
+        roundNum: activeBrModalRound,
+        status: 'pending',
+        results: {}
+      };
+      CODM_BR_TEAMS.forEach(teamId => {
+        CODM_BR_DATA.rounds[activeBrModalRound].results[teamId] = {
+          team: teamId,
+          placement: null,
+          kills: 0,
+          placementPoints: 0,
+          totalPoints: 0
+        };
+      });
+
+      saveBrDataToStorage();
+      renderBrModalTeamRows();
+      renderCodmBattleRoyale();
+      showToast(`🗑️ Round ${activeBrModalRound} reset to pending.`);
+    }
+
+    function confirmSimulateBr() {
+      if (!isAdmin('codm')) {
+        notifyAuthRequired('admin');
+        return;
+      }
+      openActionConfirmModal('simulate_br');
+    }
+
+    function simulateCodmBrTournament() {
+      if (!isAdmin('codm')) {
+        notifyAuthRequired('admin');
+        return;
+      }
+
+      for (let r = 1; r <= 8; r++) {
+        // Randomly shuffle teams for unique 1st to 7th placement
+        const shuffled = [...CODM_BR_TEAMS].sort(() => Math.random() - 0.5);
+        const results = {};
+
+        shuffled.forEach((teamId, idx) => {
+          const placement = idx + 1; // 1 to 7
+          const placementPoints = BR_PLACEMENT_POINTS[placement];
+          // Realistic squad kills based on placement
+          let kills = 0;
+          if (placement === 1) kills = Math.floor(Math.random() * 8) + 5; // 5-12 kills
+          else if (placement === 2) kills = Math.floor(Math.random() * 6) + 4; // 4-9 kills
+          else if (placement === 3) kills = Math.floor(Math.random() * 5) + 3; // 3-7 kills
+          else kills = Math.floor(Math.random() * 5); // 0-4 kills
+
+          results[teamId] = {
+            team: teamId,
+            placement: placement,
+            kills: kills,
+            placementPoints: placementPoints,
+            totalPoints: placementPoints + kills
+          };
+        });
+
+        CODM_BR_DATA.rounds[r] = {
+          roundNum: r,
+          status: 'completed',
+          results: results
+        };
+      }
+
+      saveBrDataToStorage();
+      renderCodmBattleRoyale();
+      triggerConfetti();
+      showToast('🏆 All 8 CODM Battle Royale rounds simulated successfully!');
+    }
+
+    function confirmResetBrScores() {
+      if (!isAdmin('codm')) {
+        notifyAuthRequired('admin');
+        return;
+      }
+      openActionConfirmModal('reset_br_scores');
+    }
+
+    function resetCodmBrScores() {
+      if (!isAdmin('codm')) {
+        notifyAuthRequired('admin');
+        return;
+      }
+      CODM_BR_DATA = getDefaultBrData();
+      saveBrDataToStorage();
+      renderCodmBattleRoyale();
+      showToast('🔄 Battle Royale scores reset to Round 1.');
+    }
+
+    function printBrStandings() {
+      const standings = calculateBrStandings();
+      const completedCount = Object.values(CODM_BR_DATA.rounds).filter(r => r.status === 'completed').length;
+
+      const printWin = window.open('', '_blank');
+      if (!printWin) {
+        showToast('⚠️ Please allow popups to print tournament standings.');
+        return;
+      }
+
+      printWin.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>CODM Battle Royale Championship Standings - TCC 2026</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 24px; color: #0f172a; }
+            h1 { font-size: 20px; margin: 0 0 4px 0; }
+            h2 { font-size: 14px; color: #64748b; margin: 0 0 16px 0; }
+            table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 12px; }
+            th, td { border: 1px solid #cbd5e1; padding: 6px 8px; text-align: center; }
+            th { background: #f1f5f9; font-weight: bold; }
+            td.left { text-align: left; }
+            .champ { background: #fef3c7; font-weight: bold; }
+            .footer { margin-top: 24px; font-size: 10px; color: #94a3b8; display: flex; justify-content: space-between; }
+          </style>
+        </head>
+        <body>
+          <h1>TCC ESPORTS INTRAMURALS 2026</h1>
+          <h2>Call of Duty: Mobile · Official 8-Round Battle Royale Cumulative Standings (${completedCount} of 8 Rounds Complete)</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th class="left">College Squad</th>
+                <th>R1</th><th>R2</th><th>R3</th><th>R4</th><th>R5</th><th>R6</th><th>R7</th><th>R8</th>
+                <th>Total Kills</th>
+                <th>Place Pts</th>
+                <th>Total Points</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${standings.map((s, idx) => `
+                <tr class="${idx === 0 ? 'champ' : ''}">
+                  <td><b>#${s.rank}</b></td>
+                  <td class="left"><b>${s.name}</b> (${s.mascot}) - ${s.full}</td>
+                  ${s.roundHistory.map(r => `<td>${r.placement !== null ? `${r.totalPoints} (#${r.placement})` : '-'}</td>`).join('')}
+                  <td><b>${s.totalKills}</b></td>
+                  <td><b>${s.totalPlacementPoints}</b></td>
+                  <td><b>${s.totalPoints} pts</b></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <div class="footer">
+            <span>Points Table: 1st=12 · 2nd=10 · 3rd=8 · 4th=6 · 5th=4 · 6th=2 · 7th=1 (+1 pt/kill)</span>
+            <span>Printed on: ${new Date().toLocaleString()}</span>
+          </div>
+          <script>window.onload = function() { window.print(); }<\/script>
+        </body>
+        </html>
+      `);
+      printWin.document.close();
+    }
+
     // --- 13. SESSION MANAGEMENT & ESPORT-SCOPED ROLE ACCESS CONTROL ---
     // Accounts: Scoped to 'mlbb', 'codm', or 'all' (Super Admin / Director).
     // Marshals: Score reporting only within their assigned esport.
@@ -8538,6 +9707,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
           if (scopeNotice) scopeNotice.classList.add('hidden');
         }
       }
+
+      if (typeof updateCodmModeUI === 'function') updateCodmModeUI();
     }
 
     function openAdminLoginModal() {
@@ -8579,11 +9750,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
       }
     }
 
-    function submitRoleLogin() {
+    function submitRoleLogin(optionalPin) {
       const input = document.getElementById('adminPinInput');
       const err = document.getElementById('adminPinError');
       const errText = document.getElementById('adminPinErrorText');
-      const pin = input ? input.value.trim().toLowerCase() : '';
+      const pin = (optionalPin || (input ? input.value : '')).trim().toLowerCase();
 
       if (!pin) {
         if (err) err.classList.remove('hidden');
@@ -8614,14 +9785,14 @@ Check your Browserslist config to be sure that your targets are set up correctly
         openEsportDashboard('mlbb');
         showToast(`${matched.badge} Logged in as ${matched.name} · Loaded Mobile Legends Dashboard`);
       } else if (matched.scope === 'codm') {
-        openEsportDashboard('codm');
+        openEsportDashboard('codm', codmMode || 'mp');
         showToast(`${matched.badge} Logged in as ${matched.name} · Loaded Call of Duty: Mobile Dashboard`);
       } else {
         // All games (Tournament Director / General Marshal)
         const hub = document.getElementById('esportLandingHub');
         const isHubVisible = hub && !hub.classList.contains('hidden');
         if (isHubVisible) {
-          openEsportDashboard(currentEsport || 'mlbb');
+          openEsportDashboard(currentEsport || 'mlbb', codmMode || 'mp');
         }
         showToast(`${matched.badge} Logged in as ${matched.name} (All Tournaments Authorized)`);
       }
@@ -8642,7 +9813,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
     // Legacy wrappers for backward compatibility
     function unlockAdminMode() { setRole('admin'); }
     function lockAdminMode() { setRole('viewer'); }
-    function submitAdminPin() { submitRoleLogin(); }
+    function submitAdminPin(optionalPin) { submitRoleLogin(optionalPin); }
 
     // --- 14. REAL-TIME CLOUD SYNC (FIREBASE REALTIME DATABASE) ---
     // When a Firebase URL is set here, all devices (spectator phones, marshal PCs, projector screens)
