@@ -1343,8 +1343,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
         <button type="button" onclick="closeBrScoreModal()" class="w-8 h-8 rounded-xl bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-[var(--muted-foreground)] hover:text-[var(--foreground)] flex items-center justify-center text-xs font-black transition cursor-pointer" aria-label="Close modal">✕</button>
       </div>
 
-      <!-- Round Selector & Points Scheme Reminder -->
-      <div class="p-3 rounded-2xl bg-[var(--secondary)]/40 border border-[var(--border)] flex flex-col sm:flex-row items-center justify-between gap-3">
+      <!-- Round Selector -->
+      <div class="p-3 rounded-2xl bg-[var(--secondary)]/40 border border-[var(--border)] flex items-center justify-between gap-3">
         <div class="flex items-center gap-2 w-full sm:w-auto">
           <label for="brModalRoundSelect" class="text-xs font-bold text-[var(--muted-foreground)] uppercase shrink-0">Select Round:</label>
           <select id="brModalRoundSelect" onchange="onBrModalRoundChange(this.value)" class="px-3 py-1.5 rounded-xl bg-[var(--card)] border border-[var(--border)] text-xs font-black text-[var(--foreground)] focus:outline-hidden focus:border-amber-500 cursor-pointer">
@@ -1357,10 +1357,6 @@ Check your Browserslist config to be sure that your targets are set up correctly
             <option value="7">Round 7</option>
             <option value="8">Round 8</option>
           </select>
-        </div>
-        <div class="text-[11px] text-[var(--muted-foreground)] flex items-center gap-1.5 flex-wrap">
-          <span class="font-bold text-amber-400">Points Scale:</span>
-          <span class="font-mono">1st=12 · 2nd=10 · 3rd=8 · 4th=6 · 5th=4 · 6th=2 · 7th=1 (+1 pt/kill)</span>
         </div>
       </div>
 
