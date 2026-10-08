@@ -94,13 +94,13 @@ try:
     assert_true(teams_count == 7, "7 Competing Colleges in CODM BR")
 
     # Assign Placements and Kills for Round 1:
-    # CCJPS: 1st (12 pts) + 5 kills = 17 pts
-    # CBA:   2nd (10 pts) + 4 kills = 14 pts
-    # CHM:   3rd (8 pts)  + 3 kills = 11 pts
-    # CLIS:  4th (6 pts)  + 2 kills = 8 pts
+    # CCJPS: 1st (10 pts) + 5 kills = 15 pts
+    # CBA:   2nd (8 pts)  + 4 kills = 12 pts
+    # CHM:   3rd (6 pts)  + 3 kills = 9 pts
+    # CLIS:  4th (5 pts)  + 2 kills = 7 pts
     # CIT:   5th (4 pts)  + 1 kill  = 5 pts
-    # COED:  6th (2 pts)  + 0 kills = 2 pts
-    # CAS:   7th (1 pt)   + 0 kills = 1 pt
+    # COED:  6th (3 pts)  + 0 kills = 3 pts
+    # CAS:   7th (2 pts)  + 0 kills = 2 pts
     driver.execute_script("""
       document.getElementById('brPlacement_CCJPS').value = '1';
       document.getElementById('brKills_CCJPS').value = '5';
@@ -129,10 +129,10 @@ try:
 
     # Check calculated point badges in modal
     ccjps_pts_badge = driver.execute_script("return document.getElementById('brPts_CCJPS').innerText;")
-    assert_true(ccjps_pts_badge == "17 pts", f"CCJPS points badge is 17 pts (got {ccjps_pts_badge})")
+    assert_true(ccjps_pts_badge == "15 pts", f"CCJPS points badge is 15 pts (got {ccjps_pts_badge})")
 
     cba_pts_badge = driver.execute_script("return document.getElementById('brPts_CBA').innerText;")
-    assert_true(cba_pts_badge == "14 pts", f"CBA points badge is 14 pts (got {cba_pts_badge})")
+    assert_true(cba_pts_badge == "12 pts", f"CBA points badge is 12 pts (got {cba_pts_badge})")
 
     # Check duplicate detection validation alert
     driver.execute_script("""
@@ -165,10 +165,10 @@ try:
 
     # Verify Leaderboard standings after Round 1
     standings = driver.execute_script("return calculateBrStandings();")
-    assert_true(standings[0]['id'] == 'CCJPS' and standings[0]['totalPoints'] == 17, f"Rank 1 is CCJPS with 17 pts")
-    assert_true(standings[1]['id'] == 'CBA' and standings[1]['totalPoints'] == 14, f"Rank 2 is CBA with 14 pts")
-    assert_true(standings[2]['id'] == 'CHM' and standings[2]['totalPoints'] == 11, f"Rank 3 is CHM with 11 pts")
-    assert_true(standings[6]['id'] == 'CAS' and standings[6]['totalPoints'] == 1, f"Rank 7 is CAS with 1 pt")
+    assert_true(standings[0]['id'] == 'CCJPS' and standings[0]['totalPoints'] == 15, f"Rank 1 is CCJPS with 15 pts")
+    assert_true(standings[1]['id'] == 'CBA' and standings[1]['totalPoints'] == 12, f"Rank 2 is CBA with 12 pts")
+    assert_true(standings[2]['id'] == 'CHM' and standings[2]['totalPoints'] == 9, f"Rank 3 is CHM with 9 pts")
+    assert_true(standings[6]['id'] == 'CAS' and standings[6]['totalPoints'] == 2, f"Rank 7 is CAS with 2 pts")
     # Verify Podium cards in DOM after 1 round (in-progress)
     podium_r1_html = driver.execute_script("return document.getElementById('brPodiumContainer').innerHTML;")
     assert_true("1st" in podium_r1_html, "1st place shown in podium when rounds are in progress")

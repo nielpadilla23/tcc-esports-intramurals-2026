@@ -763,7 +763,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
           CODM 7-College Battle Royale
         </h2>
         <p class="text-xs text-[var(--muted-foreground)] max-w-xl">
-          Official 8-Round competitive series. Each round awards placement points (1st: 12, 2nd: 10, 3rd: 8, 4th: 6, 5th: 4, 6th: 2, 7th: 1) plus 1 point per squad kill. Final placements decided by cumulative points.
+          Official 8-Round competitive series. Each round awards placement points (1st: 10, 2nd: 8, 3rd: 6, 4th: 5, 5th: 4, 6th: 3, 7th: 2) plus 1 point per squad kill. Final placements decided by cumulative points.
         </p>
       </div>
 
@@ -799,7 +799,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
           <p id="brStandingsSubtext" class="text-xs text-[var(--muted-foreground)]">Official tournament placements ranked by Total Points (Placement Points + Squad Kills) across all 8 rounds.</p>
         </div>
         <div class="text-[11px] text-[var(--muted-foreground)] font-mono font-bold">
-          Points Table: 1st=12 · 2nd=10 · 3rd=8 · 4th=6 · 5th=4 · 6th=2 · 7th=1
+          Points Table: 1st=10 · 2nd=8 · 3rd=6 · 4th=5 · 5th=4 · 6th=3 · 7th=2
         </div>
       </div>
 
@@ -8500,7 +8500,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
     try { codmMode = localStorage.getItem('tcc_codm_mode_v1') || 'mp'; } catch(e) {}
 
     const CODM_BR_TEAMS = ['CCJPS', 'CBA', 'CHM', 'CLIS', 'CIT', 'COED', 'CAS'];
-    const BR_PLACEMENT_POINTS = { 1: 12, 2: 10, 3: 8, 4: 6, 5: 4, 6: 2, 7: 1 };
+    const BR_PLACEMENT_POINTS = { 1: 10, 2: 8, 3: 6, 4: 5, 5: 4, 6: 3, 7: 2 };
     let selectedBrRound = 1;
     let activeBrModalRound = 1;
 
@@ -9128,13 +9128,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
             <div class="col-span-3 w-full">
               <select id="brPlacement_${teamId}" onchange="updateBrModalCalculations()" class="w-full px-2.5 py-1.5 rounded-xl bg-[var(--card)] border border-[var(--border)] text-xs font-bold text-white focus:outline-hidden focus:border-purple-500 cursor-pointer">
                 <option value="">-- Placement --</option>
-                <option value="1" ${curPlc == 1 ? 'selected' : ''}>1st (12 pts)</option>
-                <option value="2" ${curPlc == 2 ? 'selected' : ''}>2nd (10 pts)</option>
-                <option value="3" ${curPlc == 3 ? 'selected' : ''}>3rd (8 pts)</option>
-                <option value="4" ${curPlc == 4 ? 'selected' : ''}>4th (6 pts)</option>
+                <option value="1" ${curPlc == 1 ? 'selected' : ''}>1st (10 pts)</option>
+                <option value="2" ${curPlc == 2 ? 'selected' : ''}>2nd (8 pts)</option>
+                <option value="3" ${curPlc == 3 ? 'selected' : ''}>3rd (6 pts)</option>
+                <option value="4" ${curPlc == 4 ? 'selected' : ''}>4th (5 pts)</option>
                 <option value="5" ${curPlc == 5 ? 'selected' : ''}>5th (4 pts)</option>
-                <option value="6" ${curPlc == 6 ? 'selected' : ''}>6th (2 pts)</option>
-                <option value="7" ${curPlc == 7 ? 'selected' : ''}>7th (1 pt)</option>
+                <option value="6" ${curPlc == 6 ? 'selected' : ''}>6th (3 pts)</option>
+                <option value="7" ${curPlc == 7 ? 'selected' : ''}>7th (2 pts)</option>
               </select>
             </div>
 
@@ -9449,7 +9449,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
             </tbody>
           </table>
           <div class="footer">
-            <span>Points Table: 1st=12 · 2nd=10 · 3rd=8 · 4th=6 · 5th=4 · 6th=2 · 7th=1 (+1 pt/kill)</span>
+            <span>Points Table: 1st=10 · 2nd=8 · 3rd=6 · 4th=5 · 5th=4 · 6th=3 · 7th=2 (+1 pt/kill)</span>
             <span>Printed on: ${new Date().toLocaleString()}</span>
           </div>
           <script>window.onload = function() { window.print(); }<\/script>
