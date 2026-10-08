@@ -277,6 +277,54 @@ Check your Browserslist config to be sure that your targets are set up correctly
     }
     .recent-match-card { animation: recentMatchGlow 4s infinite ease-in-out; }
 
+    /* 3D Coin Toss Randomizer Styling */
+    .coin-flip-container {
+      perspective: 1000px;
+    }
+    .coin-flip-card {
+      width: 130px;
+      height: 130px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 1.8s cubic-bezier(0.2, 0.8, 0.25, 1.15);
+      border-radius: 9999px;
+      margin: 0 auto;
+      box-shadow: 0 12px 30px -4px rgba(245, 158, 11, 0.45), 0 8px 16px -6px rgba(0, 0, 0, 0.6);
+    }
+    .coin-face {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 9999px;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 4px solid #fef08a;
+      user-select: none;
+    }
+    .coin-face-heads {
+      background: radial-gradient(circle at 35% 35%, #fef08a 0%, #eab308 50%, #a16207 100%);
+      transform: rotateY(0deg);
+      color: #451a03;
+    }
+    .coin-face-tails {
+      background: radial-gradient(circle at 35% 35%, #fed7aa 0%, #ea580c 50%, #7c2d12 100%);
+      transform: rotateY(180deg);
+      color: #451a03;
+      border-color: #ffedd5;
+    }
+    .coin-face-rim {
+      position: absolute;
+      inset: 4px;
+      border-radius: 9999px;
+      border: 2px dashed rgba(255, 255, 255, 0.45);
+      pointer-events: none;
+    }
+
   </style>
   <!-- Real-Time Cloud Sync (Firebase Compat CDN - 100% Zero-Install) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -528,6 +576,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
         <!-- Tournament Results Database Viewer -->
         <button id="btnHeaderDatabase" onclick="openResultsDatabaseModal()" title="Official Tournament Results Database & Archives" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-sky-500/40 bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 text-xs font-black transition cursor-pointer shadow-xs active:scale-95">
           <span>🗄️</span> <span class="hidden sm:inline">Database</span>
+        </button>
+
+        <!-- Referee & Table Marshal Coin Toss Randomizer (Marshal/Admin Only) -->
+        <button id="btnHeaderCoinToss" onclick="openCoinTossModal()" title="Referee & Table Marshal Coin Toss Randomizer (Heads / Tails)" class="marshal-only flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-black transition cursor-pointer shadow-xs active:scale-95">
+          <span class="text-sm">🪙</span> <span class="hidden sm:inline">Coin Toss</span>
         </button>
 
         <!-- Admin / Marshal Auth Status & Role Switcher Container -->
@@ -1009,7 +1062,12 @@ Check your Browserslist config to be sure that your targets are set up correctly
           </div>
           <p id="modalMatchBestOf" class="text-[11px] sm:text-xs text-[var(--muted-foreground)]">Best-of-3 Series · First to 2 Wins</p>
         </div>
-        <button onclick="closeScoreModal()" class="text-[var(--muted-foreground)] hover:text-[var(--foreground)] text-lg cursor-pointer p-1">✕</button>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="openCoinTossModalFromMatch()" title="Launch Coin Toss for this match" class="marshal-only px-2 py-1 rounded-lg border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-bold transition flex items-center gap-1 cursor-pointer active:scale-95">
+            <span>🪙</span> <span class="hidden sm:inline">Coin Toss</span>
+          </button>
+          <button onclick="closeScoreModal()" class="text-[var(--muted-foreground)] hover:text-[var(--foreground)] text-lg cursor-pointer p-1">✕</button>
+        </div>
       </div>
 
       <!-- Live Series Status Banner -->
@@ -1083,6 +1141,120 @@ Check your Browserslist config to be sure that your targets are set up correctly
           </button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ==================== REFEREE & TABLE MARSHAL COIN TOSS RANDOMIZER MODAL ==================== -->
+  <div id="coinTossModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 hidden select-none">
+    <div class="bg-[var(--card)] border border-amber-500/30 rounded-3xl p-4 sm:p-6 max-w-md w-full shadow-2xl space-y-4 animate-scale-up max-h-[94vh] overflow-y-auto">
+      
+      <!-- Modal Header -->
+      <div class="flex items-start justify-between pb-3 border-b border-[var(--border)]">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded-md text-[10px] font-mono font-black bg-amber-500/20 text-amber-400 border border-amber-500/30 uppercase">Marshal Tool</span>
+            <h3 class="text-base font-black text-[var(--foreground)] flex items-center gap-1.5">
+              <span>🪙</span> Coin Toss Randomizer
+            </h3>
+          </div>
+          <p class="text-xs text-[var(--muted-foreground)]">Cryptographic 50/50 Randomizer · Side Selection & First Pick</p>
+        </div>
+        <button onclick="closeCoinTossModal()" class="text-[var(--muted-foreground)] hover:text-[var(--foreground)] text-lg cursor-pointer p-1">✕</button>
+      </div>
+
+      <!-- Competing Teams Assignment (Optional) -->
+      <div class="p-3 rounded-2xl bg-[var(--secondary)]/40 border border-[var(--border)] space-y-2.5">
+        <div class="flex items-center justify-between text-xs">
+          <span class="font-black text-[var(--foreground)] uppercase tracking-wider text-[11px] flex items-center gap-1">
+            <span>⚔️</span> Match Assignment
+          </span>
+          <button type="button" onclick="swapCoinTossSides()" class="text-[11px] font-bold text-amber-400 hover:text-amber-300 transition cursor-pointer flex items-center gap-1 hover:underline">
+            <span>⇄</span> Swap Sides
+          </button>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <!-- Heads Assignment -->
+          <div class="space-y-1">
+            <label class="block text-[10px] font-black uppercase text-amber-400 tracking-wider flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-amber-400 inline-block"></span> Heads Side
+            </label>
+            <select id="coinTossHeadsSelect" onchange="updateCoinTossPreview()" class="w-full text-xs font-bold p-2 rounded-xl bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] focus:outline-hidden focus:border-amber-500">
+              <!-- Populated via JS -->
+            </select>
+          </div>
+
+          <!-- Tails Assignment -->
+          <div class="space-y-1">
+            <label class="block text-[10px] font-black uppercase text-orange-400 tracking-wider flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-orange-400 inline-block"></span> Tails Side
+            </label>
+            <select id="coinTossTailsSelect" onchange="updateCoinTossPreview()" class="w-full text-xs font-bold p-2 rounded-xl bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] focus:outline-hidden focus:border-amber-500">
+              <!-- Populated via JS -->
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3D Coin Display Area -->
+      <div class="py-4 flex flex-col items-center justify-center">
+        <div class="coin-flip-container cursor-pointer select-none" onclick="flipCoin()" title="Click to Flip Coin!">
+          <div id="coinFlipCard" class="coin-flip-card">
+            <!-- Heads Face -->
+            <div class="coin-face coin-face-heads shadow-inner">
+              <div class="coin-face-rim"></div>
+              <span class="text-3xl drop-shadow-md">👑</span>
+              <span class="text-xs font-black tracking-widest mt-1 drop-shadow-xs">HEADS</span>
+              <span class="text-[8px] font-black uppercase tracking-widest opacity-80 mt-0.5">TCC 2026</span>
+            </div>
+            <!-- Tails Face -->
+            <div class="coin-face coin-face-tails shadow-inner">
+              <div class="coin-face-rim"></div>
+              <span class="text-3xl drop-shadow-md">⚡</span>
+              <span class="text-xs font-black tracking-widest mt-1 drop-shadow-xs">TAILS</span>
+              <span class="text-[8px] font-black uppercase tracking-widest opacity-80 mt-0.5">TCC 2026</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Outcome Announcement Banner -->
+      <div id="coinTossOutcomeBanner" class="p-3 rounded-2xl bg-[var(--secondary)]/60 border border-[var(--border)] text-center transition-all">
+        <div class="text-xs font-bold text-[var(--muted-foreground)]">
+          Press <strong class="text-amber-400">Flip Coin</strong> or click the coin to initiate toss.
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-2 pt-1">
+        <button type="button" id="btnFlipCoin" onclick="flipCoin()" class="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-black shadow-lg shadow-amber-500/25 transition cursor-pointer flex items-center justify-center gap-2 active:scale-95">
+          <span class="text-base">🪙</span> <span>Flip Coin</span>
+        </button>
+        <button type="button" onclick="resetCoinToss()" class="px-3 py-2.5 rounded-xl border border-[var(--border)] hover:bg-[var(--secondary)] text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition cursor-pointer active:scale-95" title="Reset Coin Orientation">
+          <span>↺</span> <span>Reset</span>
+        </button>
+      </div>
+
+      <!-- History & Audit Log -->
+      <div class="pt-2 border-t border-[var(--border)] space-y-2">
+        <div class="flex items-center justify-between text-[11px]">
+          <span class="font-bold text-[var(--muted-foreground)] flex items-center gap-1">
+            <span>📜</span> Toss Audit History (<span id="coinTossHistoryCount">0</span>)
+          </span>
+          <button type="button" onclick="clearCoinTossHistory()" class="text-[10px] text-rose-400 hover:underline cursor-pointer">
+            Clear Log
+          </button>
+        </div>
+        <div id="coinTossHistoryList" class="max-h-28 overflow-y-auto space-y-1 rounded-xl bg-[var(--secondary)]/20 p-2 border border-[var(--border)]/60 text-xs">
+          <div class="text-[11px] text-[var(--muted-foreground)] text-center py-2">No tosses recorded yet</div>
+        </div>
+      </div>
+
+      <!-- Footer Info -->
+      <div class="text-[10px] text-[var(--muted-foreground)] text-center pt-1 border-t border-[var(--border)]/50">
+        Certified Fair 50/50 CSPRNG (<code class="font-mono text-amber-400">crypto.getRandomValues</code>) · Table Marshal Official Tool
+      </div>
+
     </div>
   </div>
 
@@ -6553,6 +6725,339 @@ Check your Browserslist config to be sure that your targets are set up correctly
       resetMatchScore(activeModalMatchKey);
       closeScoreModal();
     }
+
+    // --- 14.5 REFEREE & TABLE MARSHAL COIN TOSS RANDOMIZER ---
+    let coinTossCurrentRotation = 0;
+    let isCoinTossing = false;
+    let coinTossHistory = [];
+
+    function playCoinSound(type = 'flip') {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        if (ctx.state === 'suspended') {
+          ctx.resume();
+        }
+
+        if (type === 'flip') {
+          // Rapid metallic flick / whoosh
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(950, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(2800, ctx.currentTime + 0.08);
+          osc.frequency.exponentialRampToValueAtTime(1600, ctx.currentTime + 0.22);
+
+          gain.gain.setValueAtTime(0.2, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.3);
+        } else if (type === 'land') {
+          // Crisp metallic coin clink & double reverberation
+          [2093, 3136].forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            const startT = ctx.currentTime + i * 0.04;
+            osc.frequency.setValueAtTime(freq, startT);
+            gain.gain.setValueAtTime(0.25, startT);
+            gain.gain.exponentialRampToValueAtTime(0.001, startT + 0.4);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(startT);
+            osc.stop(startT + 0.45);
+          });
+        }
+      } catch (e) {
+        // Audio synthesis fallback (silent)
+      }
+    }
+
+    function renderCoinTossTeamOptions(preset1 = null, preset2 = null) {
+      const hSelect = document.getElementById('coinTossHeadsSelect');
+      const tSelect = document.getElementById('coinTossTailsSelect');
+      if (!hSelect || !tSelect) return;
+
+      const teamList = (typeof DEFAULT_TEAMS !== 'undefined' && Array.isArray(DEFAULT_TEAMS))
+        ? DEFAULT_TEAMS.map(t => t.name)
+        : ['CCS', 'CEA', 'CBPA', 'CED', 'CCJPS', 'CAS', 'CHS', 'CMID'];
+
+      let optionsHtml = `<option value="">(None / Generic Coin)</option>`;
+      teamList.forEach(name => {
+        optionsHtml += `<option value="${name}">${name}</option>`;
+      });
+
+      hSelect.innerHTML = optionsHtml;
+      tSelect.innerHTML = optionsHtml;
+
+      if (preset1 && teamList.includes(preset1)) {
+        hSelect.value = preset1;
+      } else if (preset1) {
+        hSelect.insertAdjacentHTML('beforeend', `<option value="${preset1}">${preset1}</option>`);
+        hSelect.value = preset1;
+      } else {
+        hSelect.value = '';
+      }
+
+      if (preset2 && teamList.includes(preset2)) {
+        tSelect.value = preset2;
+      } else if (preset2) {
+        tSelect.insertAdjacentHTML('beforeend', `<option value="${preset2}">${preset2}</option>`);
+        tSelect.value = preset2;
+      } else {
+        tSelect.value = '';
+      }
+
+      updateCoinTossPreview();
+    }
+
+    function swapCoinTossSides() {
+      const hSelect = document.getElementById('coinTossHeadsSelect');
+      const tSelect = document.getElementById('coinTossTailsSelect');
+      if (!hSelect || !tSelect) return;
+
+      const temp = hSelect.value;
+      hSelect.value = tSelect.value;
+      tSelect.value = temp;
+      updateCoinTossPreview();
+    }
+
+    function updateCoinTossPreview() {
+      if (isCoinTossing) return;
+      const banner = document.getElementById('coinTossOutcomeBanner');
+      if (!banner) return;
+
+      const hTeam = document.getElementById('coinTossHeadsSelect')?.value;
+      const tTeam = document.getElementById('coinTossTailsSelect')?.value;
+
+      if (hTeam && tTeam) {
+        banner.innerHTML = `
+          <div class="text-xs font-bold text-[var(--foreground)]">
+            <span class="text-amber-400 font-black">Heads:</span> ${hTeam} &nbsp;·&nbsp; 
+            <span class="text-orange-400 font-black">Tails:</span> ${tTeam}
+          </div>
+          <div class="text-[11px] text-[var(--muted-foreground)] mt-0.5">
+            Press <strong class="text-amber-400">Flip Coin</strong> to determine winner.
+          </div>
+        `;
+      } else {
+        banner.innerHTML = `
+          <div class="text-xs font-bold text-[var(--muted-foreground)]">
+            Press <strong class="text-amber-400">Flip Coin</strong> or click the coin to initiate toss.
+          </div>
+        `;
+      }
+    }
+
+    function openCoinTossModal(preset1 = null, preset2 = null) {
+      if (!canScore()) {
+        notifyAuthRequired('marshal');
+        return;
+      }
+
+      const modal = document.getElementById('coinTossModal');
+      if (!modal) return;
+
+      renderCoinTossTeamOptions(preset1, preset2);
+
+      // Load history
+      try {
+        const saved = localStorage.getItem('tcc_coin_toss_history');
+        coinTossHistory = saved ? JSON.parse(saved) : [];
+      } catch (e) {
+        coinTossHistory = [];
+      }
+      renderCoinTossHistory();
+
+      modal.classList.remove('hidden');
+    }
+
+    function openCoinTossModalFromMatch() {
+      if (!canScore()) {
+        notifyAuthRequired('marshal');
+        return;
+      }
+      let t1 = null;
+      let t2 = null;
+      if (typeof activeModalMatchKey !== 'undefined' && activeModalMatchKey && typeof PLAYOFF_DATA !== 'undefined' && PLAYOFF_DATA[activeModalMatchKey]) {
+        const m = PLAYOFF_DATA[activeModalMatchKey];
+        if (m.team1 && m.team1 !== 'TBD') t1 = m.team1;
+        if (m.team2 && m.team2 !== 'TBD' && m.team2 !== 'BYE') t2 = m.team2;
+      }
+      openCoinTossModal(t1, t2);
+    }
+
+    function closeCoinTossModal() {
+      const modal = document.getElementById('coinTossModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function flipCoin() {
+      if (isCoinTossing) return;
+      if (!canScore()) {
+        notifyAuthRequired('marshal');
+        return;
+      }
+
+      isCoinTossing = true;
+      const btn = document.getElementById('btnFlipCoin');
+      if (btn) {
+        btn.disabled = true;
+        btn.classList.add('opacity-50', 'pointer-events-none');
+      }
+
+      playCoinSound('flip');
+
+      // True 50/50 cryptographic randomness
+      const randArr = new Uint32Array(1);
+      window.crypto.getRandomValues(randArr);
+      const isHeads = (randArr[0] % 2 === 0);
+
+      const card = document.getElementById('coinFlipCard');
+      const spins = 5 + Math.floor(Math.random() * 3); // 5, 6, or 7 spins
+      const baseSpinsDeg = spins * 360;
+      let currentEffective = coinTossCurrentRotation % 360;
+      if (currentEffective < 0) currentEffective += 360;
+
+      let addDeg = baseSpinsDeg;
+      if (isHeads) {
+        addDeg += (360 - currentEffective) % 360;
+      } else {
+        addDeg += (540 - currentEffective) % 360;
+      }
+      coinTossCurrentRotation += addDeg;
+
+      if (card) {
+        card.style.transform = `rotateY(${coinTossCurrentRotation}deg)`;
+      }
+
+      const banner = document.getElementById('coinTossOutcomeBanner');
+      if (banner) {
+        banner.innerHTML = `
+          <div class="text-xs font-black text-amber-400 animate-pulse flex items-center justify-center gap-1.5">
+            <span class="inline-block animate-spin">🪙</span> Flipping coin in mid-air...
+          </div>
+        `;
+      }
+
+      // Duration of CSS transition is 1.8s
+      setTimeout(() => {
+        playCoinSound('land');
+        isCoinTossing = false;
+        if (btn) {
+          btn.disabled = false;
+          btn.classList.remove('opacity-50', 'pointer-events-none');
+        }
+
+        const hTeam = document.getElementById('coinTossHeadsSelect')?.value || '';
+        const tTeam = document.getElementById('coinTossTailsSelect')?.value || '';
+        const resultSide = isHeads ? 'HEADS' : 'TAILS';
+        const winningTeam = isHeads ? hTeam : tTeam;
+
+        if (banner) {
+          if (winningTeam) {
+            banner.innerHTML = `
+              <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${isHeads ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-orange-500/20 text-orange-400 border border-orange-500/30'} text-xs font-black uppercase mb-1">
+                <span>${isHeads ? '👑' : '⚡'}</span> RESULT: ${resultSide}
+              </div>
+              <div class="text-sm sm:text-base font-black text-[var(--foreground)] mt-0.5">
+                🎉 <span class="text-amber-400">${winningTeam}</span> Wins the Toss!
+              </div>
+              <div class="text-[11px] text-[var(--muted-foreground)] mt-0.5">
+                Eligible for Side Selection / First Pick Priority
+              </div>
+            `;
+          } else {
+            banner.innerHTML = `
+              <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${isHeads ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-orange-500/20 text-orange-400 border border-orange-500/30'} text-xs font-black uppercase mb-1">
+                <span>${isHeads ? '👑' : '⚡'}</span> RESULT: ${resultSide}
+              </div>
+              <div class="text-sm font-black text-[var(--foreground)] mt-0.5">
+                🪙 It's <strong>${resultSide}</strong>!
+              </div>
+            `;
+          }
+        }
+
+        // Add to history
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const record = {
+          id: Date.now(),
+          time: timeStr,
+          result: resultSide,
+          isHeads: isHeads,
+          headsTeam: hTeam || 'Generic',
+          tailsTeam: tTeam || 'Generic',
+          winner: winningTeam || resultSide
+        };
+        coinTossHistory.unshift(record);
+        if (coinTossHistory.length > 40) coinTossHistory.pop();
+        try {
+          localStorage.setItem('tcc_coin_toss_history', JSON.stringify(coinTossHistory));
+        } catch (e) {}
+
+        renderCoinTossHistory();
+        if (typeof showToast === 'function') {
+          showToast(`🪙 Coin Toss: ${resultSide}${winningTeam ? ' · ' + winningTeam + ' wins!' : ''}`);
+        }
+      }, 1800);
+    }
+
+    function renderCoinTossHistory() {
+      const listEl = document.getElementById('coinTossHistoryList');
+      const countEl = document.getElementById('coinTossHistoryCount');
+      if (!listEl) return;
+
+      if (countEl) countEl.innerText = coinTossHistory.length;
+
+      if (coinTossHistory.length === 0) {
+        listEl.innerHTML = `<div class="text-[11px] text-[var(--muted-foreground)] text-center py-2">No tosses recorded yet</div>`;
+        return;
+      }
+
+      listEl.innerHTML = coinTossHistory.map((item, idx) => `
+        <div class="flex items-center justify-between p-1.5 rounded-lg bg-[var(--card)] border border-[var(--border)] text-[11px]">
+          <div class="flex items-center gap-1.5">
+            <span class="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black ${item.isHeads ? 'bg-amber-500/20 text-amber-400' : 'bg-orange-500/20 text-orange-400'}">
+              ${item.isHeads ? 'H' : 'T'}
+            </span>
+            <span class="font-bold text-[var(--foreground)]">${item.winner}</span>
+            ${item.headsTeam !== 'Generic' || item.tailsTeam !== 'Generic' ? `
+              <span class="text-[10px] text-[var(--muted-foreground)]">(${item.headsTeam} vs ${item.tailsTeam})</span>
+            ` : ''}
+          </div>
+          <div class="text-[10px] font-mono text-[var(--muted-foreground)]">${item.time}</div>
+        </div>
+      `).join('');
+    }
+
+    function clearCoinTossHistory() {
+      coinTossHistory = [];
+      try {
+        localStorage.removeItem('tcc_coin_toss_history');
+      } catch (e) {}
+      renderCoinTossHistory();
+      if (typeof showToast === 'function') {
+        showToast('🗑️ Toss audit history cleared');
+      }
+    }
+
+    function resetCoinToss() {
+      if (isCoinTossing) return;
+      coinTossCurrentRotation = 0;
+      const card = document.getElementById('coinFlipCard');
+      if (card) {
+        card.style.transform = 'rotateY(0deg)';
+      }
+      updateCoinTossPreview();
+    }
+
     // --- 15. LIVE STAGE THEATER MODE ---
     let isTheaterModeOpen = false;
     let theaterCurrentSlide = 0;
