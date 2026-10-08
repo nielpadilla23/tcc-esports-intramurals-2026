@@ -1083,7 +1083,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
     </div>
   </div>
 
-  <!-- Tournament Access Portal (Role Login & Switcher Modal) -->
+  <!-- Tournament Access Portal (Role & Esport Scoped Login Modal) -->
   <div id="adminLoginModal" onclick="if(event.target===this)closeAdminLoginModal()" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 hidden select-none transition-all duration-200">
     <div class="w-full max-w-md rounded-3xl bg-[var(--card)] border border-[var(--border)] p-5 sm:p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
       
@@ -1095,53 +1095,96 @@ Check your Browserslist config to be sure that your targets are set up correctly
           </div>
           <div>
             <h3 class="text-base font-black text-[var(--foreground)]">Tournament Access Portal</h3>
-            <p id="loginModalHeaderSub" class="text-xs text-[var(--muted-foreground)] font-medium">Select Role & Enter Security PIN</p>
+            <p id="loginModalHeaderSub" class="text-xs text-[var(--muted-foreground)] font-medium">Esport-Scoped Session & Role Authentication</p>
           </div>
         </div>
         <button onclick="closeAdminLoginModal()" class="w-8 h-8 rounded-xl bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-[var(--muted-foreground)] hover:text-[var(--foreground)] flex items-center justify-center text-xs font-black transition cursor-pointer" aria-label="Close modal">✕</button>
       </div>
 
-      <!-- Current Role Indicator Banner -->
-      <div class="p-3 rounded-2xl bg-[var(--secondary)]/40 border border-[var(--border)] flex items-center justify-between">
-        <div class="text-xs">
-          <span class="text-[var(--muted-foreground)] font-bold">Active Role:</span>
-          <span id="loginCurrentRoleBadge" class="ml-1.5 font-black text-amber-400">👁️ Viewer (Read Only)</span>
+      <!-- Current Session Status Banner -->
+      <div id="loginCurrentSessionCard" class="p-3.5 rounded-2xl bg-[var(--secondary)]/40 border border-[var(--border)] space-y-2">
+        <div class="flex items-center justify-between">
+          <div class="text-xs">
+            <span class="text-[var(--muted-foreground)] font-bold">Active Session:</span>
+            <span id="loginCurrentRoleBadge" class="ml-1.5 font-black text-amber-400">👁️ Viewer (Read Only)</span>
+          </div>
+          <button type="button" id="loginLogoutBtn" onclick="logoutSession(); closeAdminLoginModal();" class="text-[11px] font-bold text-rose-400 hover:text-rose-300 transition cursor-pointer hidden">
+            🚪 Log Out
+          </button>
         </div>
-        <button type="button" onclick="setRole('viewer'); closeAdminLoginModal();" title="Switch immediately to spectator mode" class="text-[11px] font-bold text-sky-400 hover:text-sky-300 transition cursor-pointer">
-          Reset to Viewer
-        </button>
+        <div id="loginScopeNotice" class="text-[11px] text-[var(--muted-foreground)] hidden">
+          <!-- Dynamic notice about active scope and viewing status -->
+        </div>
       </div>
 
-      <!-- Role Selector Tabs (Mobile Touch Friendly) -->
+      <!-- Esport Scope Tabs (Choose Game Scope) -->
       <div class="space-y-1.5">
-        <label class="block text-[11px] font-black uppercase tracking-wider text-[var(--muted-foreground)]">Select Target Role</label>
-        <div class="grid grid-cols-2 gap-2 p-1 rounded-2xl bg-[var(--card-surface)] border border-[var(--border)]">
-          <button type="button" id="roleBtnAdmin" onclick="selectLoginTargetRole('admin')" class="py-2.5 px-3 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer bg-amber-500 text-slate-950 shadow-xs">
-            <span class="text-base">🛡️</span>
-            <span>Tournament Admin</span>
-            <span class="text-[9px] font-bold opacity-80">Full Authority</span>
+        <div class="flex items-center justify-between">
+          <label class="block text-[11px] font-black uppercase tracking-wider text-[var(--muted-foreground)]">1. Select Game Scope</label>
+          <span id="loginScopePill" class="text-[10px] font-bold text-sky-400">Active View: MLBB</span>
+        </div>
+        <div class="grid grid-cols-3 gap-1.5 p-1 rounded-2xl bg-[var(--card-surface)] border border-[var(--border)]">
+          <button type="button" id="scopeBtnMlbb" onclick="selectLoginScope('mlbb')" class="py-2 px-2 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer bg-blue-500 text-white shadow-xs">
+            <span class="text-sm">⚔️</span>
+            <span>MLBB</span>
+            <span class="text-[9px] font-bold opacity-80">Mobile Legends</span>
           </button>
-          <button type="button" id="roleBtnMarshal" onclick="selectLoginTargetRole('marshal')" class="py-2.5 px-3 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)]/60">
-            <span class="text-base">⚔️</span>
-            <span>Table Marshal</span>
+          <button type="button" id="scopeBtnCodm" onclick="selectLoginScope('codm')" class="py-2 px-2 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)]/60">
+            <span class="text-sm">🛡️</span>
+            <span>CODM</span>
+            <span class="text-[9px] font-bold opacity-80">Call of Duty</span>
+          </button>
+          <button type="button" id="scopeBtnAll" onclick="selectLoginScope('all')" class="py-2 px-2 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)]/60">
+            <span class="text-sm">👑</span>
+            <span>All Games</span>
+            <span class="text-[9px] font-bold opacity-80">Director</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Role Selector Tabs -->
+      <div class="space-y-1.5">
+        <label class="block text-[11px] font-black uppercase tracking-wider text-[var(--muted-foreground)]">2. Select Authority Role</label>
+        <div class="grid grid-cols-2 gap-2 p-1 rounded-2xl bg-[var(--card-surface)] border border-[var(--border)]">
+          <button type="button" id="roleBtnMarshal" onclick="selectLoginTargetRole('marshal')" class="py-2.5 px-3 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer bg-cyan-500 text-slate-950 shadow-xs">
+            <span class="text-base" id="roleBtnMarshalIcon">⚔️</span>
+            <span id="roleBtnMarshalLabel">Table Marshal</span>
             <span class="text-[9px] font-bold opacity-80">Score Entry Only</span>
           </button>
+          <button type="button" id="roleBtnAdmin" onclick="selectLoginTargetRole('admin')" class="py-2.5 px-3 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)]/60">
+            <span class="text-base" id="roleBtnAdminIcon">🛡️</span>
+            <span id="roleBtnAdminLabel">Tournament Admin</span>
+            <span class="text-[9px] font-bold opacity-80">Full Authority</span>
+          </button>
         </div>
       </div>
 
-      <!-- Role Description Box -->
+      <!-- Role & Scope Description Box -->
       <div id="roleDescBox" class="p-3.5 rounded-2xl bg-[var(--secondary)]/30 border border-[var(--border)] text-xs text-[var(--muted-foreground)] leading-relaxed">
-        <div id="roleDescAdmin" class="space-y-1">
-          <div class="font-black text-amber-400 flex items-center gap-1.5">
-            <span>🛡️</span> <span>Tournament Admin Role Privileges:</span>
-          </div>
-          <p class="text-[11px]">Authorized for seed ordering, shuffle draw, bracket simulation, score resets, blank bracket, tournament format changes, and real-time cloud settings.</p>
+        <div id="roleDescContent" class="space-y-1">
+          <!-- Dynamically populated description -->
         </div>
-        <div id="roleDescMarshal" class="space-y-1 hidden">
-          <div class="font-black text-cyan-400 flex items-center gap-1.5">
-            <span>⚔️</span> <span>Table Marshal Role Privileges:</span>
-          </div>
-          <p class="text-[11px]">Authorized for live match scoring, reporting game-by-game wins (+1), declaring match winners, and table referee notes. Structural bracket editing and resets are locked.</p>
+      </div>
+
+      <!-- Quick Account Presets / Single-Tap Selectors -->
+      <div class="space-y-1.5">
+        <span class="block text-[10px] font-black uppercase tracking-wider text-[var(--muted-foreground)]">Quick Preset Accounts</span>
+        <div class="flex flex-wrap gap-1.5 text-[11px]">
+          <button type="button" onclick="quickFillAccount('mlbb_marshal')" class="px-2.5 py-1 rounded-lg bg-blue-500/10 hover:bg-blue-500/25 border border-blue-500/30 text-blue-400 font-bold transition cursor-pointer">
+            ⚔️ MLBB Marshal
+          </button>
+          <button type="button" onclick="quickFillAccount('codm_marshal')" class="px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/25 border border-amber-500/30 text-amber-400 font-bold transition cursor-pointer">
+            🛡️ CODM Marshal
+          </button>
+          <button type="button" onclick="quickFillAccount('mlbb_admin')" class="px-2.5 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/25 border border-indigo-500/30 text-indigo-400 font-bold transition cursor-pointer">
+            👑 MLBB Admin
+          </button>
+          <button type="button" onclick="quickFillAccount('codm_admin')" class="px-2.5 py-1 rounded-lg bg-orange-500/10 hover:bg-orange-500/25 border border-orange-500/30 text-orange-400 font-bold transition cursor-pointer">
+            👑 CODM Admin
+          </button>
+          <button type="button" onclick="quickFillAccount('super_admin')" class="px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/25 border border-purple-500/30 text-purple-400 font-bold transition cursor-pointer">
+            💎 Director
+          </button>
         </div>
       </div>
 
@@ -1149,8 +1192,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
       <form onsubmit="event.preventDefault(); submitRoleLogin();" class="space-y-3">
         <div>
           <div class="flex items-center justify-between mb-1">
-            <label for="adminPinInput" id="loginPinLabel" class="block text-xs font-black uppercase text-[var(--muted-foreground)]">Admin Security PIN</label>
-            <span id="loginPinHint" class="text-[10px] text-amber-500/80 font-mono font-bold">Hint: admin2026</span>
+            <label for="adminPinInput" id="loginPinLabel" class="block text-xs font-black uppercase text-[var(--muted-foreground)]">Security PIN</label>
+            <span id="loginPinHint" class="text-[10px] text-amber-500/80 font-mono font-bold">Hint: mlbb2026</span>
           </div>
           <div class="relative flex items-center">
             <input type="password" id="adminPinInput" placeholder="Enter PIN..." autocomplete="current-password" class="w-full px-4 py-2.5 pr-10 rounded-xl bg-[var(--card-surface)] border border-[var(--border)] text-[var(--foreground)] text-base font-mono tracking-widest focus:outline-hidden focus:border-amber-500">
@@ -1169,7 +1212,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
           </button>
           <button type="submit" id="submitLoginBtn" class="flex-1 py-2 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black shadow-md transition cursor-pointer flex items-center justify-center gap-1.5 active:scale-95">
             <span id="submitLoginBtnIcon">🛡️</span>
-            <span id="submitLoginBtnText">Unlock Admin Controls</span>
+            <span id="submitLoginBtnText">Unlock Authority</span>
           </button>
         </div>
       </form>
@@ -2017,8 +2060,19 @@ Check your Browserslist config to be sure that your targets are set up correctly
       if (currentTab === 'matches') renderMatchScheduleList();
       if (typeof isTheaterModeOpen !== 'undefined' && isTheaterModeOpen) renderTheaterCurrentSlide();
 
+      // Update Auth RBAC & Headers for the new esport
+      if (typeof updateAdminUI === 'function') updateAdminUI();
+
       const cfg = getCurrentEsportConfig();
-      showToast(`Switched active tournament to ${cfg.fullName} (${cfg.name})`);
+      if (typeof currentSession !== 'undefined' && currentSession && currentSession.gameScope !== 'all') {
+        if (currentSession.gameScope === currentEsport) {
+          showToast(`Switched to ${cfg.fullName} (${cfg.name}) · ${currentSession.name} Active`);
+        } else {
+          showToast(`Switched to ${cfg.fullName} · 🔒 Scoped to ${currentSession.gameScope.toUpperCase()} only (Read Only)`);
+        }
+      } else {
+        showToast(`Switched active tournament to ${cfg.fullName} (${cfg.name})`);
+      }
     }
 
     const DEFAULT_TEAMS = [
@@ -2542,7 +2596,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function saveModalSeedings() {
       if (!isAdmin()) {
-        showToast('⚠️ Only Tournament Admin can edit team seeds.');
+        notifyAuthRequired('admin');
         return;
       }
       TEAMS = JSON.parse(JSON.stringify(tempModalTeams));
@@ -2571,7 +2625,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function shuffleTeamDraw() {
       if (!isAdmin()) {
-        showToast('⚠️ Only Tournament Admin can shuffle seeds.');
+        notifyAuthRequired('admin');
         return;
       }
       const shuffled = JSON.parse(JSON.stringify(DEFAULT_TEAMS));
@@ -4478,19 +4532,26 @@ Check your Browserslist config to be sure that your targets are set up correctly
     let pendingConfirmedAction = null; // 'simulate' | 'reset_scores' | 'blank_bracket'
 
     function confirmSimulateBracket() {
+      if (!isAdmin()) {
+        notifyAuthRequired('admin');
+        return;
+      }
       openActionConfirmModal('simulate');
     }
 
     function confirmResetScores() {
       if (!isAdmin()) {
-        showToast('🔒 Please log in as Tournament Admin to reset all tournament scores.');
-        openAdminLoginModal('admin');
+        notifyAuthRequired('admin');
         return;
       }
       openActionConfirmModal('reset_scores');
     }
 
     function confirmBlankBracket() {
+      if (!isAdmin()) {
+        notifyAuthRequired('admin');
+        return;
+      }
       openActionConfirmModal('blank_bracket');
     }
 
@@ -4579,7 +4640,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
     // --- 10. SIMULATION LOGIC & CONFETTI CELEBRATION ---
     function simulateCurrentTournament() {
       if (!isAdmin()) {
-        showToast('⚠️ Only Tournament Admin can simulate the tournament.');
+        notifyAuthRequired('admin');
         return;
       }
       if (tournamentMode === 'double_elim') {
@@ -4591,7 +4652,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function simulateDoubleElimination() {
       if (!isAdmin()) {
-        showToast('⚠️ Only Tournament Admin can simulate the tournament.');
+        notifyAuthRequired('admin');
         return;
       }
       setTournamentMode('double_elim');
@@ -4718,7 +4779,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function simulateSingleElimination() {
       if (!isAdmin()) {
-        showToast('⚠️ Only Tournament Admin can simulate the tournament.');
+        notifyAuthRequired('admin');
         return;
       }
       setTournamentMode('single_elim');
@@ -4794,8 +4855,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         return;
       }
       if (!canScore()) {
-        showToast('🔒 Please log in as Admin or Table Marshal to update scores.');
-        openAdminLoginModal('marshal');
+        notifyAuthRequired('marshal');
         return;
       }
       const match = PLAYOFF_DATA[matchKey];
@@ -4831,7 +4891,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function decrementMatchScore(matchKey, teamSlot) {
       if (!canScore()) {
-        showToast('🔒 Please log in as Admin or Table Marshal to update scores.');
+        notifyAuthRequired('marshal');
         return;
       }
       const match = PLAYOFF_DATA[matchKey];
@@ -4846,7 +4906,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function setPlayoffScore(matchKey, s1, s2, games = null) {
       if (!canScore()) {
-        showToast('🔒 Please log in as Admin or Table Marshal to update scores.');
+        notifyAuthRequired('marshal');
         return;
       }
       const match = PLAYOFF_DATA[matchKey];
@@ -4888,8 +4948,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function resetMatchScore(matchKey) {
       if (!canScore()) {
-        showToast('🔒 Please log in as Admin or Table Marshal to reset match scores.');
-        openAdminLoginModal('marshal');
+        notifyAuthRequired('marshal');
         return;
       }
       const match = PLAYOFF_DATA[matchKey];
@@ -4926,7 +4985,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function populateSeedsToBracket(notify = true) {
       if (!isAdmin()) {
-        showToast('⚠️ Only Tournament Admin can populate seeds.');
+        notifyAuthRequired('admin');
         return;
       }
       // Fill all 8 seeds with default colleges if blank or partial
@@ -4958,7 +5017,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function resetToBlankBracket() {
       if (!isAdmin()) {
-        showToast('⚠️ Only Tournament Admin can blank the tournament bracket.');
+        notifyAuthRequired('admin');
         return;
       }
       TEAMS = [null, null, null, null, null, null, null, null];
@@ -4993,7 +5052,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function shuffleAndPopulateBracket() {
       if (!isAdmin()) {
-        showToast('⚠️ Only Tournament Admin can shuffle seeds.');
+        notifyAuthRequired('admin');
         return;
       }
       const shuffled = JSON.parse(JSON.stringify(DEFAULT_TEAMS));
@@ -5020,8 +5079,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function resetTournamentScores() {
       if (!isAdmin()) {
-        showToast('🔒 Only Tournament Admin can reset all tournament scores.');
-        openAdminLoginModal('admin');
+        notifyAuthRequired('admin');
         return;
       }
       for (let k in PLAYOFF_DATA) {
@@ -5904,6 +5962,15 @@ Check your Browserslist config to be sure that your targets are set up correctly
     }
 
     function openScoreModal(matchKey) {
+      if (!canScore()) {
+        if (typeof currentSession !== 'undefined' && currentSession && currentSession.gameScope !== 'all' && currentSession.gameScope !== currentEsport) {
+          showToast(`🔒 Account scoped to ${currentSession.gameScope.toUpperCase()} only. Please log in with a ${currentEsport.toUpperCase()} account to edit scores.`);
+        } else {
+          showToast('🔒 Please log in as Admin or Table Marshal to edit scores.');
+          openAdminLoginModal('marshal', currentEsport);
+        }
+        return;
+      }
       const match = PLAYOFF_DATA[matchKey];
       if (!match) return;
       activeModalMatchKey = matchKey;
@@ -6130,8 +6197,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
     function saveModalScore() {
       if (!activeModalMatchKey) return;
       if (!canScore()) {
-        showToast('🔒 Please log in as Admin or Table Marshal to update scores.');
-        openAdminLoginModal('marshal');
+        notifyAuthRequired('marshal');
         return;
       }
       const s1Val = (document.getElementById('modalScore1')?.value || '').trim();
@@ -6165,8 +6231,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
     function resetActiveModalMatch() {
       if (!activeModalMatchKey) return;
       if (!canScore()) {
-        showToast('🔒 Please log in as Admin or Table Marshal to reset match scores.');
-        openAdminLoginModal('marshal');
+        notifyAuthRequired('marshal');
         return;
       }
       resetMatchScore(activeModalMatchKey);
@@ -6292,7 +6357,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function openTheaterMode() {
       if (!isAdmin()) {
-        showToast('🔒 Live Stage is restricted to Tournament Admins.');
+        notifyAuthRequired('admin');
         return;
       }
       const overlay = document.getElementById('theaterModeOverlay');
@@ -8090,156 +8155,337 @@ Check your Browserslist config to be sure that your targets are set up correctly
       `;
     }
 
-    // --- 13. ROLE-BASED ACCESS CONTROL (ADMIN, MARSHAL, VIEWER) ---
-    // Roles:
-    // 1. 'admin': Can do all (Bracket simulation, seeding, reset, format, scoring, backups, cloud config).
-    // 2. 'marshal': Table official. Can only add and update match scores.
-    // 3. 'viewer': Spectator. Read-only live feed.
-    const ADMIN_PINS = ['admin2026', 'tccadmin'];
-    const MARSHAL_PINS = ['marshal2026', 'tcc2026', 'marshal'];
+    // --- 13. SESSION MANAGEMENT & ESPORT-SCOPED ROLE ACCESS CONTROL ---
+    // Accounts: Scoped to 'mlbb', 'codm', or 'all' (Super Admin / Director).
+    // Marshals: Score reporting only within their assigned esport.
+    // Admins: Full tournament control within their assigned esport.
+    // Super Admin: Unrestricted director authority across both games.
+
+    const AUTH_ACCOUNTS = [
+      // 1. Super Admin / Tournament Director (All Games)
+      {
+        id: 'super_admin',
+        name: 'Tournament Director',
+        role: 'admin',
+        scope: 'all',
+        pins: ['admin2026', 'tccadmin', 'superadmin'],
+        badge: '👑',
+        roleTitle: 'Tournament Director',
+        scopeTitle: 'All Esports Tournaments',
+        desc: 'Unrestricted master authority across all esports tournaments (MLBB & CODM).'
+      },
+      // 2. Global Marshal (All Games)
+      {
+        id: 'global_marshal',
+        name: 'General Table Marshal',
+        role: 'marshal',
+        scope: 'all',
+        pins: ['marshal2026', 'tcc2026', 'marshal'],
+        badge: '⚔️',
+        roleTitle: 'General Table Marshal',
+        scopeTitle: 'All Esports Tournaments',
+        desc: 'Match score reporting unlocked across both MLBB and CODM tournaments.'
+      },
+      // 3. MLBB Tournament Admin (MLBB Only)
+      {
+        id: 'mlbb_admin',
+        name: 'MLBB Tournament Admin',
+        role: 'admin',
+        scope: 'mlbb',
+        pins: ['mlbbadmin', 'mlbbadmin2026'],
+        badge: '🛡️',
+        roleTitle: 'MLBB Tournament Admin',
+        scopeTitle: 'Mobile Legends Only',
+        desc: 'Administrative authority strictly for Mobile Legends: Bang Bang bracket, seeds, and resets.'
+      },
+      // 4. MLBB Table Marshal (MLBB Only)
+      {
+        id: 'mlbb_marshal',
+        name: 'MLBB Table Marshal',
+        role: 'marshal',
+        scope: 'mlbb',
+        pins: ['mlbb2026', 'mlbbmarshal', 'mlbb'],
+        badge: '⚔️',
+        roleTitle: 'MLBB Table Marshal',
+        scopeTitle: 'Mobile Legends Only',
+        desc: 'Match score entry (+1 wins, winner declaration) strictly for Mobile Legends: Bang Bang.'
+      },
+      // 5. CODM Tournament Admin (CODM Only)
+      {
+        id: 'codm_admin',
+        name: 'CODM Tournament Admin',
+        role: 'admin',
+        scope: 'codm',
+        pins: ['codmadmin', 'codmadmin2026'],
+        badge: '🛡️',
+        roleTitle: 'CODM Tournament Admin',
+        scopeTitle: 'Call of Duty: Mobile Only',
+        desc: 'Administrative authority strictly for Call of Duty: Mobile bracket, seeds, and resets.'
+      },
+      // 6. CODM Table Marshal (CODM Only)
+      {
+        id: 'codm_marshal',
+        name: 'CODM Table Marshal',
+        role: 'marshal',
+        scope: 'codm',
+        pins: ['codm2026', 'codmmarshal', 'codm'],
+        badge: '⚔️',
+        roleTitle: 'CODM Table Marshal',
+        scopeTitle: 'Call of Duty: Mobile Only',
+        desc: 'Match score entry (Search & Destroy, Control, Hardpoint) strictly for Call of Duty: Mobile.'
+      }
+    ];
+
+    // Global session state
+    let currentSession = null;
+    let targetLoginScope = 'mlbb'; // 'mlbb' | 'codm' | 'all'
+    let targetLoginRole = 'marshal'; // 'marshal' | 'admin'
     let currentUserRole = 'viewer';
-    let targetLoginRole = 'admin';
-    let isAdminUnlocked = false; // Backward compatibility
+    let isAdminUnlocked = false;
 
-    function initAdminAuth() {
-      // 1. Check URL query parameters: ?role=admin&pin=... or ?admin=... or ?marshal=...
-      try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const roleQuery = (urlParams.get('role') || '').toLowerCase();
-        const pinQuery = (urlParams.get('pin') || '').toLowerCase();
-        const adminQuery = (urlParams.get('admin') || '').toLowerCase();
-        const marshalQuery = (urlParams.get('marshal') || '').toLowerCase();
+    // Session duration: 24 hours
+    const SESSION_DURATION_MS = 24 * 60 * 60 * 1000;
 
-        if (roleQuery === 'admin' && (ADMIN_PINS.includes(pinQuery) || !pinQuery)) {
-          setRole('admin', false);
-        } else if (roleQuery === 'marshal' && (MARSHAL_PINS.includes(pinQuery) || !pinQuery)) {
-          setRole('marshal', false);
-        } else if (adminQuery) {
-          if (ADMIN_PINS.includes(adminQuery)) {
-            setRole('admin', false);
-          } else if (MARSHAL_PINS.includes(adminQuery)) {
-            setRole('marshal', false);
-          } else if (adminQuery === 'true') {
-            setRole('admin', false);
-          }
-        } else if (marshalQuery) {
-          if (MARSHAL_PINS.includes(marshalQuery) || marshalQuery === 'true') {
-            setRole('marshal', false);
-          }
-        }
-      } catch(e) {}
-
-      // 2. Check stored session / local storage
-      if (currentUserRole === 'viewer') {
-        try {
-          const storedRole = localStorage.getItem('tcc_user_role') || sessionStorage.getItem('tcc_user_role');
-          if (storedRole === 'admin' || storedRole === 'marshal') {
-            currentUserRole = storedRole;
-          } else if (sessionStorage.getItem('tcc_admin_mode') === 'true') {
-            currentUserRole = 'admin';
-          }
-        } catch(e) {}
+    function saveSession(session) {
+      if (!session) {
+        clearSessionStorage();
+        return;
       }
-
-      isAdminUnlocked = (currentUserRole === 'admin');
-      updateAdminUI();
-    }
-
-    function setRole(role, notify = true) {
-      if (role !== 'admin' && role !== 'marshal' && role !== 'viewer') {
-        role = 'viewer';
-      }
-      currentUserRole = role;
-      isAdminUnlocked = (role === 'admin');
-
       try {
-        localStorage.setItem('tcc_user_role', role);
-        sessionStorage.setItem('tcc_user_role', role);
-        if (role === 'admin') {
+        const raw = JSON.stringify(session);
+        localStorage.setItem('tcc_auth_session_v1', raw);
+        sessionStorage.setItem('tcc_auth_session_v1', raw);
+        localStorage.setItem('tcc_user_role', session.role);
+        sessionStorage.setItem('tcc_user_role', session.role);
+        if (session.role === 'admin') {
           sessionStorage.setItem('tcc_admin_mode', 'true');
         } else {
           sessionStorage.removeItem('tcc_admin_mode');
         }
       } catch(e) {}
+    }
+
+    function clearSessionStorage() {
+      try {
+        localStorage.removeItem('tcc_auth_session_v1');
+        sessionStorage.removeItem('tcc_auth_session_v1');
+        localStorage.removeItem('tcc_user_role');
+        sessionStorage.removeItem('tcc_user_role');
+        sessionStorage.removeItem('tcc_admin_mode');
+      } catch(e) {}
+    }
+
+    function loadSession() {
+      try {
+        const raw = sessionStorage.getItem('tcc_auth_session_v1') || localStorage.getItem('tcc_auth_session_v1');
+        if (raw) {
+          const sess = JSON.parse(raw);
+          if (sess && sess.expiresAt) {
+            if (Date.now() > sess.expiresAt) {
+              clearSessionStorage();
+              return null;
+            }
+            return sess;
+          }
+        }
+      } catch(e) {}
+      return null;
+    }
+
+    function isAuthorizedForEsport(esport = currentEsport) {
+      if (!currentSession) return false;
+      return currentSession.gameScope === 'all' || currentSession.gameScope === esport;
+    }
+
+    function getEffectiveRole(esport = currentEsport) {
+      if (!currentSession) return 'viewer';
+      if (!isAuthorizedForEsport(esport)) return 'viewer';
+      return currentSession.role;
+    }
+
+    function canScore(esport = currentEsport) {
+      const eff = getEffectiveRole(esport);
+      return eff === 'admin' || eff === 'marshal';
+    }
+
+    function isAdmin(esport = currentEsport) {
+      return getEffectiveRole(esport) === 'admin';
+    }
+
+    function notifyAuthRequired(requiredRole = 'marshal') {
+      const activeEsportName = (typeof currentEsport !== 'undefined' ? currentEsport.toUpperCase() : 'TOURNAMENT');
+      if (currentSession && !isAuthorizedForEsport(currentEsport)) {
+        showToast(`🔒 Account scoped to ${currentSession.gameScope.toUpperCase()} only. Switch to ${currentSession.gameScope.toUpperCase()} or log in with a ${activeEsportName} account.`);
+        openAdminLoginModal(requiredRole, currentEsport);
+      } else if (!currentSession) {
+        if (requiredRole === 'admin') {
+          showToast(`🔒 Please log in as ${activeEsportName} Admin to access this feature.`);
+        } else {
+          showToast(`🔒 Please log in as ${activeEsportName} Marshal or Admin to score matches.`);
+        }
+        openAdminLoginModal(requiredRole, currentEsport);
+      } else {
+        showToast(`🔒 Only Tournament Admin can perform this action (Active session: ${currentSession.name}).`);
+        openAdminLoginModal('admin', currentEsport);
+      }
+    }
+
+    function loginWithAccount(account, notify = true) {
+      if (!account) return;
+      currentSession = {
+        token: 'sess_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7),
+        accountId: account.id,
+        name: account.name,
+        role: account.role,
+        gameScope: account.scope,
+        badge: account.badge,
+        roleTitle: account.roleTitle,
+        scopeTitle: account.scopeTitle,
+        createdAt: Date.now(),
+        expiresAt: Date.now() + SESSION_DURATION_MS
+      };
+
+      saveSession(currentSession);
+      updateAdminUI();
+      renderLiveBroadcastHero();
+
+      if (notify) {
+        const scopeText = account.scope === 'all' ? 'All Tournaments' : `${account.scope.toUpperCase()} Only`;
+        showToast(`${account.badge} Logged in as ${account.name} (${scopeText})`);
+      }
+    }
+
+    function logoutSession(notify = true) {
+      currentSession = null;
+      currentUserRole = 'viewer';
+      isAdminUnlocked = false;
+      clearSessionStorage();
 
       updateAdminUI();
       renderLiveBroadcastHero();
 
       if (notify) {
-        if (role === 'admin') {
-          showToast('👑 Unlocked Tournament Admin: Full authority enabled.');
-        } else if (role === 'marshal') {
-          showToast('⚔️ Unlocked Table Marshal: Match score reporting enabled.');
-        } else {
-          showToast('👁️ Switched to Spectator Viewer mode (Read only).');
-        }
+        showToast('🚪 Logged out. Switched to Spectator Viewer mode.');
       }
     }
 
-    function canScore() {
-      return currentUserRole === 'admin' || currentUserRole === 'marshal';
+    // Backward-compatible setRole wrapper
+    function setRole(role, notify = true) {
+      if (role === 'viewer') {
+        logoutSession(notify);
+        return;
+      }
+      // If role specified without account, find best matching account for currentEsport
+      const matched = AUTH_ACCOUNTS.find(a => a.role === role && (a.scope === currentEsport || a.scope === 'all'))
+        || (role === 'admin' ? AUTH_ACCOUNTS[0] : AUTH_ACCOUNTS[1]);
+      loginWithAccount(matched, notify);
     }
 
-    function isAdmin() {
-      return currentUserRole === 'admin';
+    function initAdminAuth() {
+      // 1. Check URL query parameters
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const pinQuery = (urlParams.get('pin') || '').toLowerCase();
+        const roleQuery = (urlParams.get('role') || '').toLowerCase();
+        const scopeQuery = (urlParams.get('scope') || urlParams.get('game') || '').toLowerCase();
+        const adminQuery = (urlParams.get('admin') || '').toLowerCase();
+        const marshalQuery = (urlParams.get('marshal') || '').toLowerCase();
+
+        const testPin = pinQuery || (adminQuery !== 'true' ? adminQuery : '') || (marshalQuery !== 'true' ? marshalQuery : '');
+        if (testPin) {
+          const accByPin = AUTH_ACCOUNTS.find(a => a.pins.includes(testPin));
+          if (accByPin) {
+            loginWithAccount(accByPin, false);
+            updateAdminUI();
+            return;
+          }
+        }
+
+        if (roleQuery === 'admin' || adminQuery === 'true') {
+          const targetScope = scopeQuery === 'codm' || scopeQuery === 'mlbb' ? scopeQuery : 'all';
+          const acc = AUTH_ACCOUNTS.find(a => a.role === 'admin' && a.scope === targetScope) || AUTH_ACCOUNTS[0];
+          loginWithAccount(acc, false);
+          updateAdminUI();
+          return;
+        } else if (roleQuery === 'marshal' || marshalQuery === 'true') {
+          const targetScope = scopeQuery === 'codm' || scopeQuery === 'mlbb' ? scopeQuery : 'all';
+          const acc = AUTH_ACCOUNTS.find(a => a.role === 'marshal' && a.scope === targetScope) || AUTH_ACCOUNTS[1];
+          loginWithAccount(acc, false);
+          updateAdminUI();
+          return;
+        }
+      } catch(e) {}
+
+      // 2. Load stored active session
+      const stored = loadSession();
+      if (stored) {
+        currentSession = stored;
+      } else {
+        // 3. Backward-compatible migration from old tcc_user_role string
+        try {
+          const oldRole = localStorage.getItem('tcc_user_role') || sessionStorage.getItem('tcc_user_role');
+          if (oldRole === 'admin') {
+            currentSession = {
+              token: 'migrated_admin_' + Date.now(),
+              accountId: 'super_admin',
+              name: 'Tournament Director',
+              role: 'admin',
+              gameScope: 'all',
+              badge: '👑',
+              roleTitle: 'Tournament Director',
+              scopeTitle: 'All Esports Tournaments',
+              createdAt: Date.now(),
+              expiresAt: Date.now() + SESSION_DURATION_MS
+            };
+            saveSession(currentSession);
+          } else if (oldRole === 'marshal') {
+            currentSession = {
+              token: 'migrated_marshal_' + Date.now(),
+              accountId: 'global_marshal',
+              name: 'General Table Marshal',
+              role: 'marshal',
+              gameScope: 'all',
+              badge: '⚔️',
+              roleTitle: 'General Table Marshal',
+              scopeTitle: 'All Esports Tournaments',
+              createdAt: Date.now(),
+              expiresAt: Date.now() + SESSION_DURATION_MS
+            };
+            saveSession(currentSession);
+          }
+        } catch(e) {}
+      }
+
+      updateAdminUI();
     }
 
     function updateAdminUI() {
-      // 1. Update Body Classes for RBAC CSS
+      // 1. Effective Role for the Current Viewed Esport
+      const effRole = getEffectiveRole(currentEsport);
+      currentUserRole = effRole;
+      isAdminUnlocked = (effRole === 'admin');
+
+      // 2. Update Body Classes for RBAC CSS
       document.body.classList.remove('role-admin', 'role-marshal', 'role-viewer', 'admin-mode', 'spectator-mode');
-      if (currentUserRole === 'admin') {
+      if (effRole === 'admin') {
         document.body.classList.add('role-admin', 'admin-mode');
-      } else if (currentUserRole === 'marshal') {
+      } else if (effRole === 'marshal') {
         document.body.classList.add('role-marshal');
-        if (typeof isTheaterModeOpen !== 'undefined' && isTheaterModeOpen) {
-          closeTheaterMode();
-        }
-        if (typeof currentTab !== 'undefined' && currentTab !== 'bracket') {
-          switchTab('bracket');
-        }
+        if (typeof isTheaterModeOpen !== 'undefined' && isTheaterModeOpen) closeTheaterMode();
+        if (typeof currentTab !== 'undefined' && currentTab !== 'bracket') switchTab('bracket');
       } else {
         document.body.classList.add('role-viewer', 'spectator-mode');
-        if (typeof isTheaterModeOpen !== 'undefined' && isTheaterModeOpen) {
-          closeTheaterMode();
-        }
-        if (typeof currentTab !== 'undefined' && currentTab !== 'bracket') {
-          switchTab('bracket');
-        }
+        if (typeof isTheaterModeOpen !== 'undefined' && isTheaterModeOpen) closeTheaterMode();
+        if (typeof currentTab !== 'undefined' && currentTab !== 'bracket') switchTab('bracket');
       }
 
-      // 2. Update Header Auth Badge & Controls
+      // 3. Update Header Auth Container (#adminAuthContainer)
       const authContainer = document.getElementById('adminAuthContainer');
       if (authContainer) {
-        if (currentUserRole === 'admin') {
+        if (!currentSession) {
           authContainer.innerHTML = `
             <div class="flex items-center gap-1.5">
-              <button onclick="openRoleSwitchModal()" title="Current Role: Tournament Admin (Click to switch)" class="px-2.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 text-xs font-black flex items-center gap-1 shadow-xs hover:bg-amber-500/30 transition cursor-pointer">
-                <span>🛡️</span>
-                <span class="inline">Admin</span>
-                <span class="text-[9px] bg-amber-500 text-slate-950 font-black px-1.5 py-0.5 rounded-md ml-0.5">FULL</span>
-              </button>
-              <button onclick="setRole('viewer')" title="Exit Admin Mode (Switch to Spectator Viewer)" class="px-2 py-1.5 rounded-xl border border-[var(--border)] hover:bg-[var(--secondary)] text-xs font-bold text-[var(--muted-foreground)] hover:text-rose-400 transition cursor-pointer flex items-center gap-1" aria-label="Lock / Exit Admin">
-                <span>🔒</span> <span class="hidden sm:inline">Exit</span>
-              </button>
-            </div>
-          `;
-        } else if (currentUserRole === 'marshal') {
-          authContainer.innerHTML = `
-            <div class="flex items-center gap-1.5">
-              <button onclick="openRoleSwitchModal()" title="Current Role: Table Marshal (Click to switch)" class="px-2.5 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 text-xs font-black flex items-center gap-1 shadow-xs hover:bg-cyan-500/30 transition cursor-pointer">
-                <span>⚔️</span>
-                <span class="inline">Marshal</span>
-                <span class="text-[9px] bg-cyan-400 text-slate-950 font-black px-1.5 py-0.5 rounded-md ml-0.5">SCORE</span>
-              </button>
-              <button onclick="setRole('viewer')" title="Exit Marshal Mode (Switch to Spectator Viewer)" class="px-2 py-1.5 rounded-xl border border-[var(--border)] hover:bg-[var(--secondary)] text-xs font-bold text-[var(--muted-foreground)] hover:text-rose-400 transition cursor-pointer flex items-center gap-1" aria-label="Lock / Exit Marshal">
-                <span>🔒</span> <span class="hidden sm:inline">Exit</span>
-              </button>
-            </div>
-          `;
-        } else {
-          authContainer.innerHTML = `
-            <div class="flex items-center gap-1.5">
-              <span class="hidden md:inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[var(--secondary)]/70 text-[var(--muted-foreground)] text-xs font-bold border border-[var(--border)]">
+              <span class="hidden md:inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-[var(--secondary)]/70 text-[var(--muted-foreground)] text-xs font-bold border border-[var(--border)]">
                 <span>👁️</span> Viewer
               </span>
               <button id="adminLoginBtn" onclick="openAdminLoginModal()" title="Tournament Admin & Table Marshal Login" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-black transition cursor-pointer shadow-xs active:scale-95">
@@ -8247,42 +8493,119 @@ Check your Browserslist config to be sure that your targets are set up correctly
               </button>
             </div>
           `;
+        } else {
+          const isAuthorized = isAuthorizedForEsport(currentEsport);
+          const isDirector = currentSession.gameScope === 'all';
+          const scopeBadge = isDirector
+            ? '<span class="text-[9px] bg-purple-500/20 text-purple-300 border border-purple-500/40 font-black px-1.5 py-0.5 rounded-md">ALL</span>'
+            : `<span class="text-[9px] ${isAuthorized ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40' : 'bg-rose-500/20 text-rose-300 border border-rose-500/40'} font-black px-1.5 py-0.5 rounded-md">${currentSession.gameScope.toUpperCase()}</span>`;
+
+          const roleBadge = effRole === 'admin'
+            ? '<span class="text-[9px] bg-amber-500 text-slate-950 font-black px-1.5 py-0.5 rounded-md">ADMIN</span>'
+            : effRole === 'marshal'
+            ? '<span class="text-[9px] bg-cyan-400 text-slate-950 font-black px-1.5 py-0.5 rounded-md">SCORE</span>'
+            : '<span class="text-[9px] bg-amber-500/20 text-amber-300 border border-amber-500/40 font-black px-1.5 py-0.5 rounded-md">READ ONLY</span>';
+
+          const buttonTheme = isAuthorized
+            ? (currentSession.role === 'admin' ? 'bg-amber-500/15 text-amber-400 border-amber-500/40 hover:bg-amber-500/25' : 'bg-cyan-500/15 text-cyan-400 border-cyan-500/40 hover:bg-cyan-500/25')
+            : 'bg-rose-500/10 text-rose-300 border-rose-500/30 hover:bg-rose-500/20';
+
+          const tooltip = isAuthorized
+            ? `Logged in: ${currentSession.name} (${currentSession.scopeTitle}). Click to switch role or view session.`
+            : `Your account is scoped to ${currentSession.gameScope.toUpperCase()} only. In ${currentEsport.toUpperCase()}, you have spectator (read-only) access. Click to change account.`;
+
+          authContainer.innerHTML = `
+            <div class="flex items-center gap-1.5">
+              <button onclick="openRoleSwitchModal()" title="${tooltip}" class="px-2.5 py-1.5 rounded-xl ${buttonTheme} border text-xs font-black flex items-center gap-1.5 shadow-xs transition cursor-pointer">
+                <span>${currentSession.badge || '🛡️'}</span>
+                <span class="inline">${currentSession.name}</span>
+                ${scopeBadge}
+                ${roleBadge}
+              </button>
+              <button onclick="logoutSession()" title="Log out / End Session" class="px-2 py-1.5 rounded-xl border border-[var(--border)] hover:bg-[var(--secondary)] text-xs font-bold text-[var(--muted-foreground)] hover:text-rose-400 transition cursor-pointer flex items-center gap-1" aria-label="Log Out">
+                <span>🚪</span> <span class="hidden sm:inline">Exit</span>
+              </button>
+            </div>
+          `;
         }
       }
 
-      // 3. Update Modal Role Badge
-      const modalBadge = document.getElementById('loginCurrentRoleBadge');
-      if (modalBadge) {
-        if (currentUserRole === 'admin') {
-          modalBadge.innerHTML = `<span class="text-amber-400">🛡️ Tournament Admin (Full Authority)</span>`;
-        } else if (currentUserRole === 'marshal') {
-          modalBadge.innerHTML = `<span class="text-cyan-400">⚔️ Table Marshal (Match Scoring)</span>`;
+      // 4. Update Hub Login Button (#hubLoginBtn)
+      const hubBtn = document.getElementById('hubLoginBtn');
+      if (hubBtn) {
+        if (currentSession) {
+          hubBtn.innerHTML = `<span>${currentSession.badge || '🛡️'}</span> <span>${currentSession.name}</span>`;
+          hubBtn.title = `Logged in: ${currentSession.name} (${currentSession.scopeTitle}). Click to manage session.`;
+          hubBtn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-sky-500/40 bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 text-xs font-black transition cursor-pointer active:scale-95";
         } else {
-          modalBadge.innerHTML = `<span class="text-slate-400">👁️ Spectator Viewer (Read Only)</span>`;
+          hubBtn.innerHTML = `<span>🔒</span> <span>Login</span>`;
+          hubBtn.title = 'Tournament Admin & Table Marshal Login';
+          hubBtn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-black transition cursor-pointer active:scale-95";
+        }
+      }
+
+      // 5. Update Modal Session Banner
+      const modalBadge = document.getElementById('loginCurrentRoleBadge');
+      const logoutBtn = document.getElementById('loginLogoutBtn');
+      const scopeNotice = document.getElementById('loginScopeNotice');
+      if (modalBadge) {
+        if (currentSession) {
+          const isAuth = isAuthorizedForEsport(currentEsport);
+          modalBadge.innerHTML = `
+            <span class="font-black text-emerald-400">${currentSession.badge} ${currentSession.name}</span>
+            <span class="ml-1 text-[10px] px-2 py-0.5 rounded-md bg-white/10 text-slate-300">${currentSession.scopeTitle}</span>
+          `;
+          if (logoutBtn) logoutBtn.classList.remove('hidden');
+          if (scopeNotice) {
+            scopeNotice.classList.remove('hidden');
+            if (isAuth) {
+              scopeNotice.innerHTML = `
+                <div class="flex items-center gap-1.5 text-emerald-400 font-bold">
+                  <span>✅</span> <span>Session Active: Full authorized access for ${currentEsport.toUpperCase()} (${currentSession.roleTitle}).</span>
+                </div>
+              `;
+            } else {
+              scopeNotice.innerHTML = `
+                <div class="flex items-center gap-1.5 text-amber-400 font-bold">
+                  <span>⚠️</span> <span>Active account is scoped to ${currentSession.gameScope.toUpperCase()} only. You are currently in ${currentEsport.toUpperCase()} (Read-only spectator mode).</span>
+                </div>
+              `;
+            }
+          }
+        } else {
+          modalBadge.innerHTML = `<span class="text-slate-400">👁️ Viewer (Read Only Spectator)</span>`;
+          if (logoutBtn) logoutBtn.classList.add('hidden');
+          if (scopeNotice) scopeNotice.classList.add('hidden');
         }
       }
     }
 
-    function openAdminLoginModal(defaultRole) {
+    function openAdminLoginModal(defaultRole, defaultScope) {
       const modal = document.getElementById('adminLoginModal');
       const input = document.getElementById('adminPinInput');
       const err = document.getElementById('adminPinError');
-      if (modal) {
-        modal.classList.remove('hidden');
-        if (err) err.classList.add('hidden');
-        if (input) {
-          input.value = '';
-          input.type = 'password';
-          const icon = document.getElementById('pinVisibilityIcon');
-          if (icon) icon.innerText = '👁️';
-        }
-        selectLoginTargetRole(defaultRole || targetLoginRole || (currentUserRole === 'marshal' ? 'marshal' : 'admin'));
-        setTimeout(() => input && input.focus(), 120);
+      if (!modal) return;
+
+      modal.classList.remove('hidden');
+      if (err) err.classList.add('hidden');
+      if (input) {
+        input.value = '';
+        input.type = 'password';
+        const icon = document.getElementById('pinVisibilityIcon');
+        if (icon) icon.innerText = '👁️';
       }
+
+      const initialScope = defaultScope || (currentSession && currentSession.gameScope !== 'all' ? currentSession.gameScope : currentEsport);
+      const initialRole = defaultRole || (currentSession ? currentSession.role : 'marshal');
+
+      selectLoginScope(initialScope);
+      selectLoginTargetRole(initialRole);
+
+      setTimeout(() => input && input.focus(), 120);
     }
 
     function openRoleSwitchModal() {
-      openAdminLoginModal(currentUserRole === 'viewer' ? 'admin' : currentUserRole);
+      openAdminLoginModal(currentSession ? currentSession.role : 'marshal', currentSession ? currentSession.gameScope : currentEsport);
     }
 
     function closeAdminLoginModal() {
@@ -8290,40 +8613,118 @@ Check your Browserslist config to be sure that your targets are set up correctly
       if (modal) modal.classList.add('hidden');
     }
 
+    function selectLoginScope(scope) {
+      if (scope !== 'mlbb' && scope !== 'codm' && scope !== 'all') scope = 'mlbb';
+      targetLoginScope = scope;
+      updateLoginModalFields();
+    }
+
     function selectLoginTargetRole(role) {
+      if (role !== 'admin' && role !== 'marshal') role = 'marshal';
       targetLoginRole = role;
-      const btnAdmin = document.getElementById('roleBtnAdmin');
+      updateLoginModalFields();
+    }
+
+    function updateLoginModalFields() {
+      // 1. Scope Buttons Styling
+      const btnMlbb = document.getElementById('scopeBtnMlbb');
+      const btnCodm = document.getElementById('scopeBtnCodm');
+      const btnAll = document.getElementById('scopeBtnAll');
+      const scopePill = document.getElementById('loginScopePill');
+
+      const inactiveScopeCls = 'py-2 px-2 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)]/60';
+      if (btnMlbb) btnMlbb.className = targetLoginScope === 'mlbb' ? 'py-2 px-2 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer bg-blue-500 text-white shadow-xs' : inactiveScopeCls;
+      if (btnCodm) btnCodm.className = targetLoginScope === 'codm' ? 'py-2 px-2 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer bg-amber-500 text-slate-950 shadow-xs' : inactiveScopeCls;
+      if (btnAll) btnAll.className = targetLoginScope === 'all' ? 'py-2 px-2 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer bg-purple-600 text-white shadow-xs' : inactiveScopeCls;
+
+      if (scopePill) {
+        scopePill.innerText = `Active View: ${currentEsport.toUpperCase()}`;
+      }
+
+      // 2. Role Buttons Styling & Labels
       const btnMarshal = document.getElementById('roleBtnMarshal');
-      const descAdmin = document.getElementById('roleDescAdmin');
-      const descMarshal = document.getElementById('roleDescMarshal');
-      const label = document.getElementById('loginPinLabel');
-      const hint = document.getElementById('loginPinHint');
+      const btnAdmin = document.getElementById('roleBtnAdmin');
+      const marshalIcon = document.getElementById('roleBtnMarshalIcon');
+      const adminIcon = document.getElementById('roleBtnAdminIcon');
+      const marshalLabel = document.getElementById('roleBtnMarshalLabel');
+      const adminLabel = document.getElementById('roleBtnAdminLabel');
+
+      if (targetLoginScope === 'all') {
+        if (marshalLabel) marshalLabel.innerText = 'General Marshal';
+        if (adminLabel) adminLabel.innerText = 'Tournament Director';
+      } else if (targetLoginScope === 'codm') {
+        if (marshalLabel) marshalLabel.innerText = 'CODM Marshal';
+        if (adminLabel) adminLabel.innerText = 'CODM Admin';
+      } else {
+        if (marshalLabel) marshalLabel.innerText = 'MLBB Marshal';
+        if (adminLabel) adminLabel.innerText = 'MLBB Admin';
+      }
+
+      const inactiveRoleCls = 'py-2.5 px-3 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)]/60';
+      if (btnMarshal) {
+        btnMarshal.className = targetLoginRole === 'marshal'
+          ? 'py-2.5 px-3 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer bg-cyan-500 text-slate-950 shadow-xs'
+          : inactiveRoleCls;
+      }
+      if (btnAdmin) {
+        btnAdmin.className = targetLoginRole === 'admin'
+          ? 'py-2.5 px-3 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer bg-amber-500 text-slate-950 shadow-xs'
+          : inactiveRoleCls;
+      }
+
+      // 3. Find matching account for scope + role
+      const matched = AUTH_ACCOUNTS.find(a => a.scope === targetLoginScope && a.role === targetLoginRole)
+        || (targetLoginRole === 'admin' ? AUTH_ACCOUNTS[0] : AUTH_ACCOUNTS[1]);
+
+      // 4. Update Description Box
+      const descContent = document.getElementById('roleDescContent');
+      if (descContent) {
+        const themeColor = targetLoginRole === 'admin' ? 'text-amber-400' : 'text-cyan-400';
+        descContent.innerHTML = `
+          <div class="font-black ${themeColor} flex items-center gap-1.5">
+            <span>${matched.badge}</span> <span>${matched.name} Privileges:</span>
+          </div>
+          <p class="text-[11px] leading-relaxed">${matched.desc}</p>
+        `;
+      }
+
+      // 5. Update PIN Label & Hint
+      const pinLabel = document.getElementById('loginPinLabel');
+      const pinHint = document.getElementById('loginPinHint');
+      if (pinLabel) pinLabel.innerText = `${matched.name} PIN`;
+      if (pinHint) {
+        pinHint.innerText = `Hint: ${matched.pins[0]}`;
+        pinHint.className = targetLoginRole === 'admin'
+          ? 'text-[10px] text-amber-500/80 font-mono font-bold'
+          : 'text-[10px] text-cyan-400 font-mono font-bold';
+      }
+
+      // 6. Update Submit Button
       const submitBtn = document.getElementById('submitLoginBtn');
       const submitText = document.getElementById('submitLoginBtnText');
       const submitIcon = document.getElementById('submitLoginBtnIcon');
+      if (submitBtn) {
+        submitBtn.className = targetLoginRole === 'admin'
+          ? 'flex-1 py-2 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black shadow-md transition cursor-pointer flex items-center justify-center gap-1.5 active:scale-95'
+          : 'flex-1 py-2 px-4 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-slate-950 text-xs font-black shadow-md transition cursor-pointer flex items-center justify-center gap-1.5 active:scale-95';
+      }
+      if (submitIcon) submitIcon.innerText = matched.badge;
+      if (submitText) submitText.innerText = `Unlock ${matched.name}`;
+
       const err = document.getElementById('adminPinError');
       if (err) err.classList.add('hidden');
+    }
 
-      if (role === 'admin') {
-        if (btnAdmin) btnAdmin.className = 'py-2.5 px-3 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer bg-amber-500 text-slate-950 shadow-xs';
-        if (btnMarshal) btnMarshal.className = 'py-2.5 px-3 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)]/60';
-        if (descAdmin) descAdmin.classList.remove('hidden');
-        if (descMarshal) descMarshal.classList.add('hidden');
-        if (label) label.innerText = 'Admin Security PIN';
-        if (hint) { hint.innerText = 'Hint: admin2026'; hint.className = 'text-[10px] text-amber-500/80 font-mono font-bold'; }
-        if (submitBtn) submitBtn.className = 'flex-1 py-2 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black shadow-md transition cursor-pointer flex items-center justify-center gap-1.5 active:scale-95';
-        if (submitIcon) submitIcon.innerText = '🛡️';
-        if (submitText) submitText.innerText = 'Unlock Admin Controls';
-      } else {
-        if (btnAdmin) btnAdmin.className = 'py-2.5 px-3 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)]/60';
-        if (btnMarshal) btnMarshal.className = 'py-2.5 px-3 rounded-xl text-xs font-black transition flex flex-col items-center gap-0.5 cursor-pointer bg-cyan-500 text-slate-950 shadow-xs';
-        if (descAdmin) descAdmin.classList.add('hidden');
-        if (descMarshal) descMarshal.classList.remove('hidden');
-        if (label) label.innerText = 'Marshal Security PIN';
-        if (hint) { hint.innerText = 'Hint: marshal2026'; hint.className = 'text-[10px] text-cyan-400 font-mono font-bold'; }
-        if (submitBtn) submitBtn.className = 'flex-1 py-2 px-4 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-slate-950 text-xs font-black shadow-md transition cursor-pointer flex items-center justify-center gap-1.5 active:scale-95';
-        if (submitIcon) submitIcon.innerText = '⚔️';
-        if (submitText) submitText.innerText = 'Unlock Marshal Scoring';
+    function quickFillAccount(accountId) {
+      const acc = AUTH_ACCOUNTS.find(a => a.id === accountId);
+      if (!acc) return;
+      targetLoginScope = acc.scope;
+      targetLoginRole = acc.role;
+      updateLoginModalFields();
+      const input = document.getElementById('adminPinInput');
+      if (input) {
+        input.value = acc.pins[0];
+        input.focus();
       }
     }
 
@@ -8346,42 +8747,40 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const errText = document.getElementById('adminPinErrorText');
       const pin = input ? input.value.trim().toLowerCase() : '';
 
-      if (targetLoginRole === 'admin') {
-        if (ADMIN_PINS.includes(pin)) {
-          setRole('admin');
-          closeAdminLoginModal();
-          return;
-        } else if (MARSHAL_PINS.includes(pin)) {
-          setRole('marshal');
-          closeAdminLoginModal();
-          showToast('⚔️ Table Marshal PIN recognized: Logged in as Marshal');
-          return;
-        } else {
-          if (err) err.classList.remove('hidden');
-          if (errText) errText.innerText = 'Incorrect Admin PIN. (Default: admin2026)';
-          if (input) {
-            input.classList.add('border-rose-500');
-            setTimeout(() => input.classList.remove('border-rose-500'), 1500);
-          }
-        }
-      } else {
-        if (MARSHAL_PINS.includes(pin)) {
-          setRole('marshal');
-          closeAdminLoginModal();
-          return;
-        } else if (ADMIN_PINS.includes(pin)) {
-          setRole('admin');
-          closeAdminLoginModal();
-          showToast('👑 Admin PIN recognized: Logged in with Full Authority');
-          return;
-        } else {
-          if (err) err.classList.remove('hidden');
-          if (errText) errText.innerText = 'Incorrect Marshal PIN. (Default: marshal2026)';
-          if (input) {
-            input.classList.add('border-rose-500');
-            setTimeout(() => input.classList.remove('border-rose-500'), 1500);
-          }
-        }
+      if (!pin) {
+        if (err) err.classList.remove('hidden');
+        if (errText) errText.innerText = 'Please enter a security PIN.';
+        return;
+      }
+
+      // 1. Direct match for selected scope & role
+      let matched = AUTH_ACCOUNTS.find(a => a.scope === targetLoginScope && a.role === targetLoginRole && a.pins.includes(pin));
+
+      // 2. Direct match for selected scope (opposite role)
+      if (!matched) {
+        matched = AUTH_ACCOUNTS.find(a => a.scope === targetLoginScope && a.pins.includes(pin));
+      }
+
+      // 3. Smart cross-account match (e.g. entered codm PIN while on mlbb tab, or superadmin)
+      if (!matched) {
+        matched = AUTH_ACCOUNTS.find(a => a.pins.includes(pin));
+      }
+
+      if (matched) {
+        if (err) err.classList.add('hidden');
+        loginWithAccount(matched);
+        closeAdminLoginModal();
+        return;
+      }
+
+      // Incorrect PIN
+      if (err) err.classList.remove('hidden');
+      const targetAcc = AUTH_ACCOUNTS.find(a => a.scope === targetLoginScope && a.role === targetLoginRole);
+      const defaultHint = targetAcc ? targetAcc.pins[0] : 'admin2026';
+      if (errText) errText.innerText = `Incorrect PIN. (Hint: ${defaultHint})`;
+      if (input) {
+        input.classList.add('border-rose-500');
+        setTimeout(() => input.classList.remove('border-rose-500'), 1500);
       }
     }
 
