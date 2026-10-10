@@ -104,11 +104,22 @@ try:
     # Verify Leader Spotlight is displayed
     assert_true(leader['name'].lower() in slide_body_text.lower(), f"Leader name {leader['name']} is prominently displayed in Live Stage")
     assert_true(f"{leader['totalPoints']} pts".lower() in slide_body_text.lower() or str(leader['totalPoints']) in slide_body_text, f"Leader's total accumulated score {leader['totalPoints']} is displayed")
-    assert_true("round-by-round accumulated standings" in slide_body_text.lower(), "Round-by-Round Accumulated Standings table title is displayed")
-    assert_true("score · cum" in slide_body_text.lower() or "cum:" in slide_body_text.lower(), "Accumulated score (Cum) in each round is displayed")
+    assert_true("accumulated standings" in slide_body_text.lower(), "Accumulated Standings title is displayed")
+    assert_true(chaser['name'].lower() in slide_body_text.lower(), f"2nd team {chaser['name']} is displayed in scoreboard")
 
-    # Verify 2nd and 3rd contenders are displayed
-    assert_true(chaser['name'].lower() in slide_body_text.lower(), f"2nd contender {chaser['name']} is displayed")
+    # Verify top hero cards are removed as requested
+    assert_true("2nd contender" not in slide_body_text.lower(), "Top 2nd contender card is removed")
+    assert_true("3rd contender" not in slide_body_text.lower(), "Top 3rd contender card is removed")
+
+    # Verify zero scroll (both vertically and horizontally)
+    slide_body = driver.find_element(By.ID, "theaterSlideBody")
+    scroll_height = driver.execute_script("return arguments[0].scrollHeight;", slide_body)
+    client_height = driver.execute_script("return arguments[0].clientHeight;", slide_body)
+    scroll_width = driver.execute_script("return arguments[0].scrollWidth;", slide_body)
+    client_width = driver.execute_script("return arguments[0].clientWidth;", slide_body)
+    print(f"Desktop Stage Dimensions: H={client_height} vs scrollH={scroll_height}, W={client_width} vs scrollW={scroll_width}")
+    assert_true(scroll_height <= client_height + 4, f"Zero vertical scroll on desktop (scrollH={scroll_height} <= clientH={client_height})")
+    assert_true(scroll_width <= client_width + 4, f"Zero horizontal scroll on desktop (scrollW={scroll_width} <= clientW={client_width})")
 
     # Verify zero bracket clutter
     assert_true("upper bracket" not in slide_body_text.lower(), "Upper Bracket is NOT present (no bracket clutter)")

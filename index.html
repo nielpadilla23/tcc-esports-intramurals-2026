@@ -904,7 +904,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
     </div>
 
     <!-- Stage Slide Body -->
-    <div id="theaterSlideBody" class="flex-1 overflow-y-auto py-2.5 sm:py-3 px-3 sm:px-6 flex flex-col justify-start">
+    <div id="theaterSlideBody" class="flex-1 overflow-y-auto py-1.5 sm:py-2 px-2.5 sm:px-5 flex flex-col justify-start">
       <!-- Injected via renderTheaterCurrentSlide() -->
     </div>
 
@@ -8329,204 +8329,116 @@ Check your Browserslist config to be sure that your targets are set up correctly
         }
       });
 
-      // 1. WHICH ONES ARE LEADING (Leader Spotlight Section)
-      let leadersHtml = '';
-      if (hasActivity && top1) {
-        const isTied = leadMargin === 0 && top2 && top2.totalPoints === top1.totalPoints;
-        const leadBadge = isConcluded
-          ? `<span class="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-amber-500 text-slate-950 shadow-md flex items-center gap-1.5"><span>👑</span> TOURNAMENT CHAMPION (GOLD)</span>`
-          : (isTied
-            ? `<span class="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-amber-500/30 text-amber-300 border border-amber-500/50 flex items-center gap-1.5"><span>👑</span> TIED FOR 1ST PLACE</span>`
-            : `<span class="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-amber-500 text-slate-950 shadow-md flex items-center gap-1.5 animate-pulse"><span>👑</span> CURRENT LEADER (+${leadMargin} PTS AHEAD)</span>`);
-
-        leadersHtml = `
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
-            <!-- 1st Place Current Leader Hero Card (8 Cols) -->
-            <div class="lg:col-span-8 p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-amber-500/20 via-slate-900/90 to-amber-950/30 border-2 border-amber-500/60 shadow-2xl shadow-amber-500/15 flex flex-col justify-between relative overflow-hidden">
-              <div class="absolute -right-6 -bottom-6 text-9xl opacity-10 select-none pointer-events-none">👑</div>
-              <div class="space-y-3 relative z-10">
-                <div class="flex items-center justify-between flex-wrap gap-2">
-                  ${leadBadge}
-                  <span class="text-xs font-mono font-black text-amber-400/90 tracking-wider">
-                    ${isConcluded ? '🏆 TOURNAMENT CONCLUDED' : `ROUND ${doneRounds.length} OF 8 COMPLETED`}
-                  </span>
-                </div>
-
-                <div class="flex items-center gap-4 pt-1">
-                  ${top1.icon ? `<img src="${top1.icon}" alt="${top1.name}" class="w-16 h-16 sm:w-20 sm:h-20 object-contain rounded-2xl p-1.5 bg-amber-500/10 border-2 border-amber-500/40 shadow-lg shrink-0">` : `<div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-amber-500/20 border-2 border-amber-500/40 flex items-center justify-center font-black text-2xl text-amber-300 shrink-0">${top1.name}</div>`}
-                  <div class="truncate">
-                    <div class="flex items-center gap-2">
-                      <h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-2">
-                        <span class="text-amber-300">${top1.name}</span>
-                        <span class="text-slate-300">·</span>
-                        <span class="text-white">${top1.mascot}</span>
-                      </h3>
-                    </div>
-                    <p class="text-xs sm:text-sm text-slate-300 font-medium truncate mt-0.5">${top1.full}</p>
-                    <div class="flex items-center gap-2 mt-2 flex-wrap text-xs font-bold text-slate-300">
-                      <span class="px-2.5 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">💀 ${top1.totalKills} Kills</span>
-                      <span class="px-2.5 py-0.5 rounded-lg bg-sky-500/20 text-sky-300 border border-sky-500/40">🎯 ${top1.totalPlacementPoints} Place Pts</span>
-                      <span class="px-2.5 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40">🏆 ${top1.winsCount} Round Wins</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="pt-4 mt-4 border-t border-amber-500/30 flex items-center justify-between relative z-10">
-                <div>
-                  <div class="text-[11px] font-black uppercase text-amber-400 tracking-wider">Total Accumulated Score</div>
-                  <div class="text-3xl sm:text-4xl font-black font-mono text-amber-300 tracking-tight">
-                    ${top1.totalPoints} <span class="text-base font-bold text-amber-400">PTS ⚡</span>
-                  </div>
-                </div>
-                <div class="text-right">
-                  ${!isConcluded && leadMargin > 0 ? `
-                    <div class="text-xs font-mono font-black text-emerald-400">+${leadMargin} PTS LEAD</div>
-                    <div class="text-[10px] text-slate-400">ahead of 2nd (${top2 ? top2.name : ''})</div>
-                  ` : (isConcluded ? `
-                    <div class="text-xs font-mono font-black text-amber-300">GOLD MEDALIST 🥇</div>
-                    <div class="text-[10px] text-slate-400">TCC Champion</div>
-                  ` : `
-                    <div class="text-xs font-mono font-black text-amber-300">TIED 1ST</div>
-                  `)}
-                </div>
-              </div>
-            </div>
-
-            <!-- 2nd & 3rd Place Contenders Column (4 Cols) -->
-            <div class="lg:col-span-4 flex flex-col gap-3 justify-between">
-              <!-- 2nd Place -->
-              ${top2 ? `
-                <div class="flex-1 p-4 rounded-2xl bg-slate-900/90 border border-slate-500/40 shadow-lg flex flex-col justify-between">
-                  <div class="flex items-center justify-between">
-                    <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-slate-500/20 text-slate-300 border border-slate-500/40 flex items-center gap-1">
-                      <span>🥈</span> 2nd Contender
-                    </span>
-                    <span class="text-xs font-mono font-bold text-rose-400">-${top1.totalPoints - top2.totalPoints} pts</span>
-                  </div>
-                  <div class="flex items-center gap-3 my-2">
-                    ${top2.icon ? `<img src="${top2.icon}" alt="${top2.name}" class="w-10 h-10 object-contain rounded-xl p-1 bg-white/5 border border-white/10 shrink-0">` : `<div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center font-bold text-xs">${top2.name}</div>`}
-                    <div class="truncate">
-                      <div class="text-base font-black text-white truncate">${top2.name} <span class="text-xs text-slate-400 font-normal">(${top2.mascot})</span></div>
-                      <div class="text-[10px] text-slate-400 font-mono">${top2.totalKills} kills · ${top2.totalPlacementPoints} place pts</div>
-                    </div>
-                  </div>
-                  <div class="flex items-center justify-between pt-2 border-t border-white/5 text-xs">
-                    <span class="text-[10px] text-slate-400 font-bold uppercase">Accumulated</span>
-                    <span class="text-lg font-black font-mono text-slate-200">${top2.totalPoints} pts</span>
-                  </div>
-                </div>
-              ` : ''}
-
-              <!-- 3rd Place -->
-              ${top3 ? `
-                <div class="flex-1 p-4 rounded-2xl bg-amber-950/20 border border-amber-700/40 shadow-lg flex flex-col justify-between">
-                  <div class="flex items-center justify-between">
-                    <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-800/30 text-amber-400 border border-amber-700/40 flex items-center gap-1">
-                      <span>🥉</span> 3rd Contender
-                    </span>
-                    <span class="text-xs font-mono font-bold text-rose-400">-${top1.totalPoints - top3.totalPoints} pts</span>
-                  </div>
-                  <div class="flex items-center gap-3 my-2">
-                    ${top3.icon ? `<img src="${top3.icon}" alt="${top3.name}" class="w-10 h-10 object-contain rounded-xl p-1 bg-white/5 border border-white/10 shrink-0">` : `<div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center font-bold text-xs">${top3.name}</div>`}
-                    <div class="truncate">
-                      <div class="text-base font-black text-white truncate">${top3.name} <span class="text-xs text-slate-400 font-normal">(${top3.mascot})</span></div>
-                      <div class="text-[10px] text-slate-400 font-mono">${top3.totalKills} kills · ${top3.totalPlacementPoints} place pts</div>
-                    </div>
-                  </div>
-                  <div class="flex items-center justify-between pt-2 border-t border-white/5 text-xs">
-                    <span class="text-[10px] text-slate-400 font-bold uppercase">Accumulated</span>
-                    <span class="text-lg font-black font-mono text-amber-300">${top3.totalPoints} pts</span>
-                  </div>
-                </div>
-              ` : ''}
-            </div>
-          </div>
-        `;
+      // Round headers
+      let roundColsHtml = '';
+      if (doneRounds.length > 0) {
+        roundColsHtml = doneRounds.map(r => `
+          <th class="py-2.5 px-1 text-center font-mono text-purple-300 text-[11px] sm:text-xs">
+            <div>R${r}</div>
+          </th>
+        `).join('');
       } else {
-        // Awaiting Round 1
-        leadersHtml = `
-          <div class="p-6 sm:p-8 rounded-3xl bg-slate-900/80 border border-purple-500/30 text-center space-y-3">
-            <div class="text-4xl">🪂 🎮 ⚡</div>
-            <h3 class="text-xl sm:text-2xl font-black text-white uppercase tracking-tight">
-              8-Round Battle Royale Championship · Live Stage Feed
-            </h3>
-            <p class="text-xs sm:text-sm text-slate-400 max-w-xl mx-auto">
-              All 7 official college departments are staged for drop. As matches conclude, round scores and real-time accumulated standings will update automatically on this live stage.
-            </p>
-            <div class="flex items-center justify-center gap-2 flex-wrap pt-2">
-              ${CODM_BR_TEAMS.map(t => `<span class="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-mono font-bold text-slate-300">${t}</span>`).join('')}
-            </div>
-          </div>
+        roundColsHtml = `
+          <th class="py-2.5 px-1 text-center font-mono text-purple-300 text-[11px] sm:text-xs">
+            <div>R1 (Pending)</div>
+          </th>
         `;
       }
 
-      // 2. ACCUMULATED SCORES IN EACH ROUND (Master Stage Table)
-      const roundColsHtml = doneRounds.map(r => `
-        <th class="py-3 px-3 text-center font-mono text-purple-300 whitespace-nowrap text-xs">
-          <div>Round ${r}</div>
-          <div class="text-[9px] text-slate-400 font-normal">Score · Cum</div>
-        </th>
-      `).join('');
-
       const tableBodyHtml = standings.map((item, idx) => {
-        const isTop1 = idx === 0 && (hasActivity);
-        const isTop2 = idx === 1 && (hasActivity);
-        const isTop3 = idx === 2 && (hasActivity);
+        const isTop1 = idx === 0 && hasActivity;
+        const isTop2 = idx === 1 && hasActivity;
+        const isTop3 = idx === 2 && hasActivity;
 
-        const rankMedal = isTop1 ? '🥇 1st' : isTop2 ? '🥈 2nd' : isTop3 ? '🥉 3rd' : `#${item.rank}`;
-        const rankClass = isTop1 ? 'text-amber-400 font-black text-sm' : isTop2 ? 'text-slate-200 font-black text-sm' : isTop3 ? 'text-amber-500 font-black text-sm' : 'text-slate-400 font-mono font-bold text-xs';
-        const rowBg = isTop1 ? 'bg-amber-500/10 border-l-4 border-l-amber-500' : isTop2 ? 'bg-slate-500/10 border-l-4 border-l-slate-400' : isTop3 ? 'bg-amber-800/10 border-l-4 border-l-amber-700' : '';
+        const rankBadge = isTop1 
+          ? '<span class="text-xs sm:text-base lg:text-lg font-black text-amber-300 font-mono">🥇<span class="hidden sm:inline"> 1st</span></span>'
+          : isTop2
+          ? '<span class="text-xs sm:text-base font-black text-slate-200 font-mono">🥈<span class="hidden sm:inline"> 2nd</span></span>'
+          : isTop3
+          ? '<span class="text-xs sm:text-base font-black text-amber-500 font-mono">🥉<span class="hidden sm:inline"> 3rd</span></span>'
+          : `<span class="text-xs sm:text-sm font-bold text-slate-400 font-mono">#${item.rank}</span>`;
 
-        const roundCellsHtml = doneRounds.map(r => {
-          const rh = item.roundHistory.find(h => h.round === r);
-          if (rh && (rh.status === 'completed' || rh.placement !== null)) {
-            const cumVal = teamCumMap[item.id] ? teamCumMap[item.id][r] : rh.totalPoints;
-            const isWin = rh.placement === 1;
-            const cellHighlight = isWin ? 'text-amber-300 font-black' : (rh.placement <= 3 ? 'text-white font-bold' : 'text-slate-300 font-medium');
+        const rowBg = isTop1 
+          ? 'bg-gradient-to-r from-amber-500/20 via-amber-500/10 to-transparent border-l-4 border-l-amber-400 shadow-sm'
+          : isTop2
+          ? 'bg-gradient-to-r from-slate-500/15 via-slate-500/5 to-transparent border-l-4 border-l-slate-300'
+          : isTop3
+          ? 'bg-gradient-to-r from-amber-800/15 via-amber-800/5 to-transparent border-l-4 border-l-amber-600'
+          : 'hover:bg-white/5 border-l-4 border-l-transparent';
+
+        let roundCellsHtml = '';
+        if (doneRounds.length > 0) {
+          roundCellsHtml = doneRounds.map(r => {
+            const rh = item.roundHistory.find(h => h.round === r);
+            if (rh && (rh.status === 'completed' || rh.placement !== null)) {
+              const cumVal = teamCumMap[item.id] ? teamCumMap[item.id][r] : rh.totalPoints;
+              const isWin = rh.placement === 1;
+              const cellHighlight = isWin ? 'text-amber-300 font-black' : (rh.placement <= 3 ? 'text-white font-bold' : 'text-slate-300 font-medium');
+              return `
+                <td class="py-1 sm:py-1.5 px-0.5 sm:px-1 text-center font-mono whitespace-nowrap">
+                  <div class="${cellHighlight} text-[11px] sm:text-sm lg:text-base leading-none font-black">
+                    ${rh.totalPoints}${isWin ? '<span class="hidden sm:inline"> 👑</span>' : ''}
+                  </div>
+                  <div class="text-[8px] sm:text-[10px] text-purple-300 font-bold leading-none mt-1">
+                    ${cumVal}
+                  </div>
+                </td>
+              `;
+            }
             return `
-              <td class="py-3 px-3 text-center font-mono whitespace-nowrap">
-                <div class="${cellHighlight} text-xs flex items-center justify-center gap-1">
-                  <span>${rh.totalPoints} pts</span>
-                  ${isWin ? '<span class="text-[9px] px-1 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">👑 #1</span>' : ''}
-                </div>
-                <div class="text-[10px] text-purple-300/90 font-bold mt-0.5">
-                  Cum: ${cumVal} pts
-                </div>
+              <td class="py-1 sm:py-1.5 px-0.5 sm:px-1 text-center font-mono text-slate-600 text-xs whitespace-nowrap">
+                -
               </td>
             `;
-          }
-          return `
-            <td class="py-3 px-3 text-center font-mono text-slate-600 text-xs whitespace-nowrap">
-              -
+          }).join('');
+        } else {
+          roundCellsHtml = `
+            <td class="py-1.5 px-1 text-center font-mono text-slate-500 text-xs whitespace-nowrap">
+              Ready
             </td>
           `;
-        }).join('');
+        }
+
+        const totalPtsSize = isTop1 
+          ? 'text-lg sm:text-2xl lg:text-3xl font-mono font-black text-amber-300' 
+          : isTop2 
+          ? 'text-base sm:text-xl lg:text-2xl font-mono font-black text-slate-100'
+          : isTop3
+          ? 'text-base sm:text-xl lg:text-2xl font-mono font-black text-amber-400'
+          : 'text-sm sm:text-lg lg:text-xl font-mono font-black text-purple-300';
+
+        const leadBadgeHtml = isTop1 
+          ? (isConcluded ? '<span class="text-[8px] sm:text-[9px] font-black uppercase text-amber-400">👑 CHAMPION</span>' : (leadMargin > 0 ? `<span class="text-[8px] sm:text-[9px] font-black uppercase text-amber-400">+${leadMargin} LEAD</span>` : '<span class="text-[8px] sm:text-[9px] font-black uppercase text-amber-400">TIED 1ST</span>'))
+          : ((isTop2 || isTop3) && hasActivity
+            ? `<span class="text-[8px] sm:text-[9px] font-mono text-rose-400 font-bold">-${top1.totalPoints - item.totalPoints}<span class="hidden sm:inline"> pts</span></span>` 
+            : (hasActivity ? `<span class="text-[8px] sm:text-[9px] font-mono text-slate-400">-${top1.totalPoints - item.totalPoints}<span class="hidden sm:inline"> pts</span></span>` : '<span class="text-[8px] sm:text-[9px] font-mono text-slate-500">0 pts</span>'));
 
         return `
-          <tr class="${rowBg} hover:bg-white/5 transition border-b border-white/5">
-            <td class="py-3.5 px-3 text-center ${rankClass} whitespace-nowrap">${rankMedal}</td>
-            <td class="py-3.5 px-3 min-w-[190px] whitespace-nowrap">
-              <div class="flex items-center gap-3">
-                ${item.icon ? `<img src="${item.icon}" alt="${item.name}" class="w-8 h-8 object-contain rounded-lg p-0.5 bg-white/5 border border-white/10 shrink-0">` : `<div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center font-bold text-xs shrink-0">${item.name}</div>`}
-                <div class="truncate">
-                  <div class="font-black text-white text-sm flex items-center gap-2">
-                    <span>${item.name}</span>
-                    <span class="text-xs font-semibold text-slate-400">(${item.mascot})</span>
-                    ${isTop1 ? '<span class="text-[9px] px-1.5 py-0.2 rounded-full bg-amber-500 text-slate-950 font-black shrink-0">LEADER</span>' : ''}
+          <tr class="${rowBg} transition border-b border-white/5">
+            <td class="py-1 sm:py-1.5 px-1 sm:px-2 text-center whitespace-nowrap">${rankBadge}</td>
+            <td class="py-1 sm:py-1.5 px-1 sm:px-2.5 whitespace-nowrap truncate">
+              <div class="flex items-center gap-1.5 sm:gap-2.5 truncate">
+                ${item.icon ? `<img src="${item.icon}" alt="${item.name}" class="w-6 h-6 sm:w-8 sm:h-8 object-contain rounded-lg p-0.5 bg-white/5 border border-white/10 shrink-0">` : `<div class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-white/10 flex items-center justify-center font-bold text-xs shrink-0">${item.name}</div>`}
+                <div class="truncate leading-tight">
+                  <div class="flex items-center gap-1 sm:gap-1.5 truncate">
+                    <span class="text-xs sm:text-base font-black text-white truncate">${item.name}</span>
+                    <span class="text-xs text-slate-400 font-semibold truncate hidden sm:inline">(${item.mascot})</span>
+                    ${isTop1 ? '<span class="text-[8px] sm:text-[9px] px-1.5 py-0.2 rounded-full bg-amber-500 text-slate-950 font-black shrink-0 hidden sm:inline-block">LEADER 👑</span>' : ''}
                   </div>
-                  <div class="text-[10px] text-slate-400 truncate max-w-[200px]">${item.full}</div>
+                  <div class="text-[10px] text-slate-400 truncate hidden lg:block">${item.full}</div>
                 </div>
               </div>
             </td>
             ${roundCellsHtml}
-            <td class="py-3.5 px-4 text-right whitespace-nowrap">
-              <div class="inline-flex flex-col items-end">
-                <span class="inline-flex items-center justify-center px-3.5 py-1.5 rounded-xl ${isTop1 ? 'bg-amber-500/20 border-2 border-amber-500/50 text-amber-300' : 'bg-purple-500/20 border border-purple-500/40 text-purple-300'} font-mono font-black text-sm shadow-md">
-                  ${item.totalPoints} PTS ⚡
-                </span>
-                <div class="text-[10px] text-slate-400 font-mono mt-0.5">
-                  ${item.totalKills} kills · ${item.totalPlacementPoints} place pts
+            <td class="py-1 sm:py-1.5 px-1 sm:px-3 text-right whitespace-nowrap">
+              <div class="flex flex-col items-end leading-none">
+                <div class="${totalPtsSize} drop-shadow-sm flex items-center gap-0.5 sm:gap-1">
+                  ${isTop1 ? '<span class="text-xs sm:text-base lg:text-lg">👑</span>' : ''}
+                  <span>${item.totalPoints}</span>
+                  <span class="text-[9px] sm:text-xs font-bold text-amber-400/80">PTS</span>
+                </div>
+                <div class="mt-0.5">
+                  ${leadBadgeHtml}
                 </div>
               </div>
             </td>
@@ -8535,41 +8447,52 @@ Check your Browserslist config to be sure that your targets are set up correctly
       }).join('');
 
       container.innerHTML = `
-        <div class="max-w-7xl mx-auto w-full space-y-6 pb-6">
-          <!-- 1. Who is Leading Section -->
-          ${leadersHtml}
-
-          <!-- 2. Accumulated Scores in Each Round Table -->
-          <div class="rounded-3xl bg-slate-900/90 border border-white/10 p-4 sm:p-6 shadow-2xl space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-3">
-              <div>
-                <h4 class="text-base sm:text-lg font-black text-white uppercase tracking-wide flex items-center gap-2">
-                  <span>🏆</span> <span>Round-by-Round Accumulated Standings</span>
-                </h4>
-                <p class="text-xs text-slate-400">
-                  Each round displays round points scored + total accumulated score (Cum) through that round. Placements ranked by Total Accumulated Points.
-                </p>
-              </div>
-              <div class="text-[11px] font-mono text-purple-300 font-bold bg-purple-500/10 px-2.5 py-1 rounded-xl border border-purple-500/30">
-                Points System: 1st=10 · 2nd=8 · 3rd=6 · 4th=5 · 5th=4 · 6th=3 · 7th=2 + 1 pt/Kill
+        <div class="w-full max-w-[1920px] mx-auto h-full flex flex-col justify-start select-none">
+          <!-- Top Bar: Title, Tournament Status & Leader Pill -->
+          <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-1.5 sm:gap-3 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-2xl bg-slate-900/90 border border-white/10 mb-1.5 shrink-0">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="text-sm sm:text-lg">🏆</span>
+              <div class="min-w-0">
+                <div class="text-[11px] sm:text-sm font-black text-white tracking-wide uppercase flex items-center gap-1.5 sm:gap-2">
+                  <span>CODM Battle Royale · Accumulated Standings</span>
+                  <span class="text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${isConcluded ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-purple-500/20 text-purple-300 border border-purple-500/40'}">
+                    ${isConcluded ? 'Concluded (8/8)' : `Round ${doneRounds.length} of 8`}
+                  </span>
+                </div>
               </div>
             </div>
 
-            <div class="overflow-x-auto -mx-1 sm:mx-0 overscroll-x-contain pb-1">
-              <table class="w-full min-w-[620px] text-left text-xs whitespace-nowrap">
-                <thead>
-                  <tr class="border-b border-white/10 text-[10px] font-black uppercase text-slate-400 tracking-wider">
-                    <th class="py-3 px-3 text-center w-16 whitespace-nowrap">Rank</th>
-                    <th class="py-3 px-3 min-w-[190px] whitespace-nowrap">College Squad</th>
-                    ${roundColsHtml}
-                    <th class="py-3 px-4 text-right min-w-[160px] whitespace-nowrap font-mono text-amber-400">Total Accumulated ⚡</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-white/5 font-medium">
-                  ${tableBodyHtml}
-                </tbody>
-              </table>
-            </div>
+            <!-- Current Leader Announcement Chip in Top Bar -->
+            ${hasActivity && top1 ? `
+              <div class="flex items-center gap-1.5 sm:gap-2 bg-amber-500/15 border border-amber-500/40 px-2 sm:px-3 py-0.5 rounded-xl shrink-0">
+                <span class="text-xs">👑</span>
+                <span class="text-[11px] sm:text-xs font-black text-amber-300 uppercase tracking-wide">
+                  ${isConcluded ? 'Champion:' : 'Leader:'} <span class="text-white">${top1.name}</span> (${top1.totalPoints} PTS ⚡)
+                </span>
+                ${leadMargin > 0 && !isConcluded ? `<span class="text-[9px] sm:text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/20 px-1.5 py-0.2 rounded hidden sm:inline">+${leadMargin} lead</span>` : ''}
+              </div>
+            ` : `
+              <div class="text-[11px] font-mono text-slate-400 font-semibold shrink-0">
+                Awaiting Round 1 Drop
+              </div>
+            `}
+          </div>
+
+          <!-- Master Scoreboard Table (Fits 100% on screen, no scroll up/down, no scroll right/left) -->
+          <div class="rounded-2xl bg-slate-900/95 border border-white/10 shadow-2xl p-1.5 sm:p-2.5 overflow-hidden">
+            <table class="w-full text-left whitespace-nowrap table-fixed">
+              <thead>
+                <tr class="border-b border-white/10 text-[10px] sm:text-xs font-black uppercase text-slate-400 tracking-wider">
+                  <th class="py-1.5 sm:py-2 px-1 sm:px-2 text-center w-10 sm:w-16">Rank</th>
+                  <th class="py-1.5 sm:py-2 px-1 sm:px-2.5 w-20 sm:w-56 lg:w-64"><span class="hidden sm:inline">College </span>Squad</th>
+                  ${roundColsHtml}
+                  <th class="py-1.5 sm:py-2 px-1 sm:px-3 text-right w-20 sm:w-44 lg:w-52 text-amber-400 font-mono">Total<span class="hidden sm:inline"> Pts ⚡</span></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-white/5">
+                ${tableBodyHtml}
+              </tbody>
+            </table>
           </div>
         </div>
       `;
