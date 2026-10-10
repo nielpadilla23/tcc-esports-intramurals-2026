@@ -857,14 +857,14 @@ Check your Browserslist config to be sure that your targets are set up correctly
       </div>
 
       <!-- Responsive Table -->
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs">
+      <div class="overflow-x-auto -mx-1 sm:mx-0 overscroll-x-contain pb-1">
+        <table class="w-full min-w-[560px] text-left text-xs whitespace-nowrap">
           <thead id="brStandingsTableHead">
             <tr class="border-b border-[var(--border)] text-[10px] font-black uppercase text-[var(--muted-foreground)] tracking-wider">
-              <th class="py-2.5 px-2 text-center w-14">Rank</th>
-              <th class="py-2.5 px-3 min-w-[170px]">College Squad</th>
-              <th class="py-2.5 px-2 text-center font-mono text-purple-300">R1</th>
-              <th class="py-2.5 px-3 text-right">Total Pts ⚡</th>
+              <th class="py-2.5 px-2 text-center w-14 whitespace-nowrap">Rank</th>
+              <th class="py-2.5 px-3 min-w-[170px] whitespace-nowrap">College Squad</th>
+              <th class="py-2.5 px-2 text-center font-mono text-purple-300 whitespace-nowrap">R1</th>
+              <th class="py-2.5 px-3 text-right whitespace-nowrap">Total Pts ⚡</th>
             </tr>
           </thead>
           <tbody id="brStandingsTableBody" class="divide-y divide-[var(--border)]/50 font-medium">
@@ -9405,15 +9405,15 @@ Check your Browserslist config to be sure that your targets are set up correctly
       // Dynamically render table header for only the done rounds
       if (thead) {
         const roundHeaders = doneRounds.map(r => `
-          <th class="py-2.5 px-2 text-center font-mono text-purple-300">R${r}</th>
+          <th class="py-2.5 px-2 text-center font-mono text-purple-300 whitespace-nowrap">R${r}</th>
         `).join('');
 
         thead.innerHTML = `
           <tr class="border-b border-[var(--border)] text-[10px] font-black uppercase text-[var(--muted-foreground)] tracking-wider">
-            <th class="py-2.5 px-2 text-center w-14">Rank</th>
-            <th class="py-2.5 px-3 min-w-[170px]">College Squad</th>
+            <th class="py-2.5 px-2 text-center w-14 whitespace-nowrap">Rank</th>
+            <th class="py-2.5 px-3 min-w-[170px] whitespace-nowrap">College Squad</th>
             ${roundHeaders}
-            <th class="py-2.5 px-3 text-right font-mono text-amber-400">Total Pts ⚡</th>
+            <th class="py-2.5 px-3 text-right font-mono text-amber-400 whitespace-nowrap">Total Pts ⚡</th>
           </tr>
         `;
       }
@@ -9441,14 +9441,14 @@ Check your Browserslist config to be sure that your targets are set up correctly
             const tooltip = `Round ${r}: ${plcText} (${rh.placementPoints} pts) + ${rh.kills} kills = ${rh.totalPoints} pts`;
             const highlight = rh.placement === 1 ? 'text-amber-400 font-black' : rh.placement <= 3 ? 'text-white font-bold' : 'text-slate-300';
             return `
-              <td class="py-2.5 px-2 text-center font-mono" title="${tooltip}">
+              <td class="py-2.5 px-2 text-center font-mono whitespace-nowrap" title="${tooltip}">
                 <div class="${highlight} text-xs font-bold leading-none">${rh.totalPoints}</div>
                 <div class="text-[9px] text-[var(--muted-foreground)] mt-0.5">${plcText}</div>
               </td>
             `;
           }
           return `
-            <td class="py-2.5 px-2 text-center font-mono text-slate-600 text-xs">
+            <td class="py-2.5 px-2 text-center font-mono text-slate-600 text-xs whitespace-nowrap">
               -
             </td>
           `;
@@ -9456,12 +9456,12 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
         return `
           <tr class="${rowBg} hover:bg-[var(--secondary)]/40 transition">
-            <td class="py-3 px-2 text-center ${rankClass}">${rankMedal}</td>
-            <td class="py-3 px-3">
+            <td class="py-3 px-2 text-center ${rankClass} whitespace-nowrap">${rankMedal}</td>
+            <td class="py-3 px-3 min-w-[170px] whitespace-nowrap">
               <div class="flex items-center gap-2.5">
-                ${item.icon ? `<img src="${item.icon}" alt="${item.name}" class="w-7 h-7 object-contain rounded-md shrink-0">` : `<div class="w-7 h-7 rounded-md bg-white/10 flex items-center justify-center font-bold text-xs">${item.name}</div>`}
+                ${item.icon ? `<img src="${item.icon}" alt="${item.name}" class="w-7 h-7 object-contain rounded-md shrink-0">` : `<div class="w-7 h-7 rounded-md bg-white/10 flex items-center justify-center font-bold text-xs shrink-0">${item.name}</div>`}
                 <div class="truncate">
-                  <div class="font-black text-white text-xs flex items-center gap-1.5">
+                  <div class="font-black text-white text-xs flex items-center gap-1.5 whitespace-nowrap">
                     <span>${item.name}</span>
                     <span class="text-[10px] font-normal text-[var(--muted-foreground)]">(${item.mascot})</span>
                   </div>
@@ -9470,8 +9470,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
               </div>
             </td>
             ${roundCells}
-            <td class="py-3 px-3 text-right">
-              <span class="px-3 py-1.5 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-300 font-mono font-black text-xs shadow-xs" title="Total Accumulated: ${item.totalPoints} pts (${item.totalPlacementPoints} placement + ${item.totalKills} kills)">
+            <td class="py-3 px-3 text-right whitespace-nowrap">
+              <span class="inline-flex items-center justify-center px-3 py-1.5 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-300 font-mono font-black text-xs shadow-xs whitespace-nowrap shrink-0" title="Total Accumulated: ${item.totalPoints} pts (${item.totalPlacementPoints} placement + ${item.totalKills} kills)">
                 ${item.totalPoints} pts
               </span>
             </td>
@@ -9552,49 +9552,49 @@ Check your Browserslist config to be sure that your targets are set up correctly
       });
 
       container.innerHTML = `
-        <div class="overflow-x-auto pt-1">
-          <table class="w-full text-left text-xs">
+        <div class="overflow-x-auto pt-1 -mx-1 sm:mx-0 overscroll-x-contain pb-1">
+          <table class="w-full min-w-[560px] text-left text-xs whitespace-nowrap">
             <thead>
               <tr class="border-b border-[var(--border)] text-[10px] font-black uppercase text-[var(--muted-foreground)] tracking-wider">
-                <th class="py-2.5 px-3 w-28">Round Placement</th>
-                <th class="py-2.5 px-3 min-w-[180px]">College Squad</th>
-                <th class="py-2.5 px-3 text-center">Placement Points</th>
-                <th class="py-2.5 px-3 text-center">Squad Kills</th>
-                <th class="py-2.5 px-3 text-right">Round Total</th>
+                <th class="py-2.5 px-3 min-w-[130px] whitespace-nowrap">Round Placement</th>
+                <th class="py-2.5 px-3 min-w-[170px] whitespace-nowrap">College Squad</th>
+                <th class="py-2.5 px-3 text-center whitespace-nowrap">Placement Points</th>
+                <th class="py-2.5 px-3 text-center whitespace-nowrap">Squad Kills</th>
+                <th class="py-2.5 px-3 text-right whitespace-nowrap">Round Total</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-[var(--border)]/50 font-medium">
               ${roundSquads.map(sq => {
                 const plcBadge = sq.placement === 1
-                  ? '<span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-black">🥇 1st Place</span>'
+                  ? '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-black text-xs whitespace-nowrap shrink-0">🥇 1st Place</span>'
                   : sq.placement === 2
-                  ? '<span class="px-2.5 py-0.5 rounded-full bg-slate-500/20 text-slate-300 border border-slate-500/40 font-black">🥈 2nd Place</span>'
+                  ? '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-500/20 text-slate-300 border border-slate-500/40 font-black text-xs whitespace-nowrap shrink-0">🥈 2nd Place</span>'
                   : sq.placement === 3
-                  ? '<span class="px-2.5 py-0.5 rounded-full bg-amber-800/25 text-amber-400 border border-amber-700/40 font-black">🥉 3rd Place</span>'
+                  ? '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-800/25 text-amber-400 border border-amber-700/40 font-black text-xs whitespace-nowrap shrink-0">🥉 3rd Place</span>'
                   : sq.placement
-                  ? `<span class="px-2.5 py-0.5 rounded-full bg-white/5 text-slate-300 font-bold border border-white/10 font-mono">#${sq.placement} Place</span>`
-                  : '<span class="text-slate-600 font-mono">- Pending -</span>';
+                  ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/5 text-slate-300 font-bold border border-white/10 font-mono text-xs whitespace-nowrap shrink-0">#${sq.placement} Place</span>`
+                  : '<span class="inline-flex items-center text-slate-600 font-mono text-xs whitespace-nowrap">- Pending -</span>';
 
                 return `
                   <tr class="hover:bg-[var(--secondary)]/40 transition">
-                    <td class="py-3 px-3">${plcBadge}</td>
-                    <td class="py-3 px-3">
+                    <td class="py-3 px-3 whitespace-nowrap">${plcBadge}</td>
+                    <td class="py-3 px-3 min-w-[170px] whitespace-nowrap">
                       <div class="flex items-center gap-2.5">
-                        ${sq.icon ? `<img src="${sq.icon}" alt="${sq.name}" class="w-6 h-6 object-contain rounded shrink-0">` : `<div class="w-6 h-6 rounded bg-white/10 flex items-center justify-center font-bold text-[10px]">${sq.name}</div>`}
+                        ${sq.icon ? `<img src="${sq.icon}" alt="${sq.name}" class="w-6 h-6 object-contain rounded shrink-0">` : `<div class="w-6 h-6 rounded bg-white/10 flex items-center justify-center font-bold text-[10px] shrink-0">${sq.name}</div>`}
                         <div>
-                          <span class="font-black text-white">${sq.name}</span>
-                          <span class="text-[11px] text-[var(--muted-foreground)]"> · ${sq.mascot}</span>
+                          <span class="font-black text-white whitespace-nowrap">${sq.name}</span>
+                          <span class="text-[11px] text-[var(--muted-foreground)] whitespace-nowrap"> · ${sq.mascot}</span>
                         </div>
                       </div>
                     </td>
-                    <td class="py-3 px-3 text-center font-mono font-bold text-sky-400 text-xs">
+                    <td class="py-3 px-3 text-center font-mono font-bold text-sky-400 text-xs whitespace-nowrap">
                       ${sq.placement ? `${sq.placementPoints} pts` : '-'}
                     </td>
-                    <td class="py-3 px-3 text-center font-mono font-bold text-rose-400 text-xs">
+                    <td class="py-3 px-3 text-center font-mono font-bold text-rose-400 text-xs whitespace-nowrap">
                       ${sq.placement !== null ? `💀 ${sq.kills}` : '-'}
                     </td>
-                    <td class="py-3 px-3 text-right font-mono font-black text-xs text-purple-300">
-                      ${sq.placement !== null ? `${sq.totalPoints} pts` : '-'}
+                    <td class="py-3 px-3 text-right whitespace-nowrap">
+                      ${sq.placement !== null ? `<span class="inline-flex items-center justify-center px-2.5 py-1 rounded-lg bg-purple-500/20 border border-purple-500/40 text-purple-300 font-mono font-black text-xs shadow-xs whitespace-nowrap shrink-0">${sq.totalPoints} pts</span>` : '<span class="text-slate-600 font-mono text-xs whitespace-nowrap">-</span>'}
                     </td>
                   </tr>
                 `;
@@ -9768,7 +9768,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
               </div>
               <!-- Mobile-Only Round Points Badge -->
               <div class="sm:hidden shrink-0">
-                <span id="brPtsMobile_${teamId}" class="px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-300 font-mono font-black text-xs border border-purple-500/30">
+                <span id="brPtsMobile_${teamId}" class="inline-flex items-center px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-300 font-mono font-black text-xs border border-purple-500/30 whitespace-nowrap shrink-0">
                   0 pts
                 </span>
               </div>
@@ -9797,7 +9797,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
             <!-- Desktop-Only Calculated Points Badge -->
             <div class="hidden sm:block col-span-2 text-right">
-              <span id="brPts_${teamId}" class="px-2 py-0.5 rounded-lg bg-purple-500/20 text-purple-300 font-mono font-black text-xs border border-purple-500/30">
+              <span id="brPts_${teamId}" class="inline-flex items-center px-2 py-0.5 rounded-lg bg-purple-500/20 text-purple-300 font-mono font-black text-xs border border-purple-500/30 whitespace-nowrap shrink-0">
                 0 pts
               </span>
             </div>
@@ -11843,10 +11843,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
         const placementBadge = (plc) => {
           if (!plc) return `<span class="text-[var(--muted-foreground)] font-mono">-</span>`;
-          if (plc === 1) return `<span class="px-2 py-0.5 rounded-md bg-amber-500/20 text-yellow-300 font-black border border-yellow-500/40">🥇 1st Place</span>`;
-          if (plc === 2) return `<span class="px-2 py-0.5 rounded-md bg-slate-400/20 text-slate-300 font-black border border-slate-400/40">🥈 2nd Place</span>`;
-          if (plc === 3) return `<span class="px-2 py-0.5 rounded-md bg-amber-700/20 text-amber-500 font-black border border-amber-700/40">🥉 3rd Place</span>`;
-          return `<span class="px-1.5 py-0.5 rounded-md bg-[var(--secondary)] text-[var(--muted-foreground)] font-bold text-[10px]">${plc}th</span>`;
+          if (plc === 1) return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/20 text-yellow-300 font-black border border-yellow-500/40 whitespace-nowrap shrink-0">🥇 1st Place</span>`;
+          if (plc === 2) return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-400/20 text-slate-300 font-black border border-slate-400/40 whitespace-nowrap shrink-0">🥈 2nd Place</span>`;
+          if (plc === 3) return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-700/20 text-amber-500 font-black border border-amber-700/40 whitespace-nowrap shrink-0">🥉 3rd Place</span>`;
+          return `<span class="inline-flex items-center px-1.5 py-0.5 rounded-md bg-[var(--secondary)] text-[var(--muted-foreground)] font-bold text-[10px] whitespace-nowrap shrink-0">${plc}th</span>`;
         };
 
         return `
