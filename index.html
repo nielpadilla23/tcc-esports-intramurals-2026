@@ -8606,7 +8606,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const silverDesc = silver ? sObj.full : (isGfSet ? `${PLAYOFF_DATA.gf8.team1} or ${PLAYOFF_DATA.gf8.team2}` : 'Awaiting Grand Finals');
       const goldDesc = gold ? gObj.full : (isGfSet ? `${PLAYOFF_DATA.gf8.team1} vs ${PLAYOFF_DATA.gf8.team2}` : 'Awaiting Grand Finals');
 
-      const standingsList = [
+      const isCodm = currentEsport === 'codm';
+      const standingsList = isCodm ? [
+        { rank: '4th', label: '4th Place', team: fourth, stage: 'LB Semifinalist', badgeColor: 'bg-sky-500/20 text-sky-300 border-sky-500/40' },
+        { rank: '5th', label: '5th Place', team: fifth, stage: 'LB Quarterfinalist', badgeColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40' },
+        { rank: '6th', label: '6th Place', team: sixth, stage: 'LB Quarterfinalist', badgeColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40' },
+        { rank: '7th', label: '7th Place', team: seventh, stage: 'LB Round 1', badgeColor: 'bg-slate-500/20 text-slate-300 border-slate-500/40' },
+      ] : [
         { rank: '4th', label: '4th Place', team: fourth, stage: tournamentMode === 'double_elim' ? 'LB Semifinalist' : 'Bronze Finalist', badgeColor: 'bg-sky-500/20 text-sky-300 border-sky-500/40' },
         { rank: '5th', label: '5th Place', team: fifth, stage: tournamentMode === 'double_elim' ? 'LB Quarterfinalist' : 'Quarterfinalist', badgeColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40' },
         { rank: '6th', label: '6th Place', team: sixth, stage: tournamentMode === 'double_elim' ? 'LB Quarterfinalist' : 'Quarterfinalist', badgeColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40' },
@@ -8615,84 +8621,118 @@ Check your Browserslist config to be sure that your targets are set up correctly
       ];
 
       container.innerHTML = `
-        <div class="w-full max-w-[1720px] mx-auto h-full flex-1 min-h-0 flex flex-col justify-between select-none py-1 text-center">
+        <div class="w-full h-full flex-1 min-h-0 flex flex-col justify-between select-none py-1 sm:py-2 px-3 sm:px-6 lg:px-8 xl:px-12 text-center">
+          <!-- Slide Header -->
           <div class="shrink-0 mb-1">
-            <span class="text-xs sm:text-sm font-black uppercase tracking-widest text-amber-400 px-4 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 shadow-sm inline-block">
-              Championship Podium
+            <span class="text-xs sm:text-sm font-black uppercase tracking-widest text-amber-400 px-4 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 shadow-sm inline-flex items-center gap-1.5">
+              <span>👑</span> <span>Official Championship Podium</span>
             </span>
-            <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-white mt-1 tracking-tight">Tournament Placement & Honor Roll</h2>
-            <p class="text-xs sm:text-sm text-slate-300 font-medium mt-0.5">TCC Intramurals 2026 · Esports Championship Honor Roll</p>
+            <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white mt-1 tracking-tight">
+              Tournament Placement & Honor Roll
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-300 font-medium mt-0.5">
+              Tagoloan Community College · Intramurals 2026 · ${isCodm ? 'Call of Duty: Mobile' : 'Mobile Legends: Bang Bang'} Esports Honor Roll
+            </p>
           </div>
 
-          <!-- Top 3 Championship Podium (Hero Arena Scale) -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 items-end flex-1 min-h-0 my-1 max-w-5xl mx-auto w-full">
-            <!-- Silver -->
-            <div class="py-3 px-4 sm:py-4 sm:px-5 rounded-2xl bg-white/5 border-2 border-slate-400/50 flex flex-col items-center space-y-2 order-2 md:order-1 shadow-2xl backdrop-blur-xs">
-              <span class="text-4xl sm:text-5xl">🥈</span>
-              <span class="px-3.5 py-0.5 rounded-full text-xs sm:text-sm font-black uppercase bg-slate-300/20 text-slate-200 border border-slate-300/40 tracking-wider">Silver</span>
-              ${silver ? renderTeamLogo(silver, 'w-24 h-24 sm:w-28 sm:h-28 md:w-34 md:h-34', 'rounded-2xl border-3 border-slate-300 shadow-xl') : `
-                <div class="w-24 h-24 sm:w-28 sm:h-28 md:w-34 md:h-34 rounded-2xl bg-slate-800 border-2 border-slate-700 flex items-center justify-center text-3xl font-bold text-slate-400 shadow-xl select-none">?</div>
-              `}
-              <div class="w-full truncate">
-                <div class="text-xl sm:text-2xl md:text-3xl font-black text-white truncate">${silverLabel}</div>
+          <!-- Top 3 Championship Podium (Expansive Widescreen Arena Scale) -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 items-end flex-1 min-h-0 my-1 sm:my-2 w-full mx-auto">
+            
+            <!-- Silver (2nd Place) -->
+            <div class="py-3.5 px-4 sm:py-4 sm:px-5 lg:py-5 lg:px-6 rounded-3xl bg-gradient-to-b from-slate-300/15 via-slate-900/90 to-black/80 border-2 sm:border-3 border-slate-300/50 flex flex-col items-center justify-between order-2 md:order-1 shadow-2xl backdrop-blur-sm h-[90%] max-h-[460px] transition-all space-y-2">
+              <div class="flex flex-col items-center gap-1 shrink-0">
+                <span class="text-4xl sm:text-5xl lg:text-6xl drop-shadow-md">🥈</span>
+                <span class="px-3.5 py-0.5 rounded-full text-xs sm:text-sm font-black uppercase bg-slate-300/20 text-slate-100 border border-slate-300/40 tracking-wider">
+                  2nd Place · Silver
+                </span>
+              </div>
+              <div class="my-auto py-1 flex items-center justify-center">
+                ${silver ? renderTeamLogo(silver, 'w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 xl:w-40 xl:h-40', 'rounded-2xl border-3 border-slate-300 shadow-2xl p-2 bg-white/5 object-contain') : `
+                  <div class="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 xl:w-40 xl:h-40 rounded-2xl bg-slate-800 border-2 border-slate-700 flex items-center justify-center text-4xl font-bold text-slate-400 shadow-xl select-none">?</div>
+                `}
+              </div>
+              <div class="w-full truncate px-2 shrink-0">
+                <div class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-white truncate tracking-tight">${silverLabel}</div>
                 <div class="text-xs sm:text-sm text-slate-300 font-semibold mt-0.5 truncate">${silverDesc}</div>
               </div>
             </div>
 
-            <!-- Gold -->
-            <div class="py-3.5 px-5 sm:py-5 sm:px-6 rounded-3xl bg-gradient-to-b from-amber-500/25 via-slate-900/90 to-black/80 border-3 border-amber-400 shadow-2xl shadow-amber-500/30 flex flex-col items-center space-y-2 order-1 md:order-2 md:-translate-y-2">
-              <span class="text-5xl sm:text-6xl animate-bounce">🏆</span>
-              <span class="px-4 py-1 rounded-full text-xs sm:text-sm font-black uppercase bg-amber-500 text-black tracking-widest shadow-lg">Champion (Gold)</span>
-              ${gold ? renderTeamLogo(gold, 'w-32 h-32 sm:w-36 sm:h-36 md:w-42 md:h-42', 'rounded-3xl border-4 border-amber-400 shadow-2xl p-1 bg-amber-400/10') : `
-                <div class="w-32 h-32 sm:w-36 sm:h-36 md:w-42 md:h-42 rounded-3xl bg-slate-800 border-2 border-amber-400/60 flex items-center justify-center text-4xl font-bold text-amber-300 shadow-xl select-none">👑</div>
-              `}
-              <div class="w-full truncate">
-                <div class="text-2xl sm:text-3xl md:text-4xl font-black text-amber-400 tracking-wide truncate">${goldLabel}</div>
-                <div class="text-xs sm:text-sm font-bold text-white mt-0.5 truncate">${goldDesc}</div>
+            <!-- Gold (Champion) -->
+            <div class="py-4 px-5 sm:py-5 sm:px-6 lg:py-6 lg:px-8 rounded-3xl bg-gradient-to-b from-amber-500/30 via-slate-900/95 to-black/90 border-3 sm:border-4 border-amber-400 shadow-2xl shadow-amber-500/30 flex flex-col items-center justify-between order-1 md:order-2 md:-translate-y-2 lg:-translate-y-3 h-full max-h-[510px] transition-all relative overflow-hidden space-y-2">
+              <div class="absolute -top-20 -left-20 w-60 h-60 rounded-full bg-amber-500/15 blur-3xl pointer-events-none"></div>
+              <div class="absolute -bottom-20 -right-20 w-60 h-60 rounded-full bg-amber-500/15 blur-3xl pointer-events-none"></div>
+
+              <div class="flex flex-col items-center gap-1 shrink-0 relative z-10">
+                <span class="text-5xl sm:text-6xl lg:text-7xl drop-shadow-xl animate-bounce">🏆</span>
+                <span class="px-4 py-1 rounded-full text-xs sm:text-sm lg:text-base font-black uppercase bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 tracking-widest shadow-xl border border-amber-300">
+                  Champion (Gold)
+                </span>
+              </div>
+              <div class="my-auto py-1 flex items-center justify-center relative z-10">
+                ${gold ? renderTeamLogo(gold, 'w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 lg:w-44 lg:h-44 xl:w-48 xl:h-48', 'rounded-3xl border-4 border-amber-400 shadow-2xl p-2.5 bg-amber-400/15 object-contain') : `
+                  <div class="w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 lg:w-44 lg:h-44 xl:w-48 xl:h-48 rounded-3xl bg-slate-800 border-2 border-amber-400/60 flex items-center justify-center text-5xl font-bold text-amber-300 shadow-xl select-none">👑</div>
+                `}
+              </div>
+              <div class="w-full truncate px-2 relative z-10 shrink-0">
+                <div class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-amber-400 tracking-wide truncate drop-shadow-md">${goldLabel}</div>
+                <div class="text-xs sm:text-sm md:text-base font-bold text-white mt-0.5 truncate">${goldDesc}</div>
               </div>
             </div>
 
-            <!-- Bronze -->
-            <div class="py-3 px-4 sm:py-4 sm:px-5 rounded-2xl bg-white/5 border-2 border-amber-700/50 flex flex-col items-center space-y-2 order-3 md:order-3 shadow-2xl backdrop-blur-xs">
-              <span class="text-4xl sm:text-5xl">🥉</span>
-              <span class="px-3.5 py-0.5 rounded-full text-xs sm:text-sm font-black uppercase bg-amber-700/20 text-amber-400 border border-amber-700/40 tracking-wider">Bronze</span>
-              ${bronze ? renderTeamLogo(bronze, 'w-24 h-24 sm:w-28 sm:h-28 md:w-34 md:h-34', 'rounded-2xl border-3 border-amber-600 shadow-xl') : `
-                <div class="w-24 h-24 sm:w-28 sm:h-28 md:w-34 md:h-34 rounded-2xl bg-slate-800 border-2 border-slate-700 flex items-center justify-center text-3xl font-bold text-slate-400 shadow-xl select-none">?</div>
-              `}
-              <div class="w-full truncate">
-                <div class="text-xl sm:text-2xl md:text-3xl font-black text-white truncate">${bronze || 'TBD'}</div>
+            <!-- Bronze (3rd Place) -->
+            <div class="py-3.5 px-4 sm:py-4 sm:px-5 lg:py-5 lg:px-6 rounded-3xl bg-gradient-to-b from-amber-700/15 via-slate-900/90 to-black/80 border-2 sm:border-3 border-amber-600/50 flex flex-col items-center justify-between order-3 md:order-3 shadow-2xl backdrop-blur-sm h-[86%] max-h-[440px] transition-all space-y-2">
+              <div class="flex flex-col items-center gap-1 shrink-0">
+                <span class="text-4xl sm:text-5xl lg:text-6xl drop-shadow-md">🥉</span>
+                <span class="px-3.5 py-0.5 rounded-full text-xs sm:text-sm font-black uppercase bg-amber-700/25 text-amber-300 border border-amber-600/50 tracking-wider">
+                  3rd Place · Bronze
+                </span>
+              </div>
+              <div class="my-auto py-1 flex items-center justify-center">
+                ${bronze ? renderTeamLogo(bronze, 'w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 xl:w-40 xl:h-40', 'rounded-2xl border-3 border-amber-600 shadow-xl p-2 bg-amber-700/10 object-contain') : `
+                  <div class="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 xl:w-40 xl:h-40 rounded-2xl bg-slate-800 border-2 border-slate-700 flex items-center justify-center text-4xl font-bold text-slate-400 shadow-xl select-none">?</div>
+                `}
+              </div>
+              <div class="w-full truncate px-2 shrink-0">
+                <div class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-white truncate tracking-tight">${bronze || 'TBD'}</div>
                 <div class="text-xs sm:text-sm text-slate-300 font-semibold mt-0.5 truncate">${bObj.full}</div>
               </div>
             </div>
+
           </div>
 
-          <!-- 4th, 5th, 6th, 7th, 8th Place Row (Large Arena Scale) -->
-          <div class="pt-2 border-t border-white/10 max-w-5xl mx-auto w-full shrink-0 space-y-1">
-            <div class="flex items-center justify-between px-2">
+          <!-- 4th - 8th Place Row (Arena Standings Scale) -->
+          <div class="pt-2 sm:pt-3 border-t border-white/10 w-full mx-auto shrink-0 space-y-1.5">
+            <div class="flex items-center justify-between px-2 sm:px-4">
               <div class="flex items-center gap-2">
-                <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-200">Tournament Standings · Honor Roll</span>
-                <span class="text-[11px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono font-black border border-slate-700">4th — 8th Place</span>
+                <span class="text-xs sm:text-sm md:text-base font-black uppercase tracking-wider text-slate-200">
+                  Tournament Standings · Honor Roll
+                </span>
+                <span class="text-[11px] sm:text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono font-black border border-slate-700">
+                  ${isCodm ? '4th — 7th Place' : '4th — 8th Place'}
+                </span>
               </div>
-              <span class="text-xs text-slate-400 font-semibold">Final Arena Placements</span>
+              <span class="text-xs sm:text-sm text-slate-400 font-semibold">Final Arena Placements</span>
             </div>
 
-            <div class="grid grid-cols-5 gap-2 sm:gap-3">
+            <div class="grid ${isCodm ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-5'} gap-2.5 sm:gap-3.5 lg:gap-4">
               ${standingsList.map(item => {
                 const teamObj = getCollege(item.team);
                 return `
-                  <div class="p-2 sm:p-2.5 rounded-xl bg-slate-900/90 border-2 border-slate-800 hover:border-slate-700 flex flex-col items-center justify-between space-y-1 text-center transition shadow-lg">
-                    <span class="px-2 py-0.5 rounded-md text-[11px] font-mono font-black border-2 ${item.badgeColor}">
+                  <div class="p-2 sm:p-2.5 lg:p-3 rounded-2xl bg-slate-900/90 border-2 border-slate-800 hover:border-slate-700 flex flex-col items-center justify-between space-y-1 text-center transition shadow-xl">
+                    <span class="px-2 py-0.5 rounded-md text-[11px] sm:text-xs font-mono font-black border-2 ${item.badgeColor}">
                       ${item.label}
                     </span>
-                    ${item.team ? renderTeamLogo(item.team, 'w-10 h-10 sm:w-12 sm:h-12', 'rounded-xl border border-slate-700 shadow-md shrink-0') : `
-                      <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-800/60 border-2 border-dashed border-slate-700 flex items-center justify-center text-sm font-bold text-slate-500 shrink-0 select-none">—</div>
-                    `}
-                    <div class="w-full truncate">
-                      <div class="text-sm sm:text-base font-black truncate ${item.team ? 'text-white' : 'text-slate-500 italic'}">
+                    <div class="my-0.5 flex items-center justify-center">
+                      ${item.team ? renderTeamLogo(item.team, 'w-11 h-11 sm:w-12 sm:h-12 md:w-13 md:h-13 lg:w-14 lg:h-14', 'rounded-xl border border-slate-700 shadow-md shrink-0 object-contain') : `
+                        <div class="w-11 h-11 sm:w-12 sm:h-12 md:w-13 md:h-13 lg:w-14 lg:h-14 rounded-xl bg-slate-800/60 border-2 border-dashed border-slate-700 flex items-center justify-center text-sm font-bold text-slate-500 shrink-0 select-none">—</div>
+                      `}
+                    </div>
+                    <div class="w-full truncate px-1">
+                      <div class="text-sm sm:text-base lg:text-lg font-black truncate ${item.team ? 'text-white' : 'text-slate-500 italic'}">
                         ${item.team || 'TBD'}
                       </div>
                       <div class="text-[10px] sm:text-xs text-slate-400 font-semibold truncate leading-tight mt-0.5">
-                        ${item.team ? (teamObj.mascot || item.stage) : item.stage}
+                        ${item.team ? (teamObj.mascot || teamObj.full || item.stage) : item.stage}
                       </div>
                     </div>
                   </div>
