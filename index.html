@@ -1388,7 +1388,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
   </div>
 
   <!-- Destructive / Critical Action Confirmation Modal -->
-  <div id="actionConfirmModal" onclick="if(event.target===this)closeActionConfirmModal()" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 hidden select-none transition-all duration-200">
+  <div id="actionConfirmModal" onclick="if(event.target===this)closeActionConfirmModal()" class="fixed inset-0 z-[60] bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 hidden select-none transition-all duration-200">
     <div class="bg-[var(--card)] border border-[var(--border)] rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-5 animate-scale-up">
       <!-- Icon & Header Badge -->
       <div class="flex items-start gap-4">
@@ -5074,6 +5074,33 @@ Check your Browserslist config to be sure that your targets are set up correctly
         if (submitBtn) submitBtn.classList.add('bg-rose-600', 'hover:bg-rose-700', 'shadow-rose-600/30');
         if (btnIcon) btnIcon.innerText = '🔄';
         if (btnText) btnText.innerText = 'Reset BR Scores';
+      } else if (actionType === 'save_br_scores') {
+        if (iconBg) iconBg.classList.add('bg-purple-500/15', 'text-purple-400', 'border', 'border-purple-500/30');
+        if (icon) icon.innerText = '💾';
+        if (badge) {
+          badge.classList.add('bg-purple-500/10', 'text-purple-400', 'border-purple-500/30');
+          badge.innerText = 'Confirm BR Scores';
+        }
+        const roundNum = (typeof activeBrModalRound !== 'undefined' && activeBrModalRound) ? activeBrModalRound : 1;
+        let placedCount = 0;
+        if (typeof CODM_BR_TEAMS !== 'undefined') {
+          CODM_BR_TEAMS.forEach(teamId => {
+            const sel = document.getElementById(`brPlacement_${teamId}`);
+            if (sel && sel.value) placedCount++;
+          });
+        }
+        if (title) title.innerText = `Save Round ${roundNum} BR Scores?`;
+        if (msg) {
+          if (placedCount === 7) {
+            msg.innerText = `Are you sure you want to proceed in saving Battle Royale scores for Round ${roundNum}? All 7 placements (1st-7th) are set and official standings will be updated.`;
+          } else {
+            msg.innerText = `Are you sure you want to proceed in saving Battle Royale scores for Round ${roundNum}? (${placedCount} of 7 college placements assigned so far).`;
+          }
+        }
+        if (subnote) subnote.innerHTML = '<span>ℹ️</span> <span>Click Proceed to commit the scores or Cancel to review placements and kills.</span>';
+        if (submitBtn) submitBtn.classList.add('bg-purple-600', 'hover:bg-purple-700', 'shadow-purple-600/30');
+        if (btnIcon) btnIcon.innerText = '💾';
+        if (btnText) btnText.innerText = 'Proceed & Save Scores';
       }
 
       modal.classList.remove('hidden');
@@ -5101,6 +5128,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
         simulateCodmBrTournament();
       } else if (action === 'reset_br_scores') {
         resetCodmBrScores();
+      } else if (action === 'save_br_scores') {
+        saveBrRoundFromModal(true);
       }
     }
 
@@ -9852,7 +9881,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       }
     }
 
-    function saveBrRoundFromModal() {
+    function saveBrRoundFromModal(confirmed = false) {
       if (!canScore('codm')) {
         notifyAuthRequired('marshal');
         return;
@@ -9876,6 +9905,12 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
       if (hasDuplicates) {
         showToast('⚠️ Duplicate placement detected. Each college must have a unique placement 1st to 7th.');
+        return;
+      }
+
+      // Prompt confirmation before finalizing/saving BR scores
+      if (!confirmed) {
+        openActionConfirmModal('save_br_scores');
         return;
       }
 

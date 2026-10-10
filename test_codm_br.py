@@ -28,11 +28,13 @@ def assert_true(cond, msg):
 try:
     print("--- 1. LOAD INDEX.HTML AND NAVIGATE TO CODM BATTLE ROYALE ---")
     driver.get('file:///' + html_path)
-    time.sleep(1)
-
-    # Clear previous local storage for clean test
-    driver.execute_script("localStorage.clear(); sessionStorage.clear(); initAdminAuth();")
     time.sleep(0.5)
+
+    # Clear previous local storage and disable background cloud sync for deterministic test
+    driver.execute_script("localStorage.clear(); sessionStorage.clear(); localStorage.setItem('tcc_firebase_disabled_v1', 'true');")
+    driver.get('file:///' + html_path)
+    time.sleep(1)
+    driver.execute_script("initAdminAuth();")
 
     # Navigate to CODM Battle Royale directly from Landing Hub
     driver.execute_script("openEsportDashboard('codm', 'br');")
@@ -154,10 +156,39 @@ try:
     driver.save_screenshot(screenshot_modal)
     print(f"Modal screenshot saved: {screenshot_modal}")
 
-    # Save Round 1
+    # Trigger Save Round 1 -> Verify confirmation message to proceed is prompted
     driver.execute_script("saveBrRoundFromModal();")
+    time.sleep(0.4)
+
+    confirm_visible = driver.execute_script("return !document.getElementById('actionConfirmModal').classList.contains('hidden');")
+    assert_true(confirm_visible, "Action confirmation modal displayed before saving BR scores")
+
+    confirm_title = driver.execute_script("return document.getElementById('confirmModalTitle').innerText;")
+    confirm_msg = driver.execute_script("return document.getElementById('confirmModalMessage').innerText;")
+    confirm_btn = driver.execute_script("return document.getElementById('confirmModalBtnText').innerText;")
+
+    assert_true("round 1" in confirm_title.lower() or "br" in confirm_title.lower(), f"Confirmation title specifies round: {confirm_title}")
+    assert_true("proceed" in confirm_msg.lower(), f"Confirmation message contains 'proceed': {confirm_msg}")
+    assert_true("proceed" in confirm_btn.lower(), f"Confirmation button contains 'proceed': {confirm_btn}")
+
+    screenshot_confirm = os.path.join(artifacts_dir, "codm_br_save_confirm_modal.png")
+    driver.save_screenshot(screenshot_confirm)
+    print(f"Confirmation modal screenshot saved: {screenshot_confirm}")
+
+    # Test Cancel first
+    driver.execute_script("closeActionConfirmModal();")
+    time.sleep(0.3)
+    confirm_closed = driver.execute_script("return document.getElementById('actionConfirmModal').classList.contains('hidden');")
+    score_still_open = driver.execute_script("return !document.getElementById('codmBrScoreModal').classList.contains('hidden');")
+    assert_true(confirm_closed and score_still_open, "Canceling confirmation keeps score editor open with inputs preserved")
+
+    # Trigger Save again and confirm proceed
+    driver.execute_script("""
+      saveBrRoundFromModal();
+      executePendingConfirmedAction();
+    """)
     time.sleep(0.5)
-    assert_true(driver.execute_script("return document.getElementById('codmBrScoreModal').classList.contains('hidden');"), "Score modal closed after save")
+    assert_true(driver.execute_script("return document.getElementById('codmBrScoreModal').classList.contains('hidden');"), "Score modal closed after confirmed save")
 
     # Verify Round 1 status is completed
     r1_status = driver.execute_script("return CODM_BR_DATA.rounds[1].status;")
