@@ -182,6 +182,31 @@ Check your Browserslist config to be sure that your targets are set up correctly
     }
     .gold-championship-card { animation: goldChampionshipGlow 3s infinite ease-in-out; }
 
+    @keyframes codmGameGlowPulse {
+      0%, 100% {
+        box-shadow: 0 0 14px rgba(245, 158, 11, 0.7), inset 0 0 8px rgba(245, 158, 11, 0.25);
+        border-color: #f59e0b;
+        background-color: rgba(245, 158, 11, 0.22);
+      }
+      50% {
+        box-shadow: 0 0 26px rgba(245, 158, 11, 0.95), inset 0 0 14px rgba(245, 158, 11, 0.45);
+        border-color: #fef08a;
+        background-color: rgba(245, 158, 11, 0.38);
+      }
+    }
+    .codm-game-glow {
+      animation: codmGameGlowPulse 1.8s infinite ease-in-out !important;
+      border: 2px solid #f59e0b !important;
+      color: #fef08a !important;
+      font-weight: 900 !important;
+    }
+    [data-theme="light"] .codm-game-glow, html.light .codm-game-glow {
+      border-color: #d97706 !important;
+      color: #78350f !important;
+      background-color: rgba(245, 158, 11, 0.2) !important;
+      box-shadow: 0 0 15px rgba(217, 119, 6, 0.5) !important;
+    }
+
     .match-card {
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -3867,7 +3892,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 } else if (isNotNeeded) {
                   bgClass = 'bg-black/20 border border-white/5 text-slate-500 opacity-60';
                 } else if (isLive) {
-                  bgClass = 'bg-amber-500/15 border border-amber-500/40 text-amber-300 font-black';
+                  bgClass = 'codm-game-glow';
                 }
 
                 return `
@@ -5961,7 +5986,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                       } else if (isNotNeeded) {
                         bgClass = 'bg-black/20 border border-white/5 text-slate-500 opacity-60';
                       } else if (isLive) {
-                        bgClass = 'bg-amber-500/15 border border-amber-500/40 text-amber-300 font-black';
+                        bgClass = 'codm-game-glow';
                       }
                       return `
                         <div class="p-1.5 rounded-xl ${bgClass} text-center flex flex-col items-center justify-between gap-0.5 text-[9px]" title="Game ${g.gameNum}: ${g.mode}">
@@ -9318,30 +9343,59 @@ Check your Browserslist config to be sure that your targets are set up correctly
             </div>
 
             <!-- CODM Game Mode Rotation Chips on Live Stage (if CODM) -->
-            ${currentEsport === 'codm' ? `
-              <div class="px-2 pb-2.5 pt-1.5 border-t border-[var(--border)]/50">
-                <div class="flex items-center justify-between text-[9px] mb-1 font-bold text-[var(--muted-foreground)]">
-                  <span class="text-amber-400 font-black uppercase tracking-wider flex items-center gap-1">
-                    <span>🎯</span> <span>BO${liveBestOf} Modes</span>
-                  </span>
+            ${currentEsport === 'codm' ? (() => {
+              const liveGames = getCodmMatchGames(liveMatch);
+              const isFinished = Boolean(liveMatch.winner);
+              const activeGameIdx = !isFinished ? liveGames.findIndex(g => !g.winner && g.status !== 'not_needed') : -1;
+              const activeGame = activeGameIdx !== -1 ? liveGames[activeGameIdx] : null;
+
+              return `
+                <div class="px-2 pb-2.5 pt-1.5 border-t border-[var(--border)]/50">
+                  <div class="flex items-center justify-between text-[9px] mb-1 font-bold text-[var(--muted-foreground)]">
+                    <span class="text-amber-400 font-black uppercase tracking-wider flex items-center gap-1">
+                      <span>🎯</span> <span>BO${liveBestOf} Modes</span>
+                    </span>
+                    ${activeGame ? `
+                      <span class="text-[9px] font-black text-amber-300 uppercase tracking-wider flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400 beacon-pulse shrink-0"></span>
+                        <span>Now Playing: Game ${activeGame.gameNum} (${activeGame.shortName})</span>
+                      </span>
+                    ` : (isFinished ? `
+                      <span class="text-[9px] font-black text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+                        <span>🏆 Series Concluded</span>
+                      </span>
+                    ` : '')}
+                  </div>
+                  <div class="grid ${liveBestOf === 5 ? 'grid-cols-5' : 'grid-cols-3'} gap-1.5 text-center font-mono text-[9px]">
+                    ${liveGames.map((g, idx) => {
+                      const isWon = Boolean(g.winner);
+                      const isNotNeeded = g.status === 'not_needed';
+                      const isCurrentActive = idx === activeGameIdx;
+
+                      let chipStyle = '';
+                      if (isWon) {
+                        chipStyle = 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300 font-black';
+                      } else if (isCurrentActive) {
+                        chipStyle = 'codm-game-glow scale-[1.03] z-10';
+                      } else if (isNotNeeded) {
+                        chipStyle = 'bg-black/20 border-white/5 text-slate-500 opacity-60';
+                      } else {
+                        chipStyle = 'bg-white/5 border-white/10 text-[var(--muted-foreground)]';
+                      }
+
+                      return `
+                        <div class="p-1 rounded-lg border ${chipStyle} flex items-center justify-center gap-1 truncate transition-all duration-300" title="Game ${g.gameNum}: ${g.mode}${isCurrentActive ? ' (Active Game Underway)' : ''}">
+                          <span>${g.icon}</span>
+                          <span class="truncate font-bold">${g.shortName}</span>
+                          ${isWon ? `<span class="text-[8px] font-black text-emerald-300">(${g.winner})</span>` : ''}
+                          ${isCurrentActive ? `<span class="w-1.5 h-1.5 rounded-full bg-amber-300 beacon-pulse shrink-0"></span>` : ''}
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>
                 </div>
-                <div class="grid ${liveBestOf === 5 ? 'grid-cols-5' : 'grid-cols-3'} gap-1.5 text-center font-mono text-[9px]">
-                  ${getCodmMatchGames(liveMatch).map((g, idx) => {
-                    const isWon = Boolean(g.winner);
-                    const isNotNeeded = g.status === 'not_needed';
-                    const isLive = g.status === 'live' || (liveInProgress && liveGameNum === (idx + 1));
-                    let bg = isWon ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300 font-black' : (isLive ? 'bg-amber-500/20 border-amber-500/40 text-amber-300 font-black beacon-pulse' : (isNotNeeded ? 'bg-black/20 border-white/5 text-slate-500 opacity-60' : 'bg-white/5 border-white/10 text-[var(--muted-foreground)]'));
-                    return `
-                      <div class="p-1 rounded-lg border ${bg} flex items-center justify-center gap-1 truncate" title="Game ${g.gameNum}: ${g.mode}">
-                        <span>${g.icon}</span>
-                        <span class="truncate font-bold">${g.shortName}</span>
-                        ${isWon ? `<span class="text-[8px] font-black text-emerald-300">(${g.winner})</span>` : ''}
-                      </div>
-                    `;
-                  }).join('')}
-                </div>
-              </div>
-            ` : ''}
+              `;
+            })() : ''}
 
             <!-- Live Controls Footer -->
             <div class="pt-2.5 border-t border-[var(--border)] flex items-center justify-between text-xs">
