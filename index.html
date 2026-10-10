@@ -534,16 +534,6 @@ Check your Browserslist config to be sure that your targets are set up correctly
             </p>
           </div>
         </div>
-
-        <!-- Quick Esport Switcher Pill (Accessible to All Users) -->
-        <div class="flex items-center p-1 rounded-xl bg-[var(--secondary)] border border-[var(--border)] shadow-sm shrink-0">
-          <button id="btnNavEsportMLBB" onclick="switchEsport('mlbb')" title="Switch to Mobile Legends: Bang Bang" class="px-2.5 py-1 rounded-lg text-xs font-black transition flex items-center gap-1.5 cursor-pointer">
-            <span class="text-xs">⚔️</span> <span>MLBB</span>
-          </button>
-          <button id="btnNavEsportCODM" onclick="switchEsport('codm')" title="Switch to Call of Duty: Mobile" class="px-2.5 py-1 rounded-lg text-xs font-black transition flex items-center gap-1.5 cursor-pointer">
-            <span class="text-xs">🎯</span> <span>CODM</span>
-          </button>
-        </div>
       </div>
 
       <!-- Right: Controls Toolbar -->
@@ -575,11 +565,6 @@ Check your Browserslist config to be sure that your targets are set up correctly
           <span id="cloudSyncIcon">☁️</span> <span id="cloudStatusText" class="hidden sm:inline">Cloud: Local</span>
         </button>
 
-        <!-- Tournament Results Database Viewer -->
-        <button id="btnHeaderDatabase" onclick="openResultsDatabaseModal()" title="Official Tournament Results Database & Archives" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-sky-500/40 bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 text-xs font-black transition cursor-pointer shadow-xs active:scale-95">
-          <span>🗄️</span> <span class="hidden sm:inline">Database</span>
-        </button>
-
         <!-- Referee & Table Marshal Coin Toss Randomizer (Marshal/Admin Only) -->
         <button id="btnHeaderCoinToss" onclick="openCoinTossModal()" title="Referee & Table Marshal Coin Toss Randomizer (Heads / Tails)" class="marshal-only flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-black transition cursor-pointer shadow-xs active:scale-95">
           <span class="text-sm">🪙</span> <span class="hidden sm:inline">Coin Toss</span>
@@ -587,14 +572,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
         <!-- Admin / Marshal Auth Status & Role Switcher Container -->
         <div id="adminAuthContainer" class="flex items-center">
-          <div class="flex items-center gap-1.5">
-            <span class="hidden md:inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-[var(--secondary)]/70 text-[var(--muted-foreground)] text-xs font-bold border border-[var(--border)]">
-              <span>👁️</span> Viewer
-            </span>
-            <button id="adminLoginBtn" onclick="openAdminLoginModal()" title="Login as Tournament Admin or Table Marshal" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-black transition cursor-pointer shadow-xs active:scale-95">
-              <span>🔒</span> <span>Login</span>
-            </button>
-          </div>
+          <button id="adminLoginBtn" onclick="openAdminLoginModal()" title="Login as Tournament Admin or Table Marshal" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-black transition cursor-pointer shadow-xs active:scale-95">
+            <span>🔒</span> <span>Login</span>
+          </button>
         </div>
 
         <!-- Data Import/Export Menu (Admin Only) -->
@@ -10529,14 +10509,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
       if (authContainer) {
         if (!currentSession) {
           authContainer.innerHTML = `
-            <div class="flex items-center gap-1.5">
-              <span class="hidden md:inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-[var(--secondary)]/70 text-[var(--muted-foreground)] text-xs font-bold border border-[var(--border)]">
-                <span>👁️</span> Viewer
-              </span>
-              <button id="adminLoginBtn" onclick="openAdminLoginModal()" title="Tournament Admin & Table Marshal Login" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-black transition cursor-pointer shadow-xs active:scale-95">
-                <span>🔒</span> <span>Login</span>
-              </button>
-            </div>
+            <button id="adminLoginBtn" onclick="openAdminLoginModal()" title="Tournament Admin & Table Marshal Login" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-black transition cursor-pointer shadow-xs active:scale-95">
+              <span>🔒</span> <span>Login</span>
+            </button>
           `;
         } else {
           const isAuthorized = isAuthorizedForEsport(currentEsport);
