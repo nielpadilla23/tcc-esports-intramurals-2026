@@ -2479,9 +2479,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         if (PLAYOFF_DATA[k].winner === 'COM') PLAYOFF_DATA[k].winner = 'CMID';
         if (PLAYOFF_DATA[k].loser === 'COM') PLAYOFF_DATA[k].loser = 'CMID';
         if (currentEsport === 'codm') {
-          if (!PLAYOFF_DATA[k].games || PLAYOFF_DATA[k].games.length !== PLAYOFF_DATA[k].bestOf) {
-            PLAYOFF_DATA[k].games = getCodmMatchGames(PLAYOFF_DATA[k]);
-          }
+          PLAYOFF_DATA[k].games = getCodmMatchGames(PLAYOFF_DATA[k]);
         }
       }
       if (currentEsport === 'codm' && typeof loadBrDataFromStorage === 'function') {
@@ -2683,6 +2681,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
         else if (!m.day) m.day = 'DAY 1';
 
         m.label = getMatchCanonicalLabel(k);
+      }
+      if (currentEsport === 'codm' && m) {
+        m.games = getCodmMatchGames(m);
       }
       return m;
     }
@@ -6210,7 +6211,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   scoreCellHtml = `
                     <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
                       <div style="font-family:monospace; font-weight:900; font-size:11px;">[ &nbsp; ] - [ &nbsp; ]</div>
-                      <div style="font-size:7.5px; color:#64748b;">G1:[ ] G2:[ ] G3:[ ]</div>
+                      <div style="font-size:7.5px; color:#64748b;">${bo === 5 ? 'G1:[ ] G2:[ ] G3:[ ] G4:[ ] G5:[ ]' : 'G1:[ ] G2:[ ] G3:[ ]'}</div>
                     </div>
                   `;
                 } else {
