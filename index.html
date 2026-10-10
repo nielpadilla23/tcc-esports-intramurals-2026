@@ -1757,8 +1757,15 @@ Check your Browserslist config to be sure that your targets are set up correctly
     function getMatchBestOf(matchKey, matchObj) {
       if (currentEsport === 'codm') {
         const mId = matchKey || (matchObj && matchObj.id) || '';
-        if (mId === 'gf8' || mId === 's8_gf') return 5; // Grand Finals is strictly BO5
-        if (matchObj && (matchObj.id === 'gf8' || matchObj.id === 's8_gf')) return 5;
+        if (mId === 'gf8' || mId === 's8_gf') {
+          if (matchObj && (matchObj.bestOf === 3 || matchObj.bestOf === 5)) return matchObj.bestOf;
+          if (typeof PLAYOFF_DATA !== 'undefined' && PLAYOFF_DATA[mId] && (PLAYOFF_DATA[mId].bestOf === 3 || PLAYOFF_DATA[mId].bestOf === 5)) {
+            return PLAYOFF_DATA[mId].bestOf;
+          }
+          const stored = (typeof localStorage !== 'undefined') ? localStorage.getItem('codm_gf_best_of') : null;
+          if (stored === '3' || stored === '5') return Number(stored);
+          return 5; // Default for CODM Grand Finals (BO5)
+        }
         return 3; // All other CODM Multi-Player matches are BO3
       }
       if (matchObj && matchObj.bestOf) return matchObj.bestOf;
@@ -1766,6 +1773,50 @@ Check your Browserslist config to be sure that your targets are set up correctly
         return MATCH_BEST_OF[matchKey];
       }
       return 3;
+    }
+
+    function setCodmGrandFinalsFormat(bestOf) {
+      bestOf = (Number(bestOf) === 3) ? 3 : 5;
+      try { localStorage.setItem('codm_gf_best_of', String(bestOf)); } catch(e) {}
+      ['gf8', 's8_gf'].forEach(k => {
+        if (typeof PLAYOFF_DATA !== 'undefined' && PLAYOFF_DATA[k]) {
+          PLAYOFF_DATA[k].bestOf = bestOf;
+          PLAYOFF_DATA[k].label = `Grand Finals (GF · BO${bestOf})`;
+          delete PLAYOFF_DATA[k].games;
+          PLAYOFF_DATA[k].games = getCodmMatchGames(PLAYOFF_DATA[k]);
+          const targetWins = Math.ceil(bestOf / 2);
+          const s1 = PLAYOFF_DATA[k].s1;
+          const s2 = PLAYOFF_DATA[k].s2;
+          if (s1 !== null && s2 !== null) {
+            if (s1 >= targetWins && s1 > s2) {
+              PLAYOFF_DATA[k].winner = PLAYOFF_DATA[k].team1;
+              PLAYOFF_DATA[k].loser = PLAYOFF_DATA[k].team2;
+            } else if (s2 >= targetWins && s2 > s1) {
+              PLAYOFF_DATA[k].winner = PLAYOFF_DATA[k].team2;
+              PLAYOFF_DATA[k].loser = PLAYOFF_DATA[k].team1;
+            } else {
+              PLAYOFF_DATA[k].winner = null;
+              PLAYOFF_DATA[k].loser = null;
+            }
+          }
+        }
+      });
+      if (typeof savePlayoffsToStorage === 'function') savePlayoffsToStorage();
+      if (typeof updatePlayoffBracket === 'function') updatePlayoffBracket();
+      if (typeof currentTab !== 'undefined' && currentTab === 'matches' && typeof renderMatchScheduleList === 'function') {
+        renderMatchScheduleList();
+      }
+      if (typeof renderLiveBroadcastHero === 'function') renderLiveBroadcastHero();
+      if (typeof isTheaterModeOpen !== 'undefined' && isTheaterModeOpen && typeof renderTheaterCurrentSlide === 'function') {
+        renderTheaterCurrentSlide();
+      }
+      if (typeof pushToCloud === 'function') pushToCloud();
+      if (typeof activeModalMatchKey !== 'undefined' && (activeModalMatchKey === 'gf8' || activeModalMatchKey === 's8_gf') && typeof openScoreModal === 'function') {
+        openScoreModal(activeModalMatchKey);
+      }
+      if (typeof showToast === 'function') {
+        showToast(`CODM Grand Finals updated to Best-of-${bestOf} (BO${bestOf})`);
+      }
     }
 
     function getCodmMatchGames(m) {
@@ -1972,11 +2023,19 @@ Check your Browserslist config to be sure that your targets are set up correctly
         </div>
 
         <div class="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2.5">
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between flex-wrap gap-2">
             <span class="text-xs font-black text-amber-400 uppercase tracking-wide flex items-center gap-1.5">
-              <span>🎯</span> <span>CODM ${bestOf === 5 ? 'BO5 Grand Finals' : 'BO3'} Game Modes Rotation</span>
+              <span>🎯</span> <span>CODM Game Modes Rotation</span>
             </span>
-            <span class="text-[10px] font-mono text-[var(--muted-foreground)]">Click winning team per mode</span>
+            ${(match.id === 'gf8' || match.id === 's8_gf') ? `
+              <div class="flex items-center gap-1 bg-[var(--card)] p-0.5 rounded-xl border border-amber-500/40">
+                <span class="text-[9px] font-black uppercase text-amber-300 px-1.5">GF Format:</span>
+                <button type="button" onclick="setCodmGrandFinalsFormat(3)" class="px-2 py-0.5 rounded-lg text-xs font-black cursor-pointer transition ${bestOf === 3 ? 'bg-amber-500 text-slate-950 shadow-xs' : 'text-[var(--muted-foreground)] hover:text-white'}">BO3 (First to 2)</button>
+                <button type="button" onclick="setCodmGrandFinalsFormat(5)" class="px-2 py-0.5 rounded-lg text-xs font-black cursor-pointer transition ${bestOf === 5 ? 'bg-amber-500 text-slate-950 shadow-xs' : 'text-[var(--muted-foreground)] hover:text-white'}">BO5 (First to 3)</button>
+              </div>
+            ` : `
+              <span class="text-[10px] font-mono text-[var(--muted-foreground)]">Click winning team per mode</span>
+            `}
           </div>
 
           <div class="space-y-2">
@@ -2303,68 +2362,68 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function createInitialPlayoffTemplate() {
       const isCodm = currentEsport === 'codm';
-      if (isCodm) {
+          const codmGfBo = (typeof localStorage !== 'undefined' && localStorage.getItem('codm_gf_best_of') === '3') ? 3 : 5;
+          return {
+            ub_qf1: { id: 'ub_qf1', seq: 1, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 1 (U1 · CCJPS BYE)', bestOf: 3, team1: 'CCJPS', team2: 'BYE', s1: null, s2: null, winner: 'CCJPS', loser: null },
+            ub_qf2: { id: 'ub_qf2', seq: 2, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 2 (U2 · CBA vs CHM)', bestOf: 3, team1: 'CBA', team2: 'CHM', s1: null, s2: null, winner: null, loser: null },
+            ub_qf3: { id: 'ub_qf3', seq: 3, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 3 (U3 · CLIS vs CIT)', bestOf: 3, team1: 'CLIS', team2: 'CIT', s1: null, s2: null, winner: null, loser: null },
+            ub_qf4: { id: 'ub_qf4', seq: 4, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 4 (U4 · COED vs CAS)', bestOf: 3, team1: 'COED', team2: 'CAS', s1: null, s2: null, winner: null, loser: null },
+
+            ub_sf1: { id: 'ub_sf1', seq: 5, day: 'DAY 1', label: 'Upper Bracket Semifinal 1 (U5 · CCJPS vs Winner U2)', bestOf: 3, team1: 'CCJPS', team2: null, s1: null, s2: null, winner: null, loser: null },
+            ub_sf2: { id: 'ub_sf2', seq: 6, day: 'DAY 1', label: 'Upper Bracket Semifinal 2 (U6 · Winner U3 vs Winner U4)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+            ub_f: { id: 'ub_f', seq: 12, day: 'DAY 2', label: 'Upper Bracket Final (U7 · BO3)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+
+            lb_r1_1: { id: 'lb_r1_1', seq: 7, day: 'DAY 2', label: 'Lower Bracket Round 1 (L1 · Loser U2 BYE)', bestOf: 3, team1: null, team2: 'BYE', s1: null, s2: null, winner: null, loser: null },
+            lb_r1_2: { id: 'lb_r1_2', seq: 8, day: 'DAY 2', label: 'Lower Bracket Round 1 (L2 · Loser U3 vs Loser U4)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+
+            lb_qf1: { id: 'lb_qf1', seq: 9, day: 'DAY 2', label: 'Lower Bracket Quarterfinal 1 (L3)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+            lb_qf2: { id: 'lb_qf2', seq: 10, day: 'DAY 2', label: 'Lower Bracket Quarterfinal 2 (L4)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+
+            lb_sf: { id: 'lb_sf', seq: 11, day: 'DAY 2', label: 'Lower Bracket Semifinal (L5)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+            lb_f: { id: 'lb_f', seq: 13, day: 'DAY 3', label: 'Lower Bracket Final (L6 · BO3)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+
+            gf8: { id: 'gf8', seq: 14, day: 'DAY 3', label: `Grand Finals (GF · BO${codmGfBo})`, bestOf: codmGfBo, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+
+            s8_qf1: { id: 's8_qf1', seq: 1, day: 'DAY 1', label: 'Quarterfinal 1 (U1 · CCJPS BYE)', bestOf: 3, team1: 'CCJPS', team2: 'BYE', s1: null, s2: null, winner: 'CCJPS', loser: null },
+            s8_qf2: { id: 's8_qf2', seq: 2, day: 'DAY 1', label: 'Quarterfinal 2 (U2 · CBA vs CHM)', bestOf: 3, team1: 'CBA', team2: 'CHM', s1: null, s2: null, winner: null, loser: null },
+            s8_qf3: { id: 's8_qf3', seq: 3, day: 'DAY 1', label: 'Quarterfinal 3 (U3 · CLIS vs CIT)', bestOf: 3, team1: 'CLIS', team2: 'CIT', s1: null, s2: null, winner: null, loser: null },
+            s8_qf4: { id: 's8_qf4', seq: 4, day: 'DAY 1', label: 'Quarterfinal 4 (U4 · COED vs CAS)', bestOf: 3, team1: 'COED', team2: 'CAS', s1: null, s2: null, winner: null, loser: null },
+            s8_sf1: { id: 's8_sf1', seq: 5, day: 'DAY 2', label: 'Semifinal 1 (U5)', bestOf: 3, team1: 'CCJPS', team2: null, s1: null, s2: null, winner: null, loser: null },
+            s8_sf2: { id: 's8_sf2', seq: 6, day: 'DAY 2', label: 'Semifinal 2 (U6)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+            s8_bronze: { id: 's8_bronze', seq: 7, day: 'DAY 3', label: 'Bronze Medal Match (BO3)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+            s8_gf: { id: 's8_gf', seq: 8, day: 'DAY 3', label: `Grand Finals (GF · BO${codmGfBo})`, bestOf: codmGfBo, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null }
+          };
+        }
         return {
-          ub_qf1: { id: 'ub_qf1', seq: 1, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 1 (U1 · CCJPS BYE)', bestOf: 3, team1: 'CCJPS', team2: 'BYE', s1: null, s2: null, winner: 'CCJPS', loser: null },
-          ub_qf2: { id: 'ub_qf2', seq: 2, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 2 (U2 · CBA vs CHM)', bestOf: 3, team1: 'CBA', team2: 'CHM', s1: null, s2: null, winner: null, loser: null },
-          ub_qf3: { id: 'ub_qf3', seq: 3, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 3 (U3 · CLIS vs CIT)', bestOf: 3, team1: 'CLIS', team2: 'CIT', s1: null, s2: null, winner: null, loser: null },
-          ub_qf4: { id: 'ub_qf4', seq: 4, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 4 (U4 · COED vs CAS)', bestOf: 3, team1: 'COED', team2: 'CAS', s1: null, s2: null, winner: null, loser: null },
+          ub_qf1: { id: 'ub_qf1', seq: 1, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 1 (#1 vs #8)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          ub_qf2: { id: 'ub_qf2', seq: 2, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 2 (#4 vs #5)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          ub_qf3: { id: 'ub_qf3', seq: 3, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 3 (#2 vs #7)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          ub_qf4: { id: 'ub_qf4', seq: 4, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 4 (#3 vs #6)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
 
-          ub_sf1: { id: 'ub_sf1', seq: 5, day: 'DAY 1', label: 'Upper Bracket Semifinal 1 (U5 · CCJPS vs Winner U2)', bestOf: 3, team1: 'CCJPS', team2: null, s1: null, s2: null, winner: null, loser: null },
-          ub_sf2: { id: 'ub_sf2', seq: 6, day: 'DAY 1', label: 'Upper Bracket Semifinal 2 (U6 · Winner U3 vs Winner U4)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-          ub_f: { id: 'ub_f', seq: 12, day: 'DAY 2', label: 'Upper Bracket Final (U7 · BO3)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          ub_sf1: { id: 'ub_sf1', seq: 5, day: 'DAY 1', label: 'Upper Bracket Semifinal 1', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          ub_sf2: { id: 'ub_sf2', seq: 6, day: 'DAY 1', label: 'Upper Bracket Semifinal 2', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          ub_f: { id: 'ub_f', seq: 12, day: 'DAY 2', label: 'Upper Bracket Final (BO5)', bestOf: 5, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
 
-          lb_r1_1: { id: 'lb_r1_1', seq: 7, day: 'DAY 2', label: 'Lower Bracket Round 1 (L1 · Loser U2 BYE)', bestOf: 3, team1: null, team2: 'BYE', s1: null, s2: null, winner: null, loser: null },
-          lb_r1_2: { id: 'lb_r1_2', seq: 8, day: 'DAY 2', label: 'Lower Bracket Round 1 (L2 · Loser U3 vs Loser U4)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          lb_r1_1: { id: 'lb_r1_1', seq: 7, day: 'DAY 2', label: 'Lower Bracket Round 1 (QF1 Loser vs QF2 Loser)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          lb_r1_2: { id: 'lb_r1_2', seq: 8, day: 'DAY 2', label: 'Lower Bracket Round 1 (QF3 Loser vs QF4 Loser)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
 
-          lb_qf1: { id: 'lb_qf1', seq: 9, day: 'DAY 2', label: 'Lower Bracket Quarterfinal 1 (L3)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-          lb_qf2: { id: 'lb_qf2', seq: 10, day: 'DAY 2', label: 'Lower Bracket Quarterfinal 2 (L4)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          lb_qf1: { id: 'lb_qf1', seq: 9, day: 'DAY 2', label: 'Lower Bracket Quarterfinal 1', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          lb_qf2: { id: 'lb_qf2', seq: 10, day: 'DAY 2', label: 'Lower Bracket Quarterfinal 2', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
 
-          lb_sf: { id: 'lb_sf', seq: 11, day: 'DAY 2', label: 'Lower Bracket Semifinal (L5)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-          lb_f: { id: 'lb_f', seq: 13, day: 'DAY 3', label: 'Lower Bracket Final (L6 · BO3)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          lb_sf: { id: 'lb_sf', seq: 11, day: 'DAY 2', label: 'Lower Bracket Semifinal', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          lb_f: { id: 'lb_f', seq: 13, day: 'DAY 3', label: 'Lower Bracket Final (BO5)', bestOf: 5, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
 
-          gf8: { id: 'gf8', seq: 14, day: 'DAY 3', label: 'Grand Championship Finals (GF · BO5)', bestOf: 5, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          gf8: { id: 'gf8', seq: 14, day: 'DAY 3', label: 'Grand Finals (BO7)', bestOf: 7, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
 
-          s8_qf1: { id: 's8_qf1', seq: 1, day: 'DAY 1', label: 'Quarterfinal 1 (U1 · CCJPS BYE)', bestOf: 3, team1: 'CCJPS', team2: 'BYE', s1: null, s2: null, winner: 'CCJPS', loser: null },
-          s8_qf2: { id: 's8_qf2', seq: 2, day: 'DAY 1', label: 'Quarterfinal 2 (U2 · CBA vs CHM)', bestOf: 3, team1: 'CBA', team2: 'CHM', s1: null, s2: null, winner: null, loser: null },
-          s8_qf3: { id: 's8_qf3', seq: 3, day: 'DAY 1', label: 'Quarterfinal 3 (U3 · CLIS vs CIT)', bestOf: 3, team1: 'CLIS', team2: 'CIT', s1: null, s2: null, winner: null, loser: null },
-          s8_qf4: { id: 's8_qf4', seq: 4, day: 'DAY 1', label: 'Quarterfinal 4 (U4 · COED vs CAS)', bestOf: 3, team1: 'COED', team2: 'CAS', s1: null, s2: null, winner: null, loser: null },
-          s8_sf1: { id: 's8_sf1', seq: 5, day: 'DAY 2', label: 'Semifinal 1 (U5)', bestOf: 3, team1: 'CCJPS', team2: null, s1: null, s2: null, winner: null, loser: null },
-          s8_sf2: { id: 's8_sf2', seq: 6, day: 'DAY 2', label: 'Semifinal 2 (U6)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-          s8_bronze: { id: 's8_bronze', seq: 7, day: 'DAY 3', label: 'Bronze Medal Match (BO3)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-          s8_gf: { id: 's8_gf', seq: 8, day: 'DAY 3', label: 'Grand Championship Finals (GF · BO5)', bestOf: 5, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null }
+          s8_qf1: { id: 's8_qf1', seq: 1, day: 'DAY 1', label: 'Quarterfinal 1 (#1 vs #8)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          s8_qf2: { id: 's8_qf2', seq: 2, day: 'DAY 1', label: 'Quarterfinal 2 (#4 vs #5)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          s8_qf3: { id: 's8_qf3', seq: 3, day: 'DAY 1', label: 'Quarterfinal 3 (#2 vs #7)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          s8_qf4: { id: 's8_qf4', seq: 4, day: 'DAY 1', label: 'Quarterfinal 4 (#3 vs #6)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          s8_sf1: { id: 's8_sf1', seq: 5, day: 'DAY 2', label: 'Semifinal 1', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          s8_sf2: { id: 's8_sf2', seq: 6, day: 'DAY 2', label: 'Semifinal 2', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          s8_bronze: { id: 's8_bronze', seq: 7, day: 'DAY 3', label: 'Bronze Medal Match (BO5)', bestOf: 5, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          s8_gf: { id: 's8_gf', seq: 8, day: 'DAY 3', label: 'Grand Finals (BO7)', bestOf: 7, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null }
         };
-      }
-      return {
-        ub_qf1: { id: 'ub_qf1', seq: 1, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 1 (#1 vs #8)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-        ub_qf2: { id: 'ub_qf2', seq: 2, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 2 (#4 vs #5)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-        ub_qf3: { id: 'ub_qf3', seq: 3, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 3 (#2 vs #7)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-        ub_qf4: { id: 'ub_qf4', seq: 4, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 4 (#3 vs #6)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-
-        ub_sf1: { id: 'ub_sf1', seq: 5, day: 'DAY 1', label: 'Upper Bracket Semifinal 1', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-        ub_sf2: { id: 'ub_sf2', seq: 6, day: 'DAY 1', label: 'Upper Bracket Semifinal 2', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-        ub_f: { id: 'ub_f', seq: 12, day: 'DAY 2', label: 'Upper Bracket Final (BO5)', bestOf: 5, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-
-        lb_r1_1: { id: 'lb_r1_1', seq: 7, day: 'DAY 2', label: 'Lower Bracket Round 1 (QF1 Loser vs QF2 Loser)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-        lb_r1_2: { id: 'lb_r1_2', seq: 8, day: 'DAY 2', label: 'Lower Bracket Round 1 (QF3 Loser vs QF4 Loser)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-
-        lb_qf1: { id: 'lb_qf1', seq: 9, day: 'DAY 2', label: 'Lower Bracket Quarterfinal 1', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-        lb_qf2: { id: 'lb_qf2', seq: 10, day: 'DAY 2', label: 'Lower Bracket Quarterfinal 2', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-
-        lb_sf: { id: 'lb_sf', seq: 11, day: 'DAY 2', label: 'Lower Bracket Semifinal', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-        lb_f: { id: 'lb_f', seq: 13, day: 'DAY 3', label: 'Lower Bracket Final (BO5)', bestOf: 5, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-
-        gf8: { id: 'gf8', seq: 14, day: 'DAY 3', label: 'Grand Championship Finals (BO7)', bestOf: 7, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-
-        s8_qf1: { id: 's8_qf1', seq: 1, day: 'DAY 1', label: 'Quarterfinal 1 (#1 vs #8)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-        s8_qf2: { id: 's8_qf2', seq: 2, day: 'DAY 1', label: 'Quarterfinal 2 (#4 vs #5)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-        s8_qf3: { id: 's8_qf3', seq: 3, day: 'DAY 1', label: 'Quarterfinal 3 (#2 vs #7)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-        s8_qf4: { id: 's8_qf4', seq: 4, day: 'DAY 1', label: 'Quarterfinal 4 (#3 vs #6)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-        s8_sf1: { id: 's8_sf1', seq: 5, day: 'DAY 2', label: 'Semifinal 1', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-        s8_sf2: { id: 's8_sf2', seq: 6, day: 'DAY 2', label: 'Semifinal 2', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-        s8_bronze: { id: 's8_bronze', seq: 7, day: 'DAY 3', label: 'Bronze Medal Match (BO5)', bestOf: 5, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-        s8_gf: { id: 's8_gf', seq: 8, day: 'DAY 3', label: 'Grand Championship Finals (BO7)', bestOf: 7, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null }
-      };
     }
 
     function loadTournamentDataForEsport(esportId) {
@@ -2443,7 +2502,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         lb_qf2: 'Lower Bracket Quarterfinal 2 (L4)',
         lb_sf: 'Lower Bracket Semifinal (L5)',
         lb_f: 'Lower Bracket Final (L6 · BO3)',
-        gf8: 'Grand Championship Finals (GF · BO5)',
+        gf8: 'Grand Finals (GF · BO5)',
         s8_qf1: 'Quarterfinal 1 (U1 · CCJPS BYE)',
         s8_qf2: 'Quarterfinal 2 (U2 · CBA vs CHM)',
         s8_qf3: 'Quarterfinal 3 (U3 · CLIS vs CIT)',
@@ -2451,7 +2510,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         s8_sf1: 'Semifinal 1 (U5)',
         s8_sf2: 'Semifinal 2 (U6)',
         s8_bronze: 'Bronze Medal Match (BO3)',
-        s8_gf: 'Grand Championship Finals (GF · BO5)',
+        s8_gf: 'Grand Finals (GF · BO5)',
       } : {
         ub_qf1: 'Upper Bracket Quarterfinal 1 (#1 vs #8)',
         ub_qf2: 'Upper Bracket Quarterfinal 2 (#4 vs #5)',
@@ -2466,14 +2525,18 @@ Check your Browserslist config to be sure that your targets are set up correctly
         lb_qf2: 'Lower Bracket Quarterfinal 2',
         lb_sf: 'Lower Bracket Semifinal',
         lb_f: 'Lower Bracket Final (BO5)',
-        gf8: 'Grand Championship Finals (BO7)',
-        s8_gf: 'Grand Championship Finals (BO7)',
+        gf8: 'Grand Finals (BO7)',
+        s8_gf: 'Grand Finals (BO7)',
       };
       for (let k in PLAYOFF_DATA) {
         if (MATCH_SEQUENCES[k] !== undefined) PLAYOFF_DATA[k].seq = MATCH_SEQUENCES[k];
         if (MATCH_DAYS[k] !== undefined) PLAYOFF_DATA[k].day = MATCH_DAYS[k];
         PLAYOFF_DATA[k].bestOf = getMatchBestOf(k, PLAYOFF_DATA[k]);
-        if (CANONICAL_LABELS[k] !== undefined) PLAYOFF_DATA[k].label = CANONICAL_LABELS[k];
+        if (currentEsport === 'codm' && (k === 'gf8' || k === 's8_gf')) {
+          PLAYOFF_DATA[k].label = `Grand Finals (GF · BO${PLAYOFF_DATA[k].bestOf})`;
+        } else if (CANONICAL_LABELS[k] !== undefined) {
+          PLAYOFF_DATA[k].label = CANONICAL_LABELS[k];
+        }
         if (PLAYOFF_DATA[k].team1 === 'COM') PLAYOFF_DATA[k].team1 = 'CMID';
         if (PLAYOFF_DATA[k].team2 === 'COM') PLAYOFF_DATA[k].team2 = 'CMID';
         if (PLAYOFF_DATA[k].winner === 'COM') PLAYOFF_DATA[k].winner = 'CMID';
@@ -2635,7 +2698,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       lb_sf: { id: 'lb_sf', seq: 11, day: 'DAY 2', label: 'Lower Bracket Semifinal', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
       lb_f: { id: 'lb_f', seq: 13, day: 'DAY 3', label: 'Lower Bracket Final (BO5)', bestOf: 5, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
 
-      gf8: { id: 'gf8', seq: 14, day: 'DAY 3', label: 'Grand Championship Finals (BO7)', bestOf: 7, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+      gf8: { id: 'gf8', seq: 14, day: 'DAY 3', label: 'Grand Finals (BO7)', bestOf: 7, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
 
       // 8-Team Single Elimination Knockout
       s8_qf1: { id: 's8_qf1', seq: 1, day: 'DAY 1', label: 'Quarterfinal 1 (#1 vs #8)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
@@ -2645,7 +2708,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       s8_sf1: { id: 's8_sf1', seq: 5, day: 'DAY 2', label: 'Semifinal 1', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
       s8_sf2: { id: 's8_sf2', seq: 6, day: 'DAY 2', label: 'Semifinal 2', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
       s8_bronze: { id: 's8_bronze', seq: 7, day: 'DAY 3', label: 'Bronze Medal Match (BO5)', bestOf: 5, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-      s8_gf: { id: 's8_gf', seq: 8, day: 'DAY 3', label: 'Grand Championship Finals (BO7)', bestOf: 7, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null }
+      s8_gf: { id: 's8_gf', seq: 8, day: 'DAY 3', label: 'Grand Finals (BO7)', bestOf: 7, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null }
     };
 
     // --- DATA SANITIZATION & SCORE HELPERS ---
@@ -2808,14 +2871,15 @@ Check your Browserslist config to be sure that your targets are set up correctly
         const colDescEl = document.getElementById('metricCollegesDesc');
 
         if (currentEsport === 'codm') {
+          const codmGfBo = getMatchBestOf('gf8', typeof PLAYOFF_DATA !== 'undefined' ? (tournamentMode === 'double_elim' ? PLAYOFF_DATA.gf8 : PLAYOFF_DATA.s8_gf) : null);
           if (mTitle) mTitle.innerText = '7 Played Series (7 Colleges Single Elim)';
-          if (mDesc) mDesc.innerText = 'Rotation: Hardpoint · Control · S&D (BO5 Finals)';
-          if (rTitle) rTitle.innerText = 'BO3 Series · BO5 Grand Finals (HP, Control, S&D)';
+          if (mDesc) mDesc.innerText = `Rotation: Hardpoint · Control · S&D (BO${codmGfBo} Finals)`;
+          if (rTitle) rTitle.innerText = `BO3 Series · BO${codmGfBo} Grand Finals (HP, Control, S&D)`;
           if (colCountEl) colCountEl.innerText = '7 Official Teams (CMID No Team)';
           if (colDescEl) colDescEl.innerText = 'Fixed Tournament Draw · No Seeding';
         } else {
           if (mTitle) mTitle.innerText = '8 Series (Single Elim)';
-          if (mDesc) mDesc.innerText = 'Quarterfinals to Grand Championship Knockout';
+          if (mDesc) mDesc.innerText = 'Quarterfinals to Grand Finals Knockout';
           if (rTitle) rTitle.innerText = 'BO5 Bronze Match · BO7 Grand Finals';
           if (colCountEl) colCountEl.innerText = '8 Official Teams';
           if (colDescEl) colDescEl.innerText = 'Seeded #1 to #8 by Official Draw';
@@ -3280,6 +3344,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function getMatchCanonicalLabel(matchKey) {
       const isCodm = currentEsport === 'codm';
+      const codmGfBo = getMatchBestOf('gf8', typeof PLAYOFF_DATA !== 'undefined' ? (tournamentMode === 'double_elim' ? PLAYOFF_DATA.gf8 : PLAYOFF_DATA.s8_gf) : null);
       const labels = isCodm ? {
         ub_qf1: 'Upper Bracket Quarterfinal 1 (U1 · CCJPS BYE)',
         ub_qf2: 'Upper Bracket Quarterfinal 2 (U2 · CBA vs CHM)',
@@ -3294,7 +3359,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         lb_qf2: 'Lower Bracket Quarterfinal 2 (L4)',
         lb_sf: 'Lower Bracket Semifinal (L5)',
         lb_f: 'Lower Bracket Final (L6 · BO3)',
-        gf8: 'Grand Championship Finals (GF · BO5)',
+        gf8: `Grand Finals (GF · BO${codmGfBo})`,
         s8_qf1: 'Quarterfinal 1 (U1 · CCJPS BYE)',
         s8_qf2: 'Quarterfinal 2 (U2 · CBA vs CHM)',
         s8_qf3: 'Quarterfinal 3 (U3 · CLIS vs CIT)',
@@ -3302,7 +3367,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         s8_sf1: 'Semifinal 1 (U5)',
         s8_sf2: 'Semifinal 2 (U6)',
         s8_bronze: 'Bronze Medal Match (BO3)',
-        s8_gf: 'Grand Championship Finals (GF · BO5)'
+        s8_gf: `Grand Finals (GF · BO${codmGfBo})`
       } : {
         ub_qf1: 'Upper Bracket Quarterfinal 1 (#1 vs #8)',
         ub_qf2: 'Upper Bracket Quarterfinal 2 (#4 vs #5)',
@@ -3317,7 +3382,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         lb_qf2: 'Lower Bracket Quarterfinal 2',
         lb_sf: 'Lower Bracket Semifinal',
         lb_f: 'Lower Bracket Final (BO5)',
-        gf8: 'Grand Championship Finals (BO7)',
+        gf8: 'Grand Finals (BO7)',
         s8_qf1: 'Quarterfinal 1 (#1 vs #8)',
         s8_qf2: 'Quarterfinal 2 (#4 vs #5)',
         s8_qf3: 'Quarterfinal 3 (#2 vs #7)',
@@ -3325,7 +3390,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         s8_sf1: 'Semifinal 1',
         s8_sf2: 'Semifinal 2',
         s8_bronze: 'Bronze Medal Match (BO5)',
-        s8_gf: 'Grand Championship Finals (BO7)'
+        s8_gf: 'Grand Finals (BO7)'
       };
       return labels[matchKey] || 'Match';
     }
@@ -3465,7 +3530,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
           PLAYOFF_DATA.lb_f.team2 = PLAYOFF_DATA.lb_sf.winner || null;
           validateMatchReadiness('lb_f');
 
-          // Grand Championship Finals:
+          // Grand Finals:
           // GF: Winner of U7 vs Winner of L6
           PLAYOFF_DATA.gf8.team1 = PLAYOFF_DATA.ub_f.winner || null;
           PLAYOFF_DATA.gf8.team2 = PLAYOFF_DATA.lb_f.winner || null;
@@ -3569,7 +3634,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
           PLAYOFF_DATA.lb_f.team2 = PLAYOFF_DATA.lb_sf.winner || null;
           validateMatchReadiness('lb_f');
 
-          // Grand Championship Finals (fed by UB Final winner & LB Final winner)
+          // Grand Finals (fed by UB Final winner & LB Final winner)
           PLAYOFF_DATA.gf8.team1 = PLAYOFF_DATA.ub_f.winner || null;
           PLAYOFF_DATA.gf8.team2 = PLAYOFF_DATA.lb_f.winner || null;
           validateMatchReadiness('gf8');
@@ -3680,13 +3745,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
               <!-- Day 3 Group -->
               <div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex flex-col justify-between space-y-1.5">
                 <div class="flex items-center justify-between">
-                  <span class="px-2.5 py-0.5 rounded-md bg-amber-500 text-slate-950 font-black text-[9px] uppercase tracking-wider font-sans">👑 DAY 3 · Championship Finals</span>
-                  <span class="text-[9px] text-amber-400 font-bold font-sans">${isCodm ? '1 BO3 · 1 BO5 Series (HP, Control, S&D)' : '1 BO5 · 1 BO7'}</span>
+                  <span class="px-2.5 py-0.5 rounded-md bg-amber-500 text-slate-950 font-black text-[9px] uppercase tracking-wider font-sans">👑 DAY 3 · Grand Finals Series</span>
+                  <span class="text-[9px] text-amber-400 font-bold font-sans">${isCodm ? `1 BO3 · 1 BO${getMatchBestOf('gf8', PLAYOFF_DATA ? PLAYOFF_DATA.gf8 : null)} Series (HP, Control, S&D)` : '1 BO5 · 1 BO7'}</span>
                 </div>
                 <div class="text-[11px] font-bold text-[var(--foreground)] space-y-1">
                   ${isCodm ? `
                     <div class="flex items-center gap-1.5"><span class="text-amber-400 font-black">L6:</span> Lower Final <span class="text-[9px] px-1 bg-amber-500/20 rounded text-amber-300 font-sans font-bold">BO3 ➔ Bronze Medal / GF Qualifier</span></div>
-                    <div class="flex items-center gap-1.5"><span class="text-amber-300 font-black">👑 GF:</span> Grand Championship Finals <span class="text-[9px] px-1 bg-amber-500/30 rounded text-amber-300 font-sans font-black">BO5 ➔ Gold / Silver</span></div>
+                    <div class="flex items-center gap-1.5"><span class="text-amber-300 font-black">👑 GF:</span> Grand Finals <span class="text-[9px] px-1 bg-amber-500/30 rounded text-amber-300 font-sans font-black">BO${getMatchBestOf('gf8', PLAYOFF_DATA ? PLAYOFF_DATA.gf8 : null)} ➔ Gold / Silver</span></div>
                   ` : `
                     <div class="flex items-center gap-1.5"><span class="text-amber-400 font-black">M13:</span> Lower Bracket Final <span class="text-[9px] px-1 bg-amber-500/20 rounded text-amber-300 font-sans font-bold">BO5</span></div>
                     <div class="flex items-center gap-1.5"><span class="text-amber-300 font-black">👑 M14:</span> Grand Finals <span class="text-[9px] px-1 bg-amber-500/30 rounded text-amber-300 font-sans font-black">BO7</span></div>
@@ -3729,8 +3794,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
               </div>
               <span class="text-[var(--muted-foreground)] shrink-0 font-bold">➔</span>
               <div class="px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-500/25 to-yellow-500/25 border border-amber-500/50 text-amber-300 shrink-0 font-black">
-                <span class="font-sans text-[8px] uppercase tracking-tighter opacity-80 block font-semibold">Grand Championship</span>
-                👑 M8: Grand Finals (${currentEsport === 'codm' ? 'BO5' : 'BO7'})
+                <span class="font-sans text-[8px] uppercase tracking-tighter opacity-80 block font-semibold">Grand Finals</span>
+                👑 M8: Grand Finals (${currentEsport === 'codm' ? `BO${getMatchBestOf('s8_gf', PLAYOFF_DATA ? PLAYOFF_DATA.s8_gf : null)}` : 'BO7'})
               </div>
             </div>
           </div>
@@ -4668,20 +4733,37 @@ Check your Browserslist config to be sure that your targets are set up correctly
             </div>
           </div>
 
-          <!-- GRAND CHAMPIONSHIP FINALS (Day 3: M14) -->
+          <!-- GRAND FINALS (Day 3: M14) -->
           <div class="pt-8 border-t border-[var(--border)] max-w-xl mx-auto">
             <div class="text-center mb-4 space-y-1">
               <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-black uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/40">
-                👑 DAY 3 · Grand Championship Series
+                👑 DAY 3 · Grand Finals Series
               </span>
               <h3 class="text-xl sm:text-2xl font-black text-[var(--foreground)] tracking-tight">
-                ${currentEsport === 'codm' ? 'Grand Championship Finals (BO5)' : 'Grand Finals (Best-of-7)'}
+                ${currentEsport === 'codm' ? `Grand Finals (BO${getMatchBestOf('gf8', p.gf8)})` : 'Grand Finals (Best-of-7)'}
               </h3>
+              ${currentEsport === 'codm' ? `
+                <div class="flex items-center justify-center gap-2 py-1">
+                  <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Format:</span>
+                  <div class="inline-flex p-0.5 rounded-lg bg-slate-900 border border-slate-700 text-xs">
+                    <button type="button" onclick="setCodmGrandFinalsFormat(3)" class="px-2.5 py-1 rounded font-black transition cursor-pointer ${getMatchBestOf('gf8', p.gf8) === 3 ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-400 hover:text-white'}">
+                      BO3 (First to 2)
+                    </button>
+                    <button type="button" onclick="setCodmGrandFinalsFormat(5)" class="px-2.5 py-1 rounded font-black transition cursor-pointer ${getMatchBestOf('gf8', p.gf8) === 5 ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-400 hover:text-white'}">
+                      BO5 (First to 3)
+                    </button>
+                  </div>
+                </div>
+              ` : ''}
               <p class="text-xs text-[var(--muted-foreground)]">
-                ${currentEsport === 'codm' ? 'Multi-Player BO5 Rotation: Hardpoint · Control · S&D · Hardpoint · Control' : 'Winner takes 🏆 Gold Medal & Trophy · Runner-up takes 🥈 Silver Medal'}
+                ${currentEsport === 'codm'
+                  ? (getMatchBestOf('gf8', p.gf8) === 3
+                      ? 'Multi-Player BO3 Rotation: Hardpoint ➔ Control ➔ S&D (Decider)'
+                      : 'Multi-Player BO5 Rotation: Hardpoint ➔ Control ➔ S&D ➔ Hardpoint ➔ Control (Decider)')
+                  : 'Winner takes 🏆 Gold Medal & Trophy · Runner-up takes 🥈 Silver Medal'}
               </p>
             </div>
-            ${renderPlayoffCard(p.gf8, currentEsport === 'codm' ? 'First to 3 wins takes 🏆 Gold Championship' : 'First to 4 wins takes 🏆 Gold Championship', true)}
+            ${renderPlayoffCard(p.gf8, currentEsport === 'codm' ? `First to ${Math.ceil(getMatchBestOf('gf8', p.gf8) / 2)} wins takes 🏆 Gold Championship` : 'First to 4 wins takes 🏆 Gold Championship', true)}
           </div>
 
         </div>
@@ -4799,11 +4881,19 @@ Check your Browserslist config to be sure that your targets are set up correctly
             <!-- Column 3: Finals -->
             <div class="space-y-6 flex flex-col justify-center py-2">
               <div>
-                <div class="text-xs font-bold text-amber-500 uppercase tracking-wider mb-2 flex items-center justify-between">
-                  <span>👑 Grand Championship Finals (${currentEsport === 'codm' ? 'BO5' : 'BO7'})</span>
-                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 font-black">First to ${currentEsport === 'codm' ? 3 : 4}</span>
+                <div class="text-xs font-bold text-amber-500 uppercase tracking-wider mb-2 flex flex-wrap items-center justify-between gap-1.5">
+                  <div class="flex items-center gap-2">
+                    <span>👑 Grand Finals (${currentEsport === 'codm' ? `BO${getMatchBestOf('s8_gf', p.s8_gf)}` : 'BO7'})</span>
+                    ${currentEsport === 'codm' ? `
+                      <div class="inline-flex p-0.5 rounded-md bg-slate-900 border border-slate-700 text-[10px]">
+                        <button type="button" onclick="setCodmGrandFinalsFormat(3)" class="px-2 py-0.5 rounded font-black transition cursor-pointer ${getMatchBestOf('s8_gf', p.s8_gf) === 3 ? 'bg-amber-500 text-slate-950 shadow-xs' : 'text-slate-400 hover:text-white'}">BO3</button>
+                        <button type="button" onclick="setCodmGrandFinalsFormat(5)" class="px-2 py-0.5 rounded font-black transition cursor-pointer ${getMatchBestOf('s8_gf', p.s8_gf) === 5 ? 'bg-amber-500 text-slate-950 shadow-xs' : 'text-slate-400 hover:text-white'}">BO5</button>
+                      </div>
+                    ` : ''}
+                  </div>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 font-black">First to ${currentEsport === 'codm' ? Math.ceil(getMatchBestOf('s8_gf', p.s8_gf) / 2) : 4}</span>
                 </div>
-                ${renderPlayoffCard(p.s8_gf, currentEsport === 'codm' ? 'First to 3 wins takes 🏆 Gold Championship · Runner-up 🥈 Silver' : 'First to 4 wins takes 🏆 Gold Championship · Runner-up 🥈 Silver', true)}
+                ${renderPlayoffCard(p.s8_gf, currentEsport === 'codm' ? `First to ${Math.ceil(getMatchBestOf('s8_gf', p.s8_gf) / 2)} wins takes 🏆 Gold Championship · Runner-up 🥈 Silver` : 'First to 4 wins takes 🏆 Gold Championship · Runner-up 🥈 Silver', true)}
               </div>
 
               <div>
@@ -5266,8 +5356,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
         const scLbF = getRealisticScore(3);
         setPlayoffScore('lb_f', scLbF[0], scLbF[1]);
 
-        // 8. Grand Championship Finals: GF Winner U7 vs Winner L6 (BO5)
-        const scGf = getRealisticScore(5);
+        // 8. Grand Finals: GF Winner U7 vs Winner L6 (BO3 or BO5)
+        const codmGfBo = getMatchBestOf('gf8', PLAYOFF_DATA.gf8);
+        const scGf = getRealisticScore(codmGfBo);
         setPlayoffScore('gf8', scGf[0], scGf[1]);
 
         updatePlayoffBracket();
@@ -5323,8 +5414,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const scLbF = getRealisticScore(currentEsport === 'codm' ? 3 : 5);
       setPlayoffScore('lb_f', scLbF[0], scLbF[1]);
 
-      // Grand Championship Finals (1 match, BO5 for CODM, BO7 for MLBB)
-      const scGf = getRealisticScore(currentEsport === 'codm' ? 5 : 7);
+      // Grand Finals (1 match, BO3 or BO5 for CODM, BO7 for MLBB)
+      const gfBo = currentEsport === 'codm' ? getMatchBestOf('gf8', PLAYOFF_DATA.gf8) : 7;
+      const scGf = getRealisticScore(gfBo);
       setPlayoffScore('gf8', scGf[0], scGf[1]);
 
       updatePlayoffBracket();
@@ -5365,9 +5457,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const scBronze = getRealisticScore(currentEsport === 'codm' ? 3 : 5);
       setPlayoffScore('s8_bronze', scBronze[0], scBronze[1]);
 
-      // Grand Championship Finals (1 match, BO5 for CODM, BO7 for MLBB)
-      const scGf = getRealisticScore(currentEsport === 'codm' ? 5 : 7);
-      setPlayoffScore('s8_gf', scGf[0], scGf[1]);
+      // Grand Finals (1 match, BO3 or BO5 for CODM, BO7 for MLBB)
+      const s8GfBo = currentEsport === 'codm' ? getMatchBestOf('s8_gf', PLAYOFF_DATA.s8_gf) : 7;
+      const scS8Gf = getRealisticScore(s8GfBo);
+      setPlayoffScore('s8_gf', scS8Gf[0], scS8Gf[1]);
 
       updatePlayoffBracket();
       savePlayoffsToStorage();
