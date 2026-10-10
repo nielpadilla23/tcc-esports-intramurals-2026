@@ -2362,8 +2362,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function createInitialPlayoffTemplate() {
       const isCodm = currentEsport === 'codm';
-          const codmGfBo = (typeof localStorage !== 'undefined' && localStorage.getItem('codm_gf_best_of') === '3') ? 3 : 5;
-          return {
+      if (isCodm) {
+        const codmGfBo = (typeof localStorage !== 'undefined' && localStorage.getItem('codm_gf_best_of') === '3') ? 3 : 5;
+        return {
             ub_qf1: { id: 'ub_qf1', seq: 1, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 1 (U1 · CCJPS BYE)', bestOf: 3, team1: 'CCJPS', team2: 'BYE', s1: null, s2: null, winner: 'CCJPS', loser: null },
             ub_qf2: { id: 'ub_qf2', seq: 2, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 2 (U2 · CBA vs CHM)', bestOf: 3, team1: 'CBA', team2: 'CHM', s1: null, s2: null, winner: null, loser: null },
             ub_qf3: { id: 'ub_qf3', seq: 3, day: 'DAY 1', label: 'Upper Bracket Quarterfinal 3 (U3 · CLIS vs CIT)', bestOf: 3, team1: 'CLIS', team2: 'CIT', s1: null, s2: null, winner: null, loser: null },
