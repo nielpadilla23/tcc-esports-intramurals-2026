@@ -3522,12 +3522,12 @@ Check your Browserslist config to be sure that your targets are set up correctly
           validateMatchReadiness('ub_qf4');
 
           // Lower Bracket Round 1:
-          // L1: Loser of U2 gets an automatic BYE (since U1 had BYE) -> advances to L4
+          // L1 (Match 7): Loser of U2 gets an automatic BYE (since U1 had BYE) -> advances to L3 (Match 9)
           PLAYOFF_DATA.lb_r1_1.team1 = PLAYOFF_DATA.ub_qf2.loser || null;
           PLAYOFF_DATA.lb_r1_1.team2 = 'BYE';
           validateMatchReadiness('lb_r1_1');
 
-          // L2: Loser of U3 vs Loser of U4
+          // L2 (Match 8): Loser of U3 vs Loser of U4 -> advances to L4 (Match 10)
           PLAYOFF_DATA.lb_r1_2.team1 = PLAYOFF_DATA.ub_qf3.loser || null;
           PLAYOFF_DATA.lb_r1_2.team2 = PLAYOFF_DATA.ub_qf4.loser || null;
           validateMatchReadiness('lb_r1_2');
@@ -3544,14 +3544,14 @@ Check your Browserslist config to be sure that your targets are set up correctly
           validateMatchReadiness('ub_sf2');
 
           // Lower Bracket Quarterfinals:
-          // L3: Loser of U5 vs Winner of L2
+          // L3 (Match 9): Loser of U5 vs Winner of L1 (Loser of U2 via BYE)
           PLAYOFF_DATA.lb_qf1.team1 = PLAYOFF_DATA.ub_sf1.loser || null;
-          PLAYOFF_DATA.lb_qf1.team2 = PLAYOFF_DATA.lb_r1_2.winner || null;
+          PLAYOFF_DATA.lb_qf1.team2 = PLAYOFF_DATA.lb_r1_1.winner || null;
           validateMatchReadiness('lb_qf1');
 
-          // L4: Loser of U6 vs Winner of L1 (Loser of U2 via BYE)
+          // L4 (Match 10): Loser of U6 vs Winner of L2 (Winner of Match 8)
           PLAYOFF_DATA.lb_qf2.team1 = PLAYOFF_DATA.ub_sf2.loser || null;
-          PLAYOFF_DATA.lb_qf2.team2 = PLAYOFF_DATA.lb_r1_1.winner || null;
+          PLAYOFF_DATA.lb_qf2.team2 = PLAYOFF_DATA.lb_r1_2.winner || null;
           validateMatchReadiness('lb_qf2');
 
           // Upper Bracket Final:
@@ -4715,8 +4715,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20">BO3</span>
                 </div>
                 ${currentEsport === 'codm' ? `
-                  ${renderPlayoffCard(p.lb_r1_1, 'Loser U2 Auto-Advance ➔ L4 · BYE')}
-                  ${renderPlayoffCard(p.lb_r1_2, 'Winner ➔ L3 · Loser Eliminated (7th)')}
+                  ${renderPlayoffCard(p.lb_r1_1, 'Loser U2 Auto-Advance ➔ L3 (Match #9) · BYE')}
+                  ${renderPlayoffCard(p.lb_r1_2, 'Winner ➔ L4 (Match #10) · Loser Eliminated (7th)')}
                 ` : `
                   ${renderPlayoffCard(p.lb_r1_1, 'Winner ➔ M9 (LB QF1) · Loser Eliminated')}
                   ${renderPlayoffCard(p.lb_r1_2, 'Winner ➔ M10 (LB QF2) · Loser Eliminated')}
@@ -5370,7 +5370,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
           setPlayoffScore(mKey, sc[0], sc[1]);
         });
 
-        // 2. LB Round 1: L1 is Loser U2 BYE (advances to L4). L2 is Loser U3 vs Loser U4 (BO3)
+        // 2. LB Round 1: L1 is Loser U2 BYE (advances to L3 / Match 9). L2 is Loser U3 vs Loser U4 (BO3)
         const scLb1_2 = getRealisticScore(3);
         setPlayoffScore('lb_r1_2', scLb1_2[0], scLb1_2[1]);
 
@@ -5380,7 +5380,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
           setPlayoffScore(mKey, sc[0], sc[1]);
         });
 
-        // 4. LB Quarterfinals: L3 Loser U5 vs Winner L2, L4 Loser U6 vs Winner L1 (BO3)
+        // 4. LB Quarterfinals: L3 (Match 9) Loser U5 vs Winner L1 (BYE), L4 (Match 10) Loser U6 vs Winner L2 (BO3)
         ['lb_qf1', 'lb_qf2'].forEach(mKey => {
           const sc = getRealisticScore(3);
           setPlayoffScore(mKey, sc[0], sc[1]);
@@ -5896,13 +5896,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
       if (currentEsport === 'codm') {
         const codmFeedMap = {
           ub_qf1: 'CCJPS BYE ➔ Advances directly to Semifinals (U5)',
-          ub_qf2: 'Winner ➔ Semifinals (U5) · Loser ➔ L1 BYE (Auto-Advance to L4)',
+          ub_qf2: 'Winner ➔ Semifinals (U5) · Loser ➔ L1 BYE (Auto-Advance to L3 / Match #9)',
           ub_qf3: 'Winner ➔ Semifinals (U6) · Loser ➔ Lower Round 1 (L2)',
           ub_qf4: 'Winner ➔ Semifinals (U6) · Loser ➔ Lower Round 1 (L2)',
-          ub_sf1: 'Winner ➔ UB Final (U7) · Loser ➔ Lower QF 1 (L3)',
-          ub_sf2: 'Winner ➔ UB Final (U7) · Loser ➔ Lower QF 2 (L4)',
-          lb_r1_1: 'Loser U2 BYE ➔ Auto-Advances to Lower QF 2 (L4)',
-          lb_r1_2: 'Winner ➔ Lower QF 1 (L3) · Loser Eliminated (7th)',
+          ub_sf1: 'Winner ➔ UB Final (U7) · Loser ➔ Lower QF 1 (L3 / Match #9)',
+          ub_sf2: 'Winner ➔ UB Final (U7) · Loser ➔ Lower QF 2 (L4 / Match #10)',
+          lb_r1_1: 'Loser U2 BYE ➔ Auto-Advances to Lower QF 1 (L3 / Match #9)',
+          lb_r1_2: 'Winner ➔ Lower QF 2 (L4 / Match #10) · Loser Eliminated (7th)',
           lb_qf1: 'Winner ➔ Lower Semis (L5) · Loser Eliminated (5th-6th)',
           lb_qf2: 'Winner ➔ Lower Semis (L5) · Loser Eliminated (5th-6th)',
           lb_sf: 'Winner ➔ Lower Final (L6) · Loser takes 4th Place',
