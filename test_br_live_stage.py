@@ -111,6 +111,9 @@ try:
     assert_true("2nd contender" not in slide_body_text.lower(), "Top 2nd contender card is removed")
     assert_true("3rd contender" not in slide_body_text.lower(), "Top 3rd contender card is removed")
 
+    # Verify -0 pts, -1 pts differential badges are NOT present on total points
+    assert_true("-0 pts" not in slide_body_text.lower() and "-0" not in slide_body_text, "Point differential badges (-0, -1) removed from Total Points")
+
     # Verify zero scroll (both vertically and horizontally)
     slide_body = driver.find_element(By.ID, "theaterSlideBody")
     scroll_height = driver.execute_script("return arguments[0].scrollHeight;", slide_body)

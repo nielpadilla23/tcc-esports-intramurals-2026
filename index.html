@@ -8369,52 +8369,43 @@ Check your Browserslist config to be sure that your targets are set up correctly
         let roundCellsHtml = '';
         if (doneRounds.length > 0) {
           roundCellsHtml = doneRounds.map(r => {
-            const rh = item.roundHistory.find(h => h.round === r);
-            if (rh && (rh.status === 'completed' || rh.placement !== null)) {
-              const cumVal = teamCumMap[item.id] ? teamCumMap[item.id][r] : rh.totalPoints;
-              const isWin = rh.placement === 1;
-              const cellHighlight = isWin ? 'text-amber-300 font-black' : (rh.placement <= 3 ? 'text-white font-black' : 'text-slate-200 font-extrabold');
+            const cumVal = teamCumMap[item.id] ? teamCumMap[item.id][r] : null;
+            if (cumVal !== null && cumVal !== undefined) {
+              const maxCum = Math.max(...standings.map(s => (teamCumMap[s.id] && teamCumMap[s.id][r] !== null) ? teamCumMap[s.id][r] : -1));
+              const isRoundLeader = cumVal === maxCum && maxCum > 0;
+              const textStyle = isRoundLeader 
+                ? 'text-amber-300 font-mono font-black' 
+                : 'text-slate-100 font-mono font-black';
               return `
-                <td class="py-1 sm:py-1.5 px-0.5 sm:px-1 text-center font-mono whitespace-nowrap">
-                  <div class="flex flex-col items-center justify-center leading-none">
-                    <div class="${cellHighlight} text-xs sm:text-base lg:text-xl xl:text-2xl font-black flex items-center justify-center gap-0.5 drop-shadow-sm">
-                      <span>${rh.totalPoints}</span>
-                      ${isWin ? '<span class="text-[10px] sm:text-xs lg:text-sm">👑</span>' : ''}
-                    </div>
-                    <div class="text-[8px] sm:text-[11px] lg:text-xs font-black text-sky-400/95 tracking-tight mt-0.5 sm:mt-1 drop-shadow-sm">
-                      ${cumVal}
-                    </div>
+                <td class="py-0.5 sm:py-1 px-1 sm:px-2 text-center whitespace-nowrap">
+                  <div class="${textStyle} text-sm sm:text-lg lg:text-xl xl:text-2xl leading-none drop-shadow-sm flex items-center justify-center gap-0.5">
+                    <span>${cumVal}</span>
+                    ${isRoundLeader ? '<span class="text-[10px] sm:text-xs lg:text-sm text-amber-400">👑</span>' : ''}
                   </div>
                 </td>
               `;
             }
             return `
-              <td class="py-1 sm:py-1.5 px-0.5 sm:px-1 text-center font-mono text-slate-600 text-xs sm:text-base whitespace-nowrap">
+              <td class="py-0.5 sm:py-1 px-1 sm:px-2 text-center whitespace-nowrap font-mono text-slate-600 text-sm sm:text-base">
                 -
               </td>
             `;
           }).join('');
         } else {
           roundCellsHtml = `
-            <td class="py-1.5 px-1 text-center font-mono text-slate-500 text-xs sm:text-sm whitespace-nowrap">
+            <td class="py-1 px-2 text-center font-mono text-slate-500 text-xs sm:text-sm whitespace-nowrap">
               Ready
             </td>
           `;
         }
 
         const totalPtsSize = isTop1 
-          ? 'text-xl sm:text-3xl lg:text-4xl xl:text-5xl font-mono font-black text-amber-300 tracking-tight' 
+          ? 'text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-mono font-black text-amber-300 tracking-tight' 
           : isTop2 
-          ? 'text-lg sm:text-2xl lg:text-3xl xl:text-4xl font-mono font-black text-slate-100 tracking-tight'
+          ? 'text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-mono font-black text-slate-100 tracking-tight'
           : isTop3
-          ? 'text-lg sm:text-2xl lg:text-3xl xl:text-4xl font-mono font-black text-amber-400 tracking-tight'
-          : 'text-base sm:text-xl lg:text-2xl xl:text-3xl font-mono font-black text-purple-300 tracking-tight';
-
-        const leadBadgeHtml = isTop1 
-          ? (isConcluded ? '<span class="text-[8px] sm:text-[10px] lg:text-xs font-black uppercase text-amber-400 bg-amber-500/15 border border-amber-500/40 px-2 py-0.5 rounded shadow-sm">👑 CHAMPION</span>' : (leadMargin > 0 ? `<span class="text-[8px] sm:text-[10px] lg:text-xs font-black uppercase text-amber-400 bg-amber-500/15 border border-amber-500/40 px-2 py-0.5 rounded shadow-sm">+${leadMargin} LEAD</span>` : '<span class="text-[8px] sm:text-[10px] lg:text-xs font-black uppercase text-amber-400">TIED 1ST</span>'))
-          : ((isTop2 || isTop3) && hasActivity
-            ? `<span class="text-[8px] sm:text-[10px] lg:text-xs font-mono text-rose-400 font-black">-${top1.totalPoints - item.totalPoints}<span class="hidden sm:inline"> pts</span></span>` 
-            : (hasActivity ? `<span class="text-[8px] sm:text-[10px] lg:text-xs font-mono text-slate-400 font-bold">-${top1.totalPoints - item.totalPoints}<span class="hidden sm:inline"> pts</span></span>` : '<span class="text-[8px] sm:text-[10px] lg:text-xs font-mono text-slate-500">0 pts</span>'));
+          ? 'text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-mono font-black text-amber-400 tracking-tight'
+          : 'text-lg sm:text-xl lg:text-2xl xl:text-3xl font-mono font-black text-purple-300 tracking-tight';
 
         return `
           <tr class="${rowBg} transition border-b border-white/5">
@@ -8431,15 +8422,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
             </td>
             ${roundCellsHtml}
             <td class="py-0.5 sm:py-1 px-1 sm:px-3 text-right whitespace-nowrap">
-              <div class="flex flex-col items-end justify-center leading-none">
-                <div class="${totalPtsSize} drop-shadow-md flex items-center gap-1 sm:gap-1.5">
-                  ${isTop1 ? '<span class="text-base sm:text-2xl lg:text-3xl">👑</span>' : ''}
-                  <span>${item.totalPoints}</span>
-                  <span class="text-[10px] sm:text-xs lg:text-sm font-black text-amber-400/90 tracking-wider">PTS</span>
-                </div>
-                <div class="mt-0.5">
-                  ${leadBadgeHtml}
-                </div>
+              <div class="${totalPtsSize} drop-shadow-md flex items-center justify-end gap-1 sm:gap-1.5 leading-none">
+                ${isTop1 ? '<span class="text-base sm:text-2xl lg:text-3xl">👑</span>' : ''}
+                <span>${item.totalPoints}</span>
+                <span class="text-xs sm:text-sm lg:text-base font-black text-amber-400/90 tracking-wider">PTS</span>
               </div>
             </td>
           </tr>
@@ -8469,7 +8455,6 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 <span class="text-[11px] sm:text-sm lg:text-base font-black text-amber-300 uppercase tracking-wide">
                   ${isConcluded ? 'Champion:' : 'Leader:'} <span class="text-white">${top1.name}</span> (${top1.totalPoints} PTS ⚡)
                 </span>
-                ${leadMargin > 0 && !isConcluded ? `<span class="text-[9px] sm:text-xs font-mono font-bold text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded hidden sm:inline">+${leadMargin} lead</span>` : ''}
               </div>
             ` : `
               <div class="text-[11px] sm:text-xs font-mono text-slate-400 font-semibold shrink-0">
