@@ -8333,14 +8333,14 @@ Check your Browserslist config to be sure that your targets are set up correctly
       let roundColsHtml = '';
       if (doneRounds.length > 0) {
         roundColsHtml = doneRounds.map(r => `
-          <th class="py-1 sm:py-1.5 px-0.5 sm:px-1 text-center font-mono">
-            <span class="text-[10px] sm:text-xs lg:text-sm font-black text-slate-300">R${r}</span>
+          <th class="py-1.5 sm:py-2 px-1 text-center font-mono text-purple-400 font-bold text-xs sm:text-sm lg:text-base">
+            <div>R${r}</div>
           </th>
         `).join('');
       } else {
         roundColsHtml = `
-          <th class="py-1 sm:py-1.5 px-0.5 sm:px-1 text-center font-mono">
-            <span class="text-[10px] sm:text-xs lg:text-sm font-black text-slate-300">R1</span>
+          <th class="py-1.5 sm:py-2 px-1 text-center font-mono text-purple-400 font-bold text-xs sm:text-sm lg:text-base">
+            <div>R1</div>
           </th>
         `;
       }
@@ -8369,18 +8369,20 @@ Check your Browserslist config to be sure that your targets are set up correctly
         let roundCellsHtml = '';
         if (doneRounds.length > 0) {
           roundCellsHtml = doneRounds.map(r => {
-            const cumVal = teamCumMap[item.id] ? teamCumMap[item.id][r] : null;
-            if (cumVal !== null && cumVal !== undefined) {
-              const maxCum = Math.max(...standings.map(s => (teamCumMap[s.id] && teamCumMap[s.id][r] !== null) ? teamCumMap[s.id][r] : -1));
-              const isRoundLeader = cumVal === maxCum && maxCum > 0;
-              const textStyle = isRoundLeader 
-                ? 'text-amber-300 font-mono font-black' 
-                : 'text-slate-100 font-mono font-black';
+            const rh = item.roundHistory.find(h => h.round === r);
+            if (rh && (rh.status === 'completed' || rh.placement !== null)) {
+              const isFirst = rh.placement === 1;
+              const scoreColor = isFirst ? 'text-amber-400 font-black' : 'text-white font-bold';
+              const plcText = rh.placement ? `#${rh.placement}` : '-';
               return `
                 <td class="py-1 px-1 sm:px-2 text-center whitespace-nowrap align-middle">
-                  <div class="${textStyle} text-sm sm:text-lg lg:text-xl xl:text-2xl leading-none drop-shadow-sm flex items-center justify-center gap-0.5">
-                    <span>${cumVal}</span>
-                    ${isRoundLeader ? '<span class="text-[10px] sm:text-xs lg:text-sm text-amber-400">👑</span>' : ''}
+                  <div class="flex flex-col items-center justify-center leading-none">
+                    <div class="${scoreColor} text-sm sm:text-lg lg:text-xl xl:text-2xl font-mono drop-shadow-sm">
+                      ${rh.totalPoints}
+                    </div>
+                    <div class="text-[10px] sm:text-xs lg:text-sm text-slate-400 font-mono font-semibold mt-1">
+                      ${plcText}
+                    </div>
                   </div>
                 </td>
               `;
