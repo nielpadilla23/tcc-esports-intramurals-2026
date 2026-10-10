@@ -227,6 +227,10 @@ try:
     assert_true("1st Runner Up" not in podium_r1_html, "1st Runner Up not shown")
     assert_true("2nd Runner Up" not in podium_r1_html, "2nd Runner Up not shown")
 
+    # Verify Podium container is strictly hidden in Marshal mode
+    podium_hidden_for_marshal = driver.execute_script("return window.getComputedStyle(document.getElementById('brPodiumContainer')).display === 'none';")
+    assert_true(podium_hidden_for_marshal, "#brPodiumContainer is hidden in Marshal view (.marshal-hide)")
+
     # Verify Standings table headers and columns after Round 1 (only done rounds and total points)
     table_head_html = driver.execute_script("return document.getElementById('brStandingsTableHead').innerHTML;")
     assert_true("R1" in table_head_html, "R1 column header is present in standings table")
@@ -245,6 +249,8 @@ try:
     driver.execute_script("submitAdminPin('admin2026');")
     time.sleep(0.3)
     assert_true(driver.execute_script("return isAdmin();"), "Super Admin isAdmin() is True")
+    podium_visible_for_admin = driver.execute_script("return window.getComputedStyle(document.getElementById('brPodiumContainer')).display !== 'none';")
+    assert_true(podium_visible_for_admin, "#brPodiumContainer is visible in Admin view")
 
     # Run tournament simulation
     driver.execute_script("simulateCodmBrTournament();")

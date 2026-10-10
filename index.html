@@ -238,9 +238,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
       display: none !important;
     }
 
-    /* 2. Table Marshal Mode: Hide admin-only tools, metrics, roadmap, live stage, and data management */
+    /* 2. Table Marshal Mode: Hide admin-only tools, metrics, roadmap, live stage, data management, and glory podiums */
     body.role-marshal .admin-only,
-    body.role-marshal .viewer-hide {
+    body.role-marshal .viewer-hide,
+    body.role-marshal .marshal-hide,
+    body.role-marshal #brPodiumContainer {
       display: none !important;
     }
 
@@ -838,7 +840,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
     </div>
 
     <!-- Championship Podium / Glory Showcase (Top 3 Teams) -->
-    <div id="brPodiumContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
+    <div id="brPodiumContainer" class="marshal-hide grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
       <!-- Injected via renderBrPodium() -->
     </div>
 

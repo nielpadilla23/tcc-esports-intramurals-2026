@@ -127,6 +127,24 @@ try:
     driver.save_screenshot(screenshot_round)
     print(f"Saved mobile round breakdown screenshot: {screenshot_round}")
 
+    print("\n--- 4. VERIFY PODIUM REMOVED IN MARSHAL VIEW ---")
+    # Log in as CODM Table Marshal
+    driver.execute_script("submitAdminPin('codm2026');")
+    time.sleep(0.4)
+    is_marshal = driver.execute_script("return currentSession && currentSession.role === 'marshal';")
+    assert_true(is_marshal, "Logged in as Table Marshal")
+
+    # Verify that brPodiumContainer is hidden for marshal
+    podium_display = driver.execute_script("return window.getComputedStyle(document.getElementById('brPodiumContainer')).display;")
+    assert_true(podium_display == 'none', f"Podium is removed in marshal view (display: {podium_display})")
+
+    # Scroll to top of CODM BR container and capture screenshot of clean marshal scoring view
+    driver.execute_script("document.getElementById('codmBattleRoyaleContainer').scrollIntoView();")
+    time.sleep(0.3)
+    screenshot_marshal = os.path.join(artifacts_dir, "codm_br_mobile_marshal_view.png")
+    driver.save_screenshot(screenshot_marshal)
+    print(f"Saved mobile marshal view screenshot (no podium): {screenshot_marshal}")
+
     print("\n🎉 ALL MOBILE VIEW BADGE CHECKS PASSED PERFECTLY!")
 
 except Exception as e:
