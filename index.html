@@ -5984,9 +5984,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
         <div class="flex flex-wrap items-center justify-between gap-3 mb-6 pb-4 border-b border-[var(--border)]">
           <div>
             <h3 class="text-base font-black text-[var(--foreground)] uppercase tracking-wide flex items-center gap-2">
-              <span>📅</span> <span>Chronological Match Series</span>
+              <span>📅</span> <span>Match Schedule & Fixtures</span>
             </h3>
-            <p class="text-xs text-[var(--muted-foreground)]">Official playing sequence · High-visibility broadcast fixtures</p>
+            <p class="text-xs text-[var(--muted-foreground)]">Official tournament schedule and playing sequence</p>
           </div>
 
           <div class="flex items-center gap-2 flex-wrap">
@@ -6010,13 +6010,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
             <div class="h-5 w-px bg-[var(--border)] hidden sm:block"></div>
 
-            <!-- Social Media Graphic Mode Toggle Button -->
-            <button onclick="toggleScheduleSocialMode()" title="Toggle Clean Social Media Graphic / Screenshot View (Hides Admin Controls & Adds Official Tournament Watermark)" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition cursor-pointer shadow-xs active:scale-95 ${matchScheduleSocialMode ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-md shadow-amber-500/20' : 'bg-amber-500/15 text-amber-400 hover:bg-amber-500/25 border border-amber-500/30'}">
-              <span>📸</span> <span>${matchScheduleSocialMode ? 'Exit Social View' : 'Social Graphic View'}</span>
-            </button>
-
-            <!-- Print Actions (Hidden in Social Screenshot Mode) -->
-            <div class="flex items-center gap-1.5 ${matchScheduleSocialMode ? 'hidden' : ''}">
+            <!-- Print Actions -->
+            <div class="flex items-center gap-1.5">
               <button onclick="printMatchScheduleList('current')" title="Print Match Series (Official Scoresheet & Ledger)" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-500/15 hover:bg-sky-500 hover:text-slate-950 text-sky-400 border border-sky-500/30 text-xs font-black transition cursor-pointer shadow-xs active:scale-95">
                 <span>🖨️</span> <span>Print Series List</span>
               </button>
@@ -6027,47 +6022,16 @@ Check your Browserslist config to be sure that your targets are set up correctly
           </div>
         </div>
 
-        <!-- Official Social Media Fixture Release Banner (Visible in Social Mode) -->
-        ${matchScheduleSocialMode ? `
-          <div class="relative p-5 sm:p-7 rounded-3xl bg-gradient-to-r from-slate-900/95 via-amber-950/40 to-slate-900/95 border-2 border-amber-500/50 shadow-2xl text-center space-y-2 mb-6 overflow-hidden backdrop-blur-md">
-            <div class="absolute -right-8 -top-8 w-36 h-36 bg-amber-500/15 rounded-full blur-2xl pointer-events-none"></div>
-            <div class="absolute -left-8 -bottom-8 w-36 h-36 bg-cyan-500/15 rounded-full blur-2xl pointer-events-none"></div>
-            
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-[11px] font-mono font-black uppercase tracking-widest shadow-xs">
-              <span>🏆</span> <span>Official Tournament Match Schedule</span> <span>🏆</span>
-            </div>
-
-            <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight uppercase drop-shadow-md">
-              Tanauan Community College · Intramurals 2026
-            </h2>
-
-            <div class="flex items-center justify-center gap-2.5 text-xs sm:text-sm font-bold text-slate-300 flex-wrap pt-0.5">
-              <span class="px-2.5 py-0.5 rounded-md bg-white/10 text-white font-mono uppercase tracking-wide border border-white/10">
-                ${currentEsport === 'codm' ? 'Call of Duty: Mobile · 5v5 Multi-Player' : 'Mobile Legends: Bang Bang'}
-              </span>
-              <span class="text-amber-400 font-black">•</span>
-              <span class="text-amber-300 font-mono font-black uppercase">
-                ${filter === 'day1' ? 'Day 1 Opening Matches (U1 to U6)' : (filter === 'day2' ? 'Day 2 Championship Matches' : 'Double Elimination Tournament Bracket')}
-              </span>
-              <span class="text-amber-400 font-black">•</span>
-              <span class="text-slate-400 font-mono text-xs">Verified Official Draw</span>
-            </div>
-          </div>
-        ` : ''}
-
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
           ${filtered.map((m) => {
             const hasScores = isValidScore(m.s1) && isValidScore(m.s2);
-            const s1Num = hasScores ? Number(m.s1) : 0;
-            const s2Num = hasScores ? Number(m.s2) : 0;
             const isFinal = Boolean(m.winner);
-            const isInProgress = hasScores && !isFinal && (s1Num > 0 || s2Num > 0);
+            const isInProgress = hasScores && !isFinal && (Number(m.s1) > 0 || Number(m.s2) > 0);
             const t1Won = isFinal && m.winner === m.team1;
             const t2Won = isFinal && m.winner === m.team2;
-            const t1Leading = isInProgress && s1Num > s2Num;
-            const t2Leading = isInProgress && s2Num > s1Num;
+            const t1Leading = isInProgress && Number(m.s1) > Number(m.s2);
+            const t2Leading = isInProgress && Number(m.s2) > Number(m.s1);
             const isBye = (m.team2 === 'BYE') || (currentEsport === 'codm' && (m.id === 'ub_qf1' || m.id === 'lb_r1_1'));
-            const isPlayable = !isBye && Boolean(m.team1 && m.team2 && m.team1 !== 'TBD' && m.team2 !== 'TBD');
 
             const mDay = (typeof MATCH_DAYS !== 'undefined' && MATCH_DAYS[m.id] !== undefined) ? MATCH_DAYS[m.id] : (m.day || '');
             const mSeq = (typeof MATCH_SEQUENCES !== 'undefined' && MATCH_SEQUENCES[m.id] !== undefined) ? MATCH_SEQUENCES[m.id] : (m.seq || '');
@@ -6087,68 +6051,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
               ? (DEFAULT_TEAMS.find(t => t.name === m.team2 || (m.team2 === 'COM' && t.name === 'CMID')) || { name: m.team2 || 'TBD', full: m.team2 || 'To Be Determined', mascot: '' })
               : { name: m.team2 || 'TBD', full: m.team2 || 'To Be Determined', mascot: '' };
 
-            let codmModesScheduleHtml = '';
-            if (currentEsport === 'codm' && !isBye) {
-              const games = getCodmMatchGames(m);
-              const isSeriesDecided = Boolean(m.winner);
-              const activeGameIdx = !isSeriesDecided && isInProgress ? (s1Num + s2Num) : (!isSeriesDecided ? 0 : -1);
-
-              codmModesScheduleHtml = `
-                <div class="pt-2.5 border-t border-white/10">
-                  <div class="flex items-center justify-between text-xs mb-2 font-bold">
-                    <span class="text-amber-400 font-black uppercase tracking-wider text-[10px] sm:text-[11px] flex items-center gap-1.5">
-                      <span>🎯</span> <span>BO${mBestOf} Map & Mode Rotation</span>
-                    </span>
-                    ${isInProgress ? `
-                      <span class="text-[10px] font-black text-amber-300 uppercase tracking-wider flex items-center gap-1 font-mono">
-                        <span class="w-2 h-2 rounded-full bg-amber-400 beacon-pulse"></span>
-                        <span>Game ${s1Num + s2Num + 1} Underway</span>
-                      </span>
-                    ` : isFinal ? `
-                      <span class="text-[10px] font-black text-emerald-400 uppercase tracking-wider font-mono">
-                        ✓ Series Concluded
-                      </span>
-                    ` : `
-                      <span class="text-[10px] text-slate-400 font-mono">Game 1: Hardpoint</span>
-                    `}
-                  </div>
-                  <div class="grid ${games.length === 5 ? 'grid-cols-5' : 'grid-cols-3'} gap-2 sm:gap-2.5">
-                    ${games.map((g, gIdx) => {
-                      const isWon = Boolean(g.winner);
-                      const isNotNeeded = g.status === 'not_needed';
-                      const isLive = g.status === 'live' || (isInProgress && gIdx === (s1Num + s2Num));
-
-                      let chipStyle = 'bg-white/[0.04] border border-white/10 text-slate-300 hover:border-white/20';
-                      let statusBadge = `<span class="text-[9px] font-semibold text-slate-400">Game ${g.gameNum}</span>`;
-
-                      if (isWon) {
-                        chipStyle = 'bg-emerald-500/20 border-2 border-emerald-500/50 text-emerald-300 font-black shadow-md';
-                        statusBadge = `<span class="text-[9px] font-black text-emerald-300 flex items-center justify-center gap-0.5"><span>✓</span> <span>${g.winner}</span></span>`;
-                      } else if (isLive) {
-                        chipStyle = 'codm-game-glow border-2 border-amber-400 scale-[1.02] shadow-lg text-white font-black';
-                        statusBadge = `<span class="text-[9px] font-black text-amber-300 flex items-center justify-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 beacon-pulse"></span><span>LIVE NOW</span></span>`;
-                      } else if (isNotNeeded) {
-                        chipStyle = 'bg-black/40 border border-white/5 text-slate-500 opacity-50';
-                        statusBadge = `<span class="text-[9px] text-slate-500">Not Needed</span>`;
-                      }
-
-                      return `
-                        <div class="p-2 sm:p-2.5 rounded-xl border ${chipStyle} text-center flex flex-col items-center justify-between gap-1 transition-all duration-300" title="Game ${g.gameNum}: ${g.mode}">
-                          <div class="flex items-center gap-1 font-mono font-black text-[10px] uppercase tracking-wider">
-                            <span>${g.icon}</span> <span>G${g.gameNum}</span>
-                          </div>
-                          <span class="text-[11px] sm:text-xs font-black truncate w-full tracking-tight">${g.shortName}</span>
-                          ${statusBadge}
-                        </div>
-                      `;
-                    }).join('')}
-                  </div>
-                </div>
-              `;
-            }
-
             return `
-              <div class="social-match-card p-4 sm:p-5 rounded-3xl border ${isBye ? 'border-amber-500/40' : 'border-white/10 hover:border-amber-500/40'} flex flex-col justify-between space-y-3.5 relative group overflow-hidden">
+              <div onclick="openScoreModal('${m.id}')" title="Click to enter/update scores" class="social-match-card p-4 sm:p-5 rounded-3xl border ${isBye ? 'border-amber-500/40' : 'border-white/10 hover:border-amber-500/40'} flex flex-col justify-between space-y-3 relative group overflow-hidden cursor-pointer transition-all duration-300">
                 <!-- Top accent line -->
                 <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-500/40 to-transparent"></div>
 
@@ -6166,16 +6070,6 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     <span class="text-[9px] sm:text-[10px] font-black px-2.5 py-0.5 rounded-full ${isBye ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : (mBestOf === 7 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' : mBestOf === 5 ? 'bg-purple-500/20 text-purple-400 border border-purple-500/40' : 'bg-sky-500/20 text-sky-300 border border-sky-400/40')}">
                       ${isBye ? 'BYE' : `BO${mBestOf}`}
                     </span>
-                    ${(!matchScheduleSocialMode && isPlayable) ? `
-                      <button onclick="openScoreModal('${m.id}')" title="${currentEsport === 'codm' ? 'Edit Score' : 'Update Score'}" class="marshal-only px-2 py-0.5 rounded-lg text-[10px] font-black bg-amber-500/15 text-amber-400 hover:bg-amber-500 hover:text-slate-950 border border-amber-500/30 transition cursor-pointer flex items-center gap-1">
-                        <span>✏️</span> <span class="hidden sm:inline">${currentEsport === 'codm' ? 'Edit' : 'Score'}</span>
-                      </button>
-                    ` : ''}
-                    ${!matchScheduleSocialMode ? `
-                      <button onclick="printSingleMatch('${m.id}')" title="Print Match Scoresheet" class="px-1.5 py-0.5 rounded-lg text-[10px] font-black bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/10 transition cursor-pointer flex items-center">
-                        <span>🖨️</span>
-                      </button>
-                    ` : ''}
                   </div>
                 </div>
 
@@ -6261,76 +6155,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   </div>
                 </div>
 
-                <!-- CODM Modes Breakdown (if CODM) -->
-                ${codmModesScheduleHtml}
-
-                <!-- Footer Status & Actions -->
-                <div class="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-white/10 gap-2">
-                  <span class="flex-1 min-w-0 pr-2 truncate font-medium" title="${getMatchProgressionSubtext(m)}">
-                    ${getMatchProgressionSubtext(m)}
-                  </span>
-                  <div class="flex items-center gap-2 shrink-0">
-                    ${isBye ? `
-                      <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-black font-mono">
-                        ⏭️ BYE ADVANCE
-                      </span>
-                    ` : isFinal ? `
-                      <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-black font-mono">
-                        🏆 FINAL (${s1Num}-${s2Num})
-                      </span>
-                      ${!matchScheduleSocialMode ? `
-                        <button onclick="resetMatchScore('${m.id}')" title="Reset Score" class="marshal-only text-[9px] text-slate-400 hover:text-rose-400 cursor-pointer">↺</button>
-                      ` : ''}
-                    ` : isInProgress ? `
-                      <span class="px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] font-black font-mono flex items-center gap-1">
-                        <span class="w-1.5 h-1.5 rounded-full bg-rose-400 beacon-pulse"></span>
-                        <span>GAME ${s1Num + s2Num + 1} LIVE</span>
-                      </span>
-                      ${!matchScheduleSocialMode ? `
-                        <button onclick="resetMatchScore('${m.id}')" title="Reset Score" class="marshal-only text-[9px] text-slate-400 hover:text-rose-400 cursor-pointer">↺</button>
-                      ` : ''}
-                    ` : isPlayable ? `
-                      <span class="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-[10px] font-black font-mono">
-                        🟢 READY TO PLAY
-                      </span>
-                    ` : `
-                      <span class="px-2.5 py-0.5 rounded-full bg-white/5 text-slate-400 border border-white/10 text-[10px] font-black font-mono">
-                        ⏳ AWAITING TEAMS
-                      </span>
-                    `}
-                  </div>
-                </div>
-
-                <!-- Quick Apply +1 Buttons (Hidden in Social Mode) -->
-                ${!matchScheduleSocialMode && isPlayable && !isFinal && currentEsport !== 'codm' ? `
-                  <div class="marshal-only pt-1.5 flex items-center justify-between gap-1 text-[10px] border-t border-white/10">
-                    <span class="text-slate-400 text-[9px] font-black uppercase tracking-wider">Apply +1:</span>
-                    <div class="flex items-center gap-1.5">
-                      <button onclick="incrementMatchScore('${m.id}', 1)" title="Apply +1 game win to ${m.team1 || 'Team 1'}" class="px-2.5 py-0.5 rounded-lg bg-blue-500/15 hover:bg-blue-500 text-blue-400 hover:text-white font-black border border-blue-500/30 transition cursor-pointer flex items-center gap-1">
-                        <span>+1</span> <span>${m.team1 || 'Team 1'}</span>
-                      </button>
-                      <button onclick="incrementMatchScore('${m.id}', 2)" title="Apply +1 game win to ${m.team2 || 'Team 2'}" class="px-2.5 py-0.5 rounded-lg bg-blue-500/15 hover:bg-blue-500 text-blue-400 hover:text-white font-black border border-blue-500/30 transition cursor-pointer flex items-center gap-1">
-                        <span>+1</span> <span>${m.team2 || 'Team 2'}</span>
-                      </button>
-                    </div>
-                  </div>
-                ` : ''}
-
               </div>
             `;
           }).join('')}
         </div>
-
-        <!-- Social Mode Footer Watermark -->
-        ${matchScheduleSocialMode ? `
-          <div class="mt-6 p-4 rounded-2xl bg-slate-950/60 border border-white/10 text-center flex items-center justify-between text-xs text-slate-400 flex-wrap gap-2">
-            <span class="font-mono font-black text-amber-400 flex items-center gap-1.5">
-              <span>⚡</span> <span>TCC ESPORTS INTRAMURALS 2026</span>
-            </span>
-            <span class="text-slate-400 font-medium">Official College Athletics & Esports Council · Broadcast Fixture Ledger</span>
-            <span class="font-mono text-slate-500">Live Stage & Arena Production</span>
-          </div>
-        ` : ''}
       `;
     }
 
