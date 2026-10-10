@@ -8377,7 +8377,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 ? 'text-amber-300 font-mono font-black' 
                 : 'text-slate-100 font-mono font-black';
               return `
-                <td class="py-0.5 sm:py-1 px-1 sm:px-2 text-center whitespace-nowrap">
+                <td class="py-1 px-1 sm:px-2 text-center whitespace-nowrap align-middle">
                   <div class="${textStyle} text-sm sm:text-lg lg:text-xl xl:text-2xl leading-none drop-shadow-sm flex items-center justify-center gap-0.5">
                     <span>${cumVal}</span>
                     ${isRoundLeader ? '<span class="text-[10px] sm:text-xs lg:text-sm text-amber-400">👑</span>' : ''}
@@ -8386,14 +8386,14 @@ Check your Browserslist config to be sure that your targets are set up correctly
               `;
             }
             return `
-              <td class="py-0.5 sm:py-1 px-1 sm:px-2 text-center whitespace-nowrap font-mono text-slate-600 text-sm sm:text-base">
+              <td class="py-1 px-1 sm:px-2 text-center whitespace-nowrap font-mono text-slate-600 text-sm sm:text-base align-middle">
                 -
               </td>
             `;
           }).join('');
         } else {
           roundCellsHtml = `
-            <td class="py-1 px-2 text-center font-mono text-slate-500 text-xs sm:text-sm whitespace-nowrap">
+            <td class="py-1 px-2 text-center font-mono text-slate-500 text-xs sm:text-sm whitespace-nowrap align-middle">
               Ready
             </td>
           `;
@@ -8409,10 +8409,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
         return `
           <tr class="${rowBg} transition border-b border-white/5">
-            <td class="py-0.5 sm:py-1 px-1 sm:px-2 text-center whitespace-nowrap">${rankBadge}</td>
-            <td class="py-0.5 sm:py-1 px-1 sm:px-2.5 whitespace-nowrap">
-              <div class="flex items-center gap-2 sm:gap-3">
-                ${item.icon ? `<img src="${item.icon}" alt="${item.name}" class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 object-contain rounded-xl p-0.5 bg-white/10 border ${isTop1 ? 'border-amber-400 shadow-md shadow-amber-500/30 ring-2 ring-amber-400/30' : 'border-white/15'} shrink-0">` : `<div class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-xl bg-white/10 flex items-center justify-center font-black text-xs sm:text-sm lg:text-base shrink-0">${item.name}</div>`}
+            <td class="py-1 px-1 sm:px-2 text-center whitespace-nowrap align-middle">${rankBadge}</td>
+            <td class="py-1 px-1 sm:px-2.5 whitespace-nowrap align-middle">
+              <div class="flex items-center gap-2 sm:gap-3.5">
+                ${item.icon ? `<img src="${item.icon}" alt="${item.name}" class="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 object-contain rounded-xl p-0.5 bg-white/10 border ${isTop1 ? 'border-amber-400 shadow-md shadow-amber-500/30 ring-2 ring-amber-400/30' : 'border-white/15'} shrink-0">` : `<div class="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl bg-white/10 flex items-center justify-center font-black text-xs sm:text-sm lg:text-base shrink-0">${item.name}</div>`}
                 <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
                   <span class="text-sm sm:text-lg lg:text-xl font-black text-white tracking-wide shrink-0">${item.name}</span>
                   <span class="text-xs sm:text-sm text-slate-300 font-bold shrink-0 hidden sm:inline">(${item.mascot})</span>
@@ -8421,7 +8421,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
               </div>
             </td>
             ${roundCellsHtml}
-            <td class="py-0.5 sm:py-1 px-1 sm:px-3 text-right whitespace-nowrap">
+            <td class="py-1 px-1 sm:px-3 text-right whitespace-nowrap align-middle">
               <div class="${totalPtsSize} drop-shadow-md flex items-center justify-end gap-1 sm:gap-1.5 leading-none">
                 ${isTop1 ? '<span class="text-base sm:text-2xl lg:text-3xl">👑</span>' : ''}
                 <span>${item.totalPoints}</span>
@@ -8433,7 +8433,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       }).join('');
 
       container.innerHTML = `
-        <div class="w-full max-w-[1920px] mx-auto h-full flex flex-col justify-start select-none">
+        <div class="w-full max-w-[1920px] mx-auto flex-1 min-h-0 flex flex-col justify-start select-none">
           <!-- Top Bar: Title, Tournament Status & Leader Pill -->
           <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-1.5 sm:gap-3 px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-2xl bg-slate-900/90 border border-white/10 mb-1.5 shrink-0">
             <div class="flex items-center gap-2 min-w-0">
@@ -8463,15 +8463,15 @@ Check your Browserslist config to be sure that your targets are set up correctly
             `}
           </div>
 
-          <!-- Master Scoreboard Table (Fits 100% on screen, no scroll up/down, no scroll right/left) -->
-          <div class="rounded-2xl bg-slate-900/95 border border-white/10 shadow-2xl p-1 sm:p-2 overflow-hidden">
-            <table class="w-full text-left whitespace-nowrap table-fixed">
-              <thead>
-                <tr class="border-b border-white/10 text-[10px] sm:text-xs lg:text-sm font-black uppercase text-slate-400 tracking-wider">
-                  <th class="py-1 sm:py-1.5 px-1 sm:px-2 text-center w-12 sm:w-16 lg:w-20">Rank</th>
-                  <th class="py-1 sm:py-1.5 px-1 sm:px-2.5 w-24 sm:w-64 lg:w-80"><span class="hidden sm:inline">College </span>Squad</th>
+          <!-- Master Scoreboard Table (Fills height naturally, no bottom gap, zero scroll) -->
+          <div class="flex-1 min-h-0 flex flex-col rounded-2xl bg-slate-900/95 border border-white/10 shadow-2xl p-1.5 sm:p-2.5 overflow-hidden">
+            <table class="w-full h-full text-left whitespace-nowrap table-fixed">
+              <thead class="shrink-0">
+                <tr class="border-b border-white/10 text-xs sm:text-sm font-black uppercase text-slate-400 tracking-wider">
+                  <th class="py-1.5 sm:py-2 px-1 sm:px-2 text-center w-12 sm:w-16 lg:w-20">Rank</th>
+                  <th class="py-1.5 sm:py-2 px-1 sm:px-2.5 w-24 sm:w-64 lg:w-80"><span class="hidden sm:inline">College </span>Squad</th>
                   ${roundColsHtml}
-                  <th class="py-1 sm:py-1.5 px-1 sm:px-3 text-right w-24 sm:w-44 lg:w-56 text-amber-400 font-mono">Total<span class="hidden sm:inline"> Pts ⚡</span></th>
+                  <th class="py-1.5 sm:py-2 px-1 sm:px-3 text-right w-24 sm:w-44 lg:w-56 text-amber-400 font-mono">Total<span class="hidden sm:inline"> Pts ⚡</span></th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-white/5">
