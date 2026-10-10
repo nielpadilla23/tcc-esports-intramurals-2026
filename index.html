@@ -904,7 +904,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
     </div>
 
     <!-- Stage Slide Body -->
-    <div id="theaterSlideBody" class="flex-1 overflow-y-auto py-1.5 sm:py-2 px-2.5 sm:px-5 flex flex-col justify-start">
+    <div id="theaterSlideBody" class="flex-1 min-h-0 overflow-y-auto py-1 sm:py-2 px-2 sm:px-4 flex flex-col justify-start">
       <!-- Injected via renderTheaterCurrentSlide() -->
     </div>
 
@@ -7392,11 +7392,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const t2Obj = DEFAULT_TEAMS.find(t => t.name === m.team2 || (m.team2 === 'COM' && t.name === 'CMID'));
 
       // Tuned for high readability from afar and zero vertical scrolling on big displays
-      const logoSize = isCompact ? 'w-9 h-9 sm:w-9.5 sm:h-9.5' : 'w-12 h-12 sm:w-13 sm:h-13';
-      const nameSize = isCompact ? 'text-sm sm:text-base font-black' : 'text-base sm:text-lg font-black';
-      const scoreBoxSize = isCompact ? 'w-8.5 h-8.5 sm:w-9 sm:h-9 text-base sm:text-lg font-mono font-black' : 'w-11 h-11 sm:w-12 sm:h-12 text-2xl font-mono font-black';
-      const pClass = isCompact ? 'px-2 py-1.5 sm:px-2.5 sm:py-1.5 rounded-xl' : 'p-3 sm:p-3.5 rounded-2xl';
-      const gapClass = isCompact ? 'space-y-0.5' : 'space-y-1.5';
+      const logoSize = isCompact ? 'w-9 h-9 sm:w-9.5 sm:h-9.5' : 'w-12 h-12 sm:w-14 sm:h-14';
+      const nameSize = isCompact ? 'text-sm sm:text-base font-black' : 'text-lg sm:text-xl font-black';
+      const scoreBoxSize = isCompact ? 'w-9 h-9 sm:w-9.5 sm:h-9.5 text-base sm:text-lg font-mono font-black' : 'w-12 h-12 sm:w-14 sm:h-14 text-2xl sm:text-3xl font-mono font-black';
+      const pClass = isCompact ? 'px-2 py-1 sm:px-2.5 sm:py-1 rounded-xl' : 'p-3 sm:p-4 rounded-2xl';
+      const gapClass = isCompact ? 'space-y-0.5' : 'space-y-1.5 sm:space-y-2';
 
       let statusFooter = '';
       if (isBye) {
@@ -7443,7 +7443,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
       const renderTeamRow = (code, teamObj, isWinner, isLeader, scoreVal, otherScoreVal) => {
         let rowBg = 'bg-slate-950/80 border border-slate-800/90';
-        let scoreBg = 'bg-slate-950 text-slate-400 border border-slate-800';
+        let scoreBg = 'bg-slate-950 text-slate-300 border-2 border-slate-700 font-black';
         let nameColor = 'text-white';
 
         if (code === 'BYE') {
@@ -7452,20 +7452,20 @@ Check your Browserslist config to be sure that your targets are set up correctly
           nameColor = 'text-slate-400 italic';
         } else if (isBye && code === m.team1) {
           rowBg = 'bg-emerald-950/60 border-2 border-emerald-500/80 shadow-md shadow-emerald-950/40';
-          scoreBg = 'bg-emerald-500 text-slate-950 font-black shadow-lg shadow-emerald-500/40 ring-1 ring-emerald-300';
+          scoreBg = 'bg-emerald-500 text-slate-950 font-black shadow-lg shadow-emerald-500/40 ring-2 ring-emerald-300';
           nameColor = 'text-emerald-300';
         } else if (isWinner) {
           rowBg = 'bg-emerald-950/60 border-2 border-emerald-500/80 shadow-md shadow-emerald-950/40';
-          scoreBg = 'bg-emerald-500 text-slate-950 font-black shadow-lg shadow-emerald-500/40 ring-1 ring-emerald-300';
+          scoreBg = 'bg-emerald-500 text-slate-950 font-black shadow-lg shadow-emerald-500/40 ring-2 ring-emerald-300';
           nameColor = 'text-emerald-300';
         } else if (hasScores && !isFinal) {
           if (isLeader) {
             rowBg = 'bg-amber-950/40 border border-amber-500/60 shadow-md';
-            scoreBg = 'bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/30 ring-1 ring-amber-300';
+            scoreBg = 'bg-amber-400 text-slate-950 font-black shadow-md shadow-amber-500/30 ring-2 ring-amber-200';
             nameColor = 'text-amber-200';
           } else {
             rowBg = 'bg-slate-950/80 border border-slate-800';
-            scoreBg = 'bg-slate-900 text-slate-200 border border-slate-700 font-black';
+            scoreBg = 'bg-slate-900 text-white border-2 border-slate-600 font-black';
           }
         }
 
@@ -7474,7 +7474,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         const teamIdx = (code && currentEsport !== 'codm') ? TEAMS.findIndex(t => t && (t.name === code || (code === 'COM' && t.name === 'CMID'))) : -1;
         const seedBadgeText = teamIdx !== -1 ? `#${teamIdx + 1}` : '';
         const seedBadgeHtml = seedBadgeText ? `
-          <span class="inline-flex items-center justify-center ${isCompact ? 'min-w-[24px] h-6 px-1 text-[11px]' : 'min-w-[28px] h-7 px-1.5 text-xs sm:text-[13px]'} rounded-lg bg-blue-600/40 border-2 border-sky-400 text-white font-mono font-black tracking-tight shadow-md shadow-sky-500/25 shrink-0 select-none">
+          <span class="inline-flex items-center justify-center ${isCompact ? 'min-w-[22px] h-5 px-1 text-[10px]' : 'min-w-[28px] h-7 px-1.5 text-xs sm:text-[13px]'} rounded-lg bg-blue-600/40 border-2 border-sky-400 text-white font-mono font-black tracking-tight shadow-md shadow-sky-500/25 shrink-0 select-none">
             ${seedBadgeText}
           </span>
         ` : '';
@@ -7484,12 +7484,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
         if (isCompact) {
           return `
-            <div class="flex items-center justify-between px-2 py-1 rounded-lg ${rowBg} transition-all">
-              <div class="flex items-center gap-2 sm:gap-2.5 truncate">
+            <div class="flex items-center justify-between px-2 py-0.5 rounded-lg ${rowBg} transition-all">
+              <div class="flex items-center gap-1.5 sm:gap-2 truncate">
                 ${seedBadgeHtml}
                 ${code && code !== 'BYE' ? renderTeamLogo(code, logoSize, 'rounded-lg shadow-sm shrink-0') : (code === 'BYE' ? `<div class="${logoSize} rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center font-bold text-xs text-amber-400 shadow-sm shrink-0">⏭️</div>` : `<div class="${logoSize} rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs text-slate-400 shadow-sm shrink-0">?</div>`)}
-                <div class="flex items-center gap-1.5 sm:gap-2 truncate">
+                <div class="flex items-center gap-1 sm:gap-1.5 truncate">
                   <span class="${nameSize} tracking-wide ${nameColor} truncate">${displayCode}</span>
+                  ${mascotText ? `<span class="text-[9px] text-amber-300/90 font-bold hidden sm:inline truncate">(${mascotText})</span>` : ''}
                   ${isWinner || (isBye && code === m.team1) ? '<span class="text-[8px] sm:text-[9px] px-1 sm:px-1.5 py-0.2 rounded bg-emerald-500/30 text-emerald-300 font-black border border-emerald-500/40 shrink-0">WINNER 🏆</span>' : ''}
                 </div>
               </div>
@@ -7511,7 +7512,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   ${isWinner || (isBye && code === m.team1) ? '<span class="text-[9px] sm:text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/30 text-emerald-300 font-black border border-emerald-500/40 shrink-0">WINNER 🏆</span>' : ''}
                 </div>
                 ${code && code !== 'BYE' ? `
-                  <div class="text-[10px] sm:text-[11px] text-slate-300 font-semibold truncate mt-0.5">
+                  <div class="text-[11px] sm:text-xs text-slate-300 font-semibold truncate mt-0.5">
                     ${mascotText ? `<span class="text-amber-400 font-black">${mascotText}</span> · ` : ''}${collegeText}
                   </div>
                 ` : (code === 'BYE' ? '<div class="text-[10px] text-slate-500 font-medium">Automatic bye advancement</div>' : '<div class="text-[10px] text-slate-400 font-medium">Awaiting match progression</div>')}
@@ -7555,30 +7556,30 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const p = PLAYOFF_DATA;
       if (tournamentMode === 'double_elim') {
         container.innerHTML = `
-          <div class="w-full max-w-[1720px] mx-auto my-auto space-y-2 sm:space-y-2.5">
-            <div class="text-center space-y-0.5 mb-1 shrink-0">
-              <div class="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 font-black text-xs uppercase tracking-widest shadow-sm">
+          <div class="w-full max-w-[1840px] mx-auto h-full flex-1 min-h-0 flex flex-col justify-between select-none py-1">
+            <div class="text-center space-y-0.5 mb-0.5 shrink-0">
+              <div class="inline-flex items-center gap-2 px-3.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 font-black text-xs uppercase tracking-widest shadow-sm">
                 <span>⚡ UPPER BRACKET ARENA FEED</span>
                 <span class="text-cyan-400">·</span>
                 <span>DOUBLE-LIFE KNOCKOUT</span>
               </div>
-              <h2 class="text-xl sm:text-2xl font-black text-white uppercase tracking-tight">
+              <h2 class="text-lg sm:text-xl font-black text-white uppercase tracking-tight">
                 Upper Bracket Matches
               </h2>
-              <p class="text-xs text-slate-300 font-medium">Day 1 Opening & Semifinals (BO3) · Day 2 Upper Final (BO5)</p>
+              <p class="text-[11px] text-slate-300 font-medium">Day 1 Opening & Semifinals (BO3) · Day 2 Upper Final (BO5)</p>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-6 items-stretch">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 flex-1 min-h-0 items-stretch">
               <!-- Col 1: Quarterfinals (Day 1: M1-M4) -->
-              <div class="flex flex-col space-y-2">
-                <div class="flex items-center justify-between pb-1.5 border-b-2 border-cyan-500/50 shrink-0">
+              <div class="flex flex-col flex-1 min-h-0 justify-between">
+                <div class="flex items-center justify-between pb-1 border-b-2 border-cyan-500/50 shrink-0">
                   <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-sm"></span>
                     <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-cyan-400">Round 1 · Quarterfinals (Day 1)</span>
                   </div>
                   <span class="text-xs font-black px-2 py-0.5 rounded-full bg-cyan-500/25 text-cyan-300 border border-cyan-500/40">BO3</span>
                 </div>
-                <div class="space-y-1.5 sm:space-y-2">
+                <div class="flex-1 min-h-0 flex flex-col justify-between py-0.5 gap-1">
                   ${renderStageCard(p.ub_qf1, 'UB Quarterfinal 1', '', true)}
                   ${renderStageCard(p.ub_qf2, 'UB Quarterfinal 2', '', true)}
                   ${renderStageCard(p.ub_qf3, 'UB Quarterfinal 3', '', true)}
@@ -7587,34 +7588,34 @@ Check your Browserslist config to be sure that your targets are set up correctly
               </div>
 
               <!-- Col 2: Upper Semifinals (Day 1: M5-M6) -->
-              <div class="flex flex-col space-y-2">
-                <div class="flex items-center justify-between pb-1.5 border-b-2 border-blue-500/50 shrink-0">
+              <div class="flex flex-col flex-1 min-h-0 justify-between">
+                <div class="flex items-center justify-between pb-1 border-b-2 border-blue-500/50 shrink-0">
                   <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-blue-400 shadow-sm"></span>
                     <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-blue-400">Round 2 · Semifinals (Day 1)</span>
                   </div>
                   <span class="text-xs font-black px-2 py-0.5 rounded-full bg-blue-500/25 text-blue-300 border border-blue-500/40">BO3</span>
                 </div>
-                <div class="flex-1 flex flex-col justify-around py-1 space-y-4">
-                  ${renderStageCard(p.ub_sf1, 'UB Semifinal 1 (M5)', '', true)}
-                  ${renderStageCard(p.ub_sf2, 'UB Semifinal 2 (M6)', '', true)}
+                <div class="flex-1 min-h-0 flex flex-col justify-around py-1 gap-2 sm:gap-3">
+                  ${renderStageCard(p.ub_sf1, 'UB Semifinal 1 (M5)', '', false)}
+                  ${renderStageCard(p.ub_sf2, 'UB Semifinal 2 (M6)', '', false)}
                 </div>
               </div>
 
               <!-- Col 3: Upper Final (Day 2: M12 · BO5) -->
-              <div class="flex flex-col space-y-2">
-                <div class="flex items-center justify-between pb-1.5 border-b-2 border-indigo-500/50 shrink-0">
+              <div class="flex flex-col flex-1 min-h-0 justify-between">
+                <div class="flex items-center justify-between pb-1 border-b-2 border-indigo-500/50 shrink-0">
                   <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-indigo-400 shadow-sm"></span>
                     <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-indigo-400">Round 3 · Upper Final (Day 2)</span>
                   </div>
                   <span class="text-xs font-black px-2 py-0.5 rounded-full bg-indigo-500/25 text-indigo-300 border border-indigo-500/40">BO5</span>
                 </div>
-                <div class="flex-1 flex flex-col justify-center py-1 space-y-3">
-                  ${renderStageCard(p.ub_f, 'Upper Bracket Final (M12 · BO5)', 'bg-indigo-500/30 text-indigo-200 border border-indigo-500/40', true)}
-                  <div class="p-2.5 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-center">
-                    <span class="text-xs font-black text-indigo-300 uppercase tracking-wider">
-                      👑 Winner advances to Grand Finals (M14) · Loser to Lower Final (M13)
+                <div class="flex-1 min-h-0 flex flex-col justify-center py-1 gap-3">
+                  ${renderStageCard(p.ub_f, 'Upper Bracket Final (M12 · BO5)', 'bg-indigo-500/30 text-indigo-200 border border-indigo-500/40', false)}
+                  <div class="p-2.5 sm:p-3 rounded-2xl bg-indigo-500/15 border-2 border-indigo-500/40 text-center shadow-lg">
+                    <span class="text-xs sm:text-sm font-black text-indigo-300 uppercase tracking-wider flex items-center justify-center gap-2">
+                      <span>👑</span> Winner advances to Grand Finals (M14) · Loser to Lower Final (M13)
                     </span>
                   </div>
                 </div>
@@ -7624,37 +7625,37 @@ Check your Browserslist config to be sure that your targets are set up correctly
         `;
       } else {
         container.innerHTML = `
-          <div class="w-full max-w-[1720px] mx-auto my-auto space-y-3">
-            <div class="text-center space-y-1 mb-2 shrink-0">
+          <div class="w-full max-w-[1840px] mx-auto h-full flex-1 min-h-0 flex flex-col justify-between select-none py-1">
+            <div class="text-center space-y-0.5 mb-0.5 shrink-0">
               <span class="text-xs font-black uppercase tracking-widest text-emerald-400 px-4 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 shadow-sm">
                 Single Knockout Bracket
               </span>
-              <h2 class="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
+              <h2 class="text-lg sm:text-xl font-black text-white uppercase tracking-tight">
                 Quarterfinals & Semifinals
               </h2>
-              <p class="text-xs text-slate-300 font-medium">Day 1 Quarterfinals (M1-M4) · Day 2 Semifinals (M5-M6)</p>
+              <p class="text-[11px] text-slate-300 font-medium">Day 1 Quarterfinals (M1-M4) · Day 2 Semifinals (M5-M6)</p>
             </div>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-              <div class="space-y-2">
-                <div class="flex items-center justify-between pb-1.5 border-b-2 border-emerald-500/50 shrink-0">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0 items-stretch">
+              <div class="flex flex-col flex-1 min-h-0 justify-between">
+                <div class="flex items-center justify-between pb-1 border-b-2 border-emerald-500/50 shrink-0">
                   <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-emerald-400">Quarterfinals (Day 1)</span>
                   <span class="text-xs font-black px-2 py-0.5 rounded-full bg-emerald-500/25 text-emerald-300 border border-emerald-500/40">BO3</span>
                 </div>
-                <div class="space-y-1.5 sm:space-y-2">
+                <div class="flex-1 min-h-0 flex flex-col justify-between py-0.5 gap-1">
                   ${renderStageCard(p.s8_qf1, 'Quarterfinal 1 (#1 vs #8)', '', true)}
                   ${renderStageCard(p.s8_qf2, 'Quarterfinal 2 (#4 vs #5)', '', true)}
                   ${renderStageCard(p.s8_qf3, 'Quarterfinal 3 (#2 vs #7)', '', true)}
                   ${renderStageCard(p.s8_qf4, 'Quarterfinal 4 (#3 vs #6)', '', true)}
                 </div>
               </div>
-              <div class="flex flex-col space-y-2">
-                <div class="flex items-center justify-between pb-1.5 border-b-2 border-blue-500/50 shrink-0">
+              <div class="flex flex-col flex-1 min-h-0 justify-between">
+                <div class="flex items-center justify-between pb-1 border-b-2 border-blue-500/50 shrink-0">
                   <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-blue-400">Semifinals (Day 2)</span>
                   <span class="text-xs font-black px-2 py-0.5 rounded-full bg-blue-500/25 text-blue-300 border border-blue-500/40">BO3</span>
                 </div>
-                <div class="flex-1 flex flex-col justify-around py-1 space-y-4">
-                  ${renderStageCard(p.s8_sf1, 'Semifinal 1 (M5)')}
-                  ${renderStageCard(p.s8_sf2, 'Semifinal 2 (M6)')}
+                <div class="flex-1 min-h-0 flex flex-col justify-around py-1 gap-2 sm:gap-3">
+                  ${renderStageCard(p.s8_sf1, 'Semifinal 1 (M5)', '', false)}
+                  ${renderStageCard(p.s8_sf2, 'Semifinal 2 (M6)', '', false)}
                 </div>
               </div>
             </div>
@@ -7668,22 +7669,22 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const p = PLAYOFF_DATA;
       if (tournamentMode === 'double_elim') {
         container.innerHTML = `
-          <div class="w-full max-w-[1720px] mx-auto my-auto space-y-3">
-            <div class="text-center space-y-1 mb-2 shrink-0">
+          <div class="w-full max-w-[1840px] mx-auto h-full flex-1 min-h-0 flex flex-col justify-between select-none py-1">
+            <div class="text-center space-y-0.5 mb-1 shrink-0">
               <div class="inline-flex items-center gap-2 px-3.5 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/40 text-rose-300 font-black text-xs uppercase tracking-widest shadow-sm">
                 <span>🔥 LOWER BRACKET ARENA FEED</span>
                 <span class="text-rose-400">·</span>
                 <span>SUDDEN DEATH ELIMINATION</span>
               </div>
-              <h2 class="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
+              <h2 class="text-xl sm:text-2xl font-black text-white uppercase tracking-tight">
                 Lower Bracket Matches
               </h2>
               <p class="text-xs text-slate-300 font-medium">Day 2 Elimination Rounds · Day 3 Lower Bracket Final (BO5)</p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 items-stretch">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 flex-1 min-h-0 items-stretch">
               <!-- Col 1: LB Round 1 (Day 2: M7-M8) -->
-              <div class="flex flex-col space-y-2">
+              <div class="flex flex-col flex-1 min-h-0 justify-between">
                 <div class="flex items-center justify-between pb-1.5 border-b-2 border-rose-500/50 shrink-0">
                   <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-sm"></span>
@@ -7691,14 +7692,14 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   </div>
                   <span class="text-xs font-black px-2 py-0.5 rounded-full bg-rose-500/25 text-rose-300 border border-rose-500/40">BO3</span>
                 </div>
-                <div class="flex-1 flex flex-col justify-around py-1 space-y-3">
-                  ${renderStageCard(p.lb_r1_1, 'LB Round 1-1 (M7)', '', true)}
-                  ${renderStageCard(p.lb_r1_2, 'LB Round 1-2 (M8)', '', true)}
+                <div class="flex-1 min-h-0 flex flex-col justify-around py-2 gap-3 sm:gap-4">
+                  ${renderStageCard(p.lb_r1_1, 'LB Round 1-1 (M7)', '', false)}
+                  ${renderStageCard(p.lb_r1_2, 'LB Round 1-2 (M8)', '', false)}
                 </div>
               </div>
 
               <!-- Col 2: LB Quarterfinals (Day 2: M9-M10) -->
-              <div class="flex flex-col space-y-2">
+              <div class="flex flex-col flex-1 min-h-0 justify-between">
                 <div class="flex items-center justify-between pb-1.5 border-b-2 border-amber-500/50 shrink-0">
                   <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm"></span>
@@ -7706,14 +7707,14 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   </div>
                   <span class="text-xs font-black px-2 py-0.5 rounded-full bg-amber-500/25 text-amber-300 border border-amber-500/40">BO3</span>
                 </div>
-                <div class="flex-1 flex flex-col justify-around py-1 space-y-3">
-                  ${renderStageCard(p.lb_qf1, 'LB Quarterfinal 1 (M9)', '', true)}
-                  ${renderStageCard(p.lb_qf2, 'LB Quarterfinal 2 (M10)', '', true)}
+                <div class="flex-1 min-h-0 flex flex-col justify-around py-2 gap-3 sm:gap-4">
+                  ${renderStageCard(p.lb_qf1, 'LB Quarterfinal 1 (M9)', '', false)}
+                  ${renderStageCard(p.lb_qf2, 'LB Quarterfinal 2 (M10)', '', false)}
                 </div>
               </div>
 
               <!-- Col 3: LB Semifinal (Day 2: M11) -->
-              <div class="flex flex-col space-y-2">
+              <div class="flex flex-col flex-1 min-h-0 justify-between">
                 <div class="flex items-center justify-between pb-1.5 border-b-2 border-orange-500/50 shrink-0">
                   <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-sm"></span>
@@ -7721,16 +7722,18 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   </div>
                   <span class="text-xs font-black px-2 py-0.5 rounded-full bg-orange-500/25 text-orange-300 border border-orange-500/40">BO3</span>
                 </div>
-                <div class="flex-1 flex flex-col justify-center py-1 space-y-3">
-                  ${renderStageCard(p.lb_sf, 'LB Semifinal (M11)', '', true)}
-                  <div class="p-2.5 rounded-xl bg-orange-500/15 border border-orange-500/30 text-center">
-                    <span class="text-xs font-black text-orange-300">Winner ➔ M13 (LB Final) · Loser 4th Place</span>
+                <div class="flex-1 min-h-0 flex flex-col justify-center py-2 gap-4">
+                  ${renderStageCard(p.lb_sf, 'LB Semifinal (M11)', '', false)}
+                  <div class="p-3 rounded-2xl bg-orange-500/15 border-2 border-orange-500/40 text-center shadow-lg">
+                    <span class="text-xs sm:text-sm font-black text-orange-300 uppercase tracking-wide">
+                      Winner ➔ M13 (LB Final) · Loser 4th Place
+                    </span>
                   </div>
                 </div>
               </div>
 
               <!-- Col 4: LB Final (Day 3: M13 · BO5) -->
-              <div class="flex flex-col space-y-2">
+              <div class="flex flex-col flex-1 min-h-0 justify-between">
                 <div class="flex items-center justify-between pb-1.5 border-b-2 border-purple-500/50 shrink-0">
                   <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-sm"></span>
@@ -7738,10 +7741,12 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   </div>
                   <span class="text-xs font-black px-2 py-0.5 rounded-full bg-purple-500/25 text-purple-300 border border-purple-500/40">BO5</span>
                 </div>
-                <div class="flex-1 flex flex-col justify-center py-1 space-y-3">
-                  ${renderStageCard(p.lb_f, 'LB Final (M13 · BO5)', 'bg-purple-500/30 text-purple-200 border border-purple-500/40', true)}
-                  <div class="p-2.5 rounded-xl bg-purple-500/15 border border-purple-500/30 text-center">
-                    <span class="text-xs font-black text-purple-300">Winner ➔ Grand Finals (M14) · Loser 🥉 Bronze</span>
+                <div class="flex-1 min-h-0 flex flex-col justify-center py-2 gap-4">
+                  ${renderStageCard(p.lb_f, 'LB Final (M13 · BO5)', 'bg-purple-500/30 text-purple-200 border border-purple-500/40', false)}
+                  <div class="p-3 rounded-2xl bg-purple-500/15 border-2 border-purple-500/40 text-center shadow-lg">
+                    <span class="text-xs sm:text-sm font-black text-purple-300 uppercase tracking-wide">
+                      Winner ➔ Grand Finals (M14) · Loser 🥉 Bronze
+                    </span>
                   </div>
                 </div>
               </div>
@@ -7750,8 +7755,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
         `;
       } else {
         container.innerHTML = `
-          <div class="w-full max-w-[1720px] mx-auto my-auto space-y-3">
-            <div class="text-center space-y-1 mb-2 shrink-0">
+          <div class="w-full max-w-[1840px] mx-auto h-full flex-1 min-h-0 flex flex-col justify-between select-none py-1">
+            <div class="text-center space-y-0.5 mb-1 shrink-0">
               <span class="text-xs font-black uppercase tracking-widest text-amber-400 px-4 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/40 shadow-sm">
                 Championship & 3rd Place Match
               </span>
@@ -7760,20 +7765,24 @@ Check your Browserslist config to be sure that your targets are set up correctly
               </h2>
               <p class="text-xs text-slate-300 font-medium">Bronze Match (M7 · BO5) & Grand Finals (M8 · BO7)</p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-              <div>
-                <div class="flex items-center justify-between pb-1.5 border-b-2 border-amber-600/50 mb-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 min-h-0 items-stretch">
+              <div class="flex flex-col flex-1 min-h-0 justify-between">
+                <div class="flex items-center justify-between pb-1.5 border-b-2 border-amber-600/50 mb-2 shrink-0">
                   <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-amber-600">3rd Place Match (BO5)</span>
                   <span class="text-xs font-black px-2 py-0.5 rounded-full bg-amber-600/25 text-amber-300 border border-amber-600/40">BO5</span>
                 </div>
-                ${renderStageCard(p.s8_bronze, 'Bronze Match (M7 · BO5)', 'bg-amber-600/20 text-amber-400')}
+                <div class="flex-1 min-h-0 flex flex-col justify-center py-2 gap-4">
+                  ${renderStageCard(p.s8_bronze, 'Bronze Match (M7 · BO5)', 'bg-amber-600/20 text-amber-400', false)}
+                </div>
               </div>
-              <div>
-                <div class="flex items-center justify-between pb-1.5 border-b-2 border-amber-400/50 mb-2">
+              <div class="flex flex-col flex-1 min-h-0 justify-between">
+                <div class="flex items-center justify-between pb-1.5 border-b-2 border-amber-400/50 mb-2 shrink-0">
                   <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-amber-400">Grand Finals (BO7)</span>
                   <span class="text-xs font-black px-2 py-0.5 rounded-full bg-amber-500/25 text-amber-300 border border-amber-500/40">BO7</span>
                 </div>
-                ${renderStageCard(p.s8_gf, 'Grand Finals (M8 · BO7)', 'bg-amber-500/30 text-amber-200 border border-amber-500/50')}
+                <div class="flex-1 min-h-0 flex flex-col justify-center py-2 gap-4">
+                  ${renderStageCard(p.s8_gf, 'Grand Finals (M8 · BO7)', 'bg-amber-500/30 text-amber-200 border border-amber-500/50', false)}
+                </div>
               </div>
             </div>
           </div>
@@ -7849,7 +7858,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       return { recentMatch, ongoingMatch, nextMatch, secondNextMatch };
     }
 
-    // 3. LIVE STAGE: ON-GOING & RECENT MATCH (1 COLUMN - ON-GOING BIGGER, RECENT WITH ICONS)
+    // 3. LIVE STAGE: ON-GOING & RECENT MATCH (MASSIVE ARENA BROADCAST DISPLAY)
     function renderTheaterLiveMatches(container) {
       const state = getStageMatchSequenceState();
       const { recentMatch, ongoingMatch, nextMatch } = state;
@@ -7861,95 +7870,128 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const t2 = ongoingMatch ? (DEFAULT_TEAMS.find(t => t.name === ongoingMatch.team2 || (ongoingMatch.team2 === 'COM' && t.name === 'CMID')) || { name: ongoingMatch.team2 || 'TBD', full: ongoingMatch.team2 || 'To Be Determined', mascot: '' }) : null;
 
       const targetWins = ongoingMatch ? Math.ceil((ongoingMatch.bestOf || 3) / 2) : 2;
+      const isByeMatch = Boolean(ongoingMatch && (ongoingMatch.team2 === 'BYE' || (currentEsport === 'codm' && (ongoingMatch.id === 'ub_qf1' || ongoingMatch.id === 'lb_r1_1'))));
+      const t1IsBye = ongoingMatch?.team1 === 'BYE';
+      const t2IsBye = isByeMatch && ongoingMatch?.team2 === 'BYE';
+
+      const t1Won = ongoingMatch?.winner === ongoingMatch?.team1 || (isByeMatch && ongoingMatch?.team1 && !ongoingMatch?.winner);
+      const t2Won = ongoingMatch?.winner === ongoingMatch?.team2;
+      const t1Leader = hasScores && !isFinished && ongoingMatch.s1 > ongoingMatch.s2;
+      const t2Leader = hasScores && !isFinished && ongoingMatch.s2 > ongoingMatch.s1;
+
+      const s1Display = isByeMatch ? (t1Won ? 'ADV' : '-') : (ongoingMatch?.s1 !== null && ongoingMatch?.s1 !== undefined ? ongoingMatch.s1 : '-');
+      const s2Display = isByeMatch ? '-' : (ongoingMatch?.s2 !== null && ongoingMatch?.s2 !== undefined ? ongoingMatch.s2 : '-');
 
       container.innerHTML = `
-        <div class="max-w-5xl mx-auto w-full space-y-4 flex flex-col items-center">
+        <div class="w-full max-w-[1720px] mx-auto h-full flex-1 min-h-0 flex flex-col justify-between select-none py-1">
           <!-- Slide Heading -->
-          <div class="text-center space-y-1">
-            <span class="text-xs font-black uppercase tracking-widest text-amber-400 px-4 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 inline-flex items-center gap-2">
+          <div class="text-center space-y-0.5 mb-1 shrink-0">
+            <div class="inline-flex items-center gap-2 px-3.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-300 font-black text-xs uppercase tracking-widest shadow-sm">
               <span class="w-2 h-2 rounded-full bg-red-500 beacon-pulse"></span>
-              Live Arena Stage Feed
-            </span>
-            <h2 class="text-xl sm:text-3xl font-black text-white uppercase tracking-tight mt-1">
+              <span>LIVE ARENA STAGE FEED</span>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-black text-white uppercase tracking-tight">
               On-Going & Recent Match
             </h2>
-            <p class="text-xs text-slate-400">Match tracking based on official playing order: Current Arena Match & Last Concluded Result</p>
+            <p class="text-xs text-slate-300 font-medium">Match tracking based on official playing order: Current Arena Series & Concluded Result</p>
           </div>
 
           <!-- 1. HERO ON-GOING MATCH (MASSIVE JUMBOTRON DISPLAY FOR FAR-AWAY AUDIENCE) -->
-          <div class="w-full p-4 sm:p-6 md:p-7 rounded-3xl bg-gradient-to-b from-amber-500/15 via-white/5 to-white/5 border-2 border-amber-500/60 shadow-2xl flex flex-col justify-between space-y-4 relative overflow-hidden">
-            <div class="absolute -top-12 -right-12 w-64 h-64 bg-amber-500/20 rounded-full blur-3xl pointer-events-none"></div>
+          <div class="w-full flex-1 min-h-0 p-4 sm:p-5 md:p-6 rounded-3xl bg-gradient-to-b from-amber-500/15 via-slate-900/95 to-black/90 border-2 border-amber-500/60 shadow-2xl flex flex-col justify-between relative overflow-hidden my-1">
+            <div class="absolute -top-16 -right-16 w-80 h-80 bg-amber-500/15 rounded-full blur-3xl pointer-events-none"></div>
 
             <!-- Hero Header -->
-            <div class="relative flex items-center justify-between gap-2 border-b border-white/10 pb-2.5">
+            <div class="relative flex items-center justify-between gap-2 border-b border-white/10 pb-2 shrink-0">
               <div class="flex items-center gap-2 shrink-0 z-10">
-                <span class="px-3 py-1 rounded-xl text-xs sm:text-sm font-mono font-black bg-amber-500 text-slate-950 uppercase shadow-md shrink-0">
+                <span class="px-3.5 py-1 rounded-xl text-xs sm:text-sm font-mono font-black bg-amber-500 text-slate-950 uppercase shadow-md shrink-0">
                   ${ongoingMatch?.day || 'STAGE'} · MATCH #${ongoingMatch?.seq || 1}
                 </span>
               </div>
-              <div class="absolute inset-0 pb-2.5 flex items-center justify-center pointer-events-none px-28 sm:px-44">
-                <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-amber-300 truncate max-w-full">
+              <div class="absolute inset-0 pb-2 flex items-center justify-center pointer-events-none px-28 sm:px-44">
+                <span class="text-xs sm:text-sm md:text-base font-black uppercase tracking-wider text-amber-300 truncate max-w-full">
                   ${formatMatchLabelSpelledOut(ongoingMatch?.label || 'Current Series')}
                 </span>
               </div>
               <div class="flex items-center gap-2 shrink-0 z-10">
-                <span class="px-2.5 py-0.5 rounded-full text-xs font-black uppercase bg-red-500/20 text-red-300 border border-red-500/40 flex items-center gap-1.5 shadow-sm">
-                  <span class="w-1.5 h-1.5 rounded-full bg-red-400 beacon-pulse"></span>
-                  ${isFinished ? 'Final Result' : (hasScores ? 'In Progress' : 'On-Going')}
+                <span class="px-3 py-0.5 rounded-full text-xs font-black uppercase ${isFinished ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : (hasScores ? 'bg-red-500/20 text-red-300 border border-red-500/40' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30')} flex items-center gap-1.5 shadow-sm">
+                  ${!isFinished && hasScores ? '<span class="w-1.5 h-1.5 rounded-full bg-red-400 beacon-pulse"></span>' : ''}
+                  ${isFinished ? 'Final Result 🏆' : (hasScores ? 'In Progress' : 'On-Going')}
                 </span>
-                <span class="px-2.5 py-0.5 rounded-full text-xs font-black bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                <span class="px-3 py-0.5 rounded-full text-xs font-black bg-purple-500/20 text-purple-300 border border-purple-500/30">
                   BO${ongoingMatch?.bestOf || 3}
                 </span>
               </div>
             </div>
 
-            <!-- Hero Arena Stage (Giant Team Logos & Huge Scores) -->
-            <div class="grid grid-cols-11 items-center gap-2 sm:gap-6 py-2 sm:py-4 text-center">
+            <!-- Hero Arena Stage Centerpiece -->
+            <div class="grid grid-cols-11 items-center gap-2 sm:gap-4 py-2 flex-1 min-h-0 text-center">
               <!-- Team 1 -->
-              <div class="col-span-4 flex flex-col items-center space-y-2">
-                ${renderTeamLogo(ongoingMatch?.team1, 'w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36', 'rounded-3xl border-3 sm:border-4 ' + (ongoingMatch?.winner === ongoingMatch?.team1 ? 'border-emerald-400 shadow-2xl shadow-emerald-500/40' : 'border-white/20 shadow-xl'))}
-                <div class="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-wide truncate max-w-full drop-shadow-md">${ongoingMatch?.team1 || 'TBD'}</div>
-                ${ongoingMatch?.winner === ongoingMatch?.team1 ? '<span class="px-3 py-0.5 rounded-full bg-emerald-500/25 text-emerald-400 text-xs sm:text-sm font-black uppercase border border-emerald-500/40 shadow-lg">Winner 🏆</span>' : ''}
+              <div class="col-span-4 flex flex-col items-center justify-center space-y-1.5">
+                ${t1IsBye ? `
+                  <div class="w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 rounded-3xl bg-slate-900 border-2 border-slate-700 flex items-center justify-center text-3xl font-black text-slate-400 shadow-xl select-none">BYE</div>
+                ` : (ongoingMatch?.team1 ? renderTeamLogo(ongoingMatch.team1, 'w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 lg:w-48 lg:h-48', 'rounded-3xl border-4 ' + (t1Won ? 'border-emerald-400 shadow-2xl shadow-emerald-500/40' : 'border-white/20 shadow-xl')) : `
+                  <div class="w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 rounded-3xl bg-slate-800 border-2 border-slate-700 flex items-center justify-center text-4xl font-bold text-slate-400 shadow-xl select-none">?</div>
+                `)}
+                <div class="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-wide truncate max-w-full drop-shadow-md">
+                  ${ongoingMatch?.team1 || 'TBD'}
+                </div>
+                ${t1?.mascot ? `
+                  <div class="text-xs sm:text-sm md:text-base font-bold text-amber-300 truncate max-w-full drop-shadow">
+                    ${t1.mascot} · ${t1.full}
+                  </div>
+                ` : ''}
+                ${t1Won ? '<span class="px-3.5 py-0.5 rounded-full bg-emerald-500/25 text-emerald-300 text-xs sm:text-sm font-black uppercase border border-emerald-500/40 shadow-lg inline-block">Winner 🏆</span>' : ''}
               </div>
 
-              <!-- Score / Target Center -->
+              <!-- Score Centerpiece -->
               <div class="col-span-3 flex flex-col items-center justify-center space-y-2">
-                <div class="text-6xl sm:text-8xl md:text-9xl font-black font-mono tracking-wider flex items-center gap-2 sm:gap-3 justify-center drop-shadow-2xl">
-                  <span class="px-4 py-1 sm:px-5 sm:py-1.5 rounded-2xl bg-black/40 border border-white/10 ${ongoingMatch?.winner === ongoingMatch?.team1 ? 'text-emerald-400 border-emerald-500/40' : 'text-white'}">${ongoingMatch?.s1 !== null ? ongoingMatch.s1 : '-'}</span>
-                  <span class="text-slate-500 text-3xl sm:text-5xl md:text-6xl font-sans font-bold">:</span>
-                  <span class="px-4 py-1 sm:px-5 sm:py-1.5 rounded-2xl bg-black/40 border border-white/10 ${ongoingMatch?.winner === ongoingMatch?.team2 ? 'text-emerald-400 border-emerald-500/40' : 'text-white'}">${ongoingMatch?.s2 !== null ? ongoingMatch.s2 : '-'}</span>
+                <div class="text-6xl sm:text-8xl md:text-9xl font-black font-mono tracking-wider flex items-center gap-2 sm:gap-4 justify-center drop-shadow-2xl select-none">
+                  <span class="min-w-[80px] sm:min-w-[110px] md:min-w-[130px] px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-2xl sm:rounded-3xl bg-black/60 border-2 ${t1Won ? 'text-emerald-400 border-emerald-500/60 shadow-xl shadow-emerald-500/30' : (t1Leader ? 'text-amber-300 border-amber-500/60' : 'text-white border-white/20')} text-center">${s1Display}</span>
+                  <span class="text-slate-500 text-3xl sm:text-5xl md:text-6xl font-sans font-bold select-none">:</span>
+                  <span class="min-w-[80px] sm:min-w-[110px] md:min-w-[130px] px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-2xl sm:rounded-3xl bg-black/60 border-2 ${t2Won ? 'text-emerald-400 border-emerald-500/60 shadow-xl shadow-emerald-500/30' : (t2Leader ? 'text-amber-300 border-amber-500/60' : 'text-white border-white/20')} text-center">${s2Display}</span>
                 </div>
-                <span class="text-xs sm:text-sm font-mono text-amber-300 uppercase tracking-widest font-black px-3 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40">
-                  First to ${targetWins} Wins
+                <span class="text-xs sm:text-sm md:text-base font-mono text-amber-300 uppercase tracking-widest font-black px-4 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 shadow-sm">
+                  ${isByeMatch ? 'Automatic Bye Advancement' : `First to ${targetWins} Wins`}
                 </span>
-                ${hasScores && !isFinished ? `<span class="text-xs text-red-400 font-bold flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-red-500 beacon-pulse"></span> Game ${ongoingMatch.s1 + ongoingMatch.s2 + 1} Underway</span>` : ''}
+                ${hasScores && !isFinished ? `<span class="text-xs sm:text-sm text-red-400 font-bold flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-red-500 beacon-pulse"></span> Game ${ongoingMatch.s1 + ongoingMatch.s2 + 1} Underway</span>` : ''}
               </div>
 
               <!-- Team 2 -->
-              <div class="col-span-4 flex flex-col items-center space-y-2">
-                ${renderTeamLogo(ongoingMatch?.team2, 'w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36', 'rounded-3xl border-3 sm:border-4 ' + (ongoingMatch?.winner === ongoingMatch?.team2 ? 'border-emerald-400 shadow-2xl shadow-emerald-500/40' : 'border-white/20 shadow-xl'))}
-                <div class="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-wide truncate max-w-full drop-shadow-md">${ongoingMatch?.team2 || 'TBD'}</div>
-                ${ongoingMatch?.winner === ongoingMatch?.team2 ? '<span class="px-3 py-0.5 rounded-full bg-emerald-500/25 text-emerald-400 text-xs sm:text-sm font-black uppercase border border-emerald-500/40 shadow-lg">Winner 🏆</span>' : ''}
+              <div class="col-span-4 flex flex-col items-center justify-center space-y-1.5">
+                ${t2IsBye ? `
+                  <div class="w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 rounded-3xl bg-slate-900 border-2 border-slate-700 flex items-center justify-center text-3xl font-black text-slate-400 shadow-xl select-none">BYE</div>
+                ` : (ongoingMatch?.team2 ? renderTeamLogo(ongoingMatch.team2, 'w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 lg:w-48 lg:h-48', 'rounded-3xl border-4 ' + (t2Won ? 'border-emerald-400 shadow-2xl shadow-emerald-500/40' : 'border-white/20 shadow-xl')) : `
+                  <div class="w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 rounded-3xl bg-slate-800 border-2 border-slate-700 flex items-center justify-center text-4xl font-bold text-slate-400 shadow-xl select-none">?</div>
+                `)}
+                <div class="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-wide truncate max-w-full drop-shadow-md">
+                  ${ongoingMatch?.team2 || 'TBD'}
+                </div>
+                ${t2?.mascot ? `
+                  <div class="text-xs sm:text-sm md:text-base font-bold text-amber-300 truncate max-w-full drop-shadow">
+                    ${t2.mascot} · ${t2.full}
+                  </div>
+                ` : ''}
+                ${t2Won ? '<span class="px-3.5 py-0.5 rounded-full bg-emerald-500/25 text-emerald-300 text-xs sm:text-sm font-black uppercase border border-emerald-500/40 shadow-lg inline-block">Winner 🏆</span>' : ''}
               </div>
             </div>
 
             <!-- Hero Footer -->
-            <div class="pt-2 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
+            <div class="pt-2 border-t border-white/10 flex items-center justify-between text-xs text-slate-400 shrink-0">
               <span class="font-medium truncate">${ongoingMatch ? 'Official Tournament Match Feed' : 'No active match'}</span>
-              <span class="font-bold text-amber-400 font-mono">${isFinished ? `Decided: ${ongoingMatch.winner}` : (hasScores ? `Current Score: ${ongoingMatch.s1} - ${ongoingMatch.s2}` : 'Arena Live')}</span>
+              <span class="font-bold text-amber-400 font-mono">${isFinished ? `Decided: ${ongoingMatch.winner}` : (hasScores ? `Current Score: ${ongoingMatch.s1} - ${ongoingMatch.s2}` : 'Arena Live Feed')}</span>
             </div>
           </div>
 
           ${recentMatch ? `
-          <!-- 2. RECENT MATCH (CLEAR & READABLE WITH ICONS - 1 COLUMN) -->
-          <div class="w-full p-3 sm:p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition shadow-lg space-y-2">
-            <div class="relative flex items-center justify-between gap-2 border-b border-white/10 pb-1.5">
+          <!-- 2. RECENT MATCH (CLEAR & READABLE WITH LARGE ICONS) -->
+          <div class="w-full p-2.5 sm:p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition shadow-lg shrink-0 mt-1">
+            <div class="relative flex items-center justify-between gap-2 border-b border-white/10 pb-1">
               <div class="flex items-center gap-2 shrink-0 z-10">
                 <span class="text-xs font-black uppercase tracking-wider px-2.5 py-0.5 rounded bg-slate-400/15 text-slate-300 border border-slate-400/25 flex items-center gap-1.5 shrink-0">
                   🏁 Recent Match · Match #${recentMatch.seq}
                 </span>
               </div>
-              <div class="absolute inset-0 pb-1.5 flex items-center justify-center pointer-events-none px-32 sm:px-44">
+              <div class="absolute inset-0 pb-1 flex items-center justify-center pointer-events-none px-32 sm:px-44">
                 <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-200 truncate max-w-full">
                   ${formatMatchLabelSpelledOut(recentMatch.label)}
                 </span>
@@ -7959,27 +8001,26 @@ Check your Browserslist config to be sure that your targets are set up correctly
               </span>
             </div>
 
-            <div class="relative flex flex-col sm:flex-row items-center justify-center gap-3 pt-0.5 min-h-[52px]">
-              <!-- Matchup in the middle -->
-              <div class="flex items-center gap-4 sm:gap-8 justify-center">
+            <div class="relative flex items-center justify-center gap-3 pt-1 min-h-[48px]">
+              <div class="flex items-center gap-6 sm:gap-10 justify-center">
                 <!-- Team 1 with logo icon -->
                 <div class="flex items-center gap-2.5">
-                  ${renderTeamLogo(recentMatch.team1, 'w-10 h-10 sm:w-12 sm:h-12', 'rounded-2xl shadow-md border border-white/20')}
+                  ${renderTeamLogo(recentMatch.team1, 'w-12 h-12 sm:w-14 sm:h-14', 'rounded-2xl shadow-md border border-white/20')}
                   <div class="text-left">
-                    <div class="text-sm sm:text-base font-black ${recentMatch.winner === recentMatch.team1 ? 'text-emerald-400' : 'text-white'}">${recentMatch.team1}</div>
+                    <div class="text-base sm:text-lg font-black ${recentMatch.winner === recentMatch.team1 ? 'text-emerald-400' : 'text-white'}">${recentMatch.team1}</div>
                     <div class="text-[11px] text-slate-400 font-mono">${recentMatch.winner === recentMatch.team1 ? 'Advancing' : 'Final'}</div>
                   </div>
-                  <span class="text-xl sm:text-2xl font-black font-mono ml-2 ${recentMatch.winner === recentMatch.team1 ? 'text-emerald-400' : 'text-slate-300'}">${recentMatch.s1}</span>
+                  <span class="text-2xl sm:text-3xl font-black font-mono ml-2 ${recentMatch.winner === recentMatch.team1 ? 'text-emerald-400' : 'text-slate-300'}">${recentMatch.s1}</span>
                 </div>
 
-                <span class="text-slate-500 font-mono font-black text-sm uppercase tracking-widest px-1">VS</span>
+                <span class="text-slate-500 font-mono font-black text-sm uppercase tracking-widest px-2">VS</span>
 
                 <!-- Team 2 with logo icon -->
                 <div class="flex items-center gap-2.5">
-                  <span class="text-xl sm:text-2xl font-black font-mono mr-2 ${recentMatch.winner === recentMatch.team2 ? 'text-emerald-400' : 'text-slate-300'}">${recentMatch.s2}</span>
-                  ${renderTeamLogo(recentMatch.team2, 'w-10 h-10 sm:w-12 sm:h-12', 'rounded-2xl shadow-md border border-white/20')}
+                  <span class="text-2xl sm:text-3xl font-black font-mono mr-2 ${recentMatch.winner === recentMatch.team2 ? 'text-emerald-400' : 'text-slate-300'}">${recentMatch.s2}</span>
+                  ${renderTeamLogo(recentMatch.team2, 'w-12 h-12 sm:w-14 sm:h-14', 'rounded-2xl shadow-md border border-white/20')}
                   <div class="text-left">
-                    <div class="text-sm sm:text-base font-black ${recentMatch.winner === recentMatch.team2 ? 'text-emerald-400' : 'text-white'}">${recentMatch.team2}</div>
+                    <div class="text-base sm:text-lg font-black ${recentMatch.winner === recentMatch.team2 ? 'text-emerald-400' : 'text-white'}">${recentMatch.team2}</div>
                     <div class="text-[11px] text-slate-400 font-mono">${recentMatch.winner === recentMatch.team2 ? 'Advancing' : 'Final'}</div>
                   </div>
                 </div>
@@ -7994,15 +8035,15 @@ Check your Browserslist config to be sure that your targets are set up correctly
             </div>
           </div>
           ` : (nextMatch ? `
-          <!-- 2. UPCOMING NEXT MATCH (CENTERED WITH ICONS) -->
-          <div class="w-full p-3 sm:p-4 rounded-2xl bg-white/5 border border-blue-500/30 hover:border-blue-500/40 transition shadow-lg space-y-2">
-            <div class="relative flex items-center justify-between gap-2 border-b border-white/10 pb-1.5">
+          <!-- 2. UPCOMING NEXT MATCH (CENTERED WITH LARGE ICONS) -->
+          <div class="w-full p-2.5 sm:p-3.5 rounded-2xl bg-white/5 border border-blue-500/30 hover:border-blue-500/40 transition shadow-lg shrink-0 mt-1">
+            <div class="relative flex items-center justify-between gap-2 border-b border-white/10 pb-1">
               <div class="flex items-center gap-2 shrink-0 z-10">
                 <span class="text-xs font-black uppercase tracking-wider px-2.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30 flex items-center gap-1.5 shrink-0">
                   ⏭️ Next Match · Match #${nextMatch.seq}
                 </span>
               </div>
-              <div class="absolute inset-0 pb-1.5 flex items-center justify-center pointer-events-none px-32 sm:px-44">
+              <div class="absolute inset-0 pb-1 flex items-center justify-center pointer-events-none px-32 sm:px-44">
                 <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-blue-300 truncate max-w-full">
                   ${formatMatchLabelSpelledOut(nextMatch.label)}
                 </span>
@@ -8017,22 +8058,22 @@ Check your Browserslist config to be sure that your targets are set up correctly
               </div>
             </div>
 
-            <div class="relative flex flex-col sm:flex-row items-center justify-center gap-3 pt-0.5 min-h-[52px]">
-              <div class="flex items-center gap-4 sm:gap-8 justify-center">
+            <div class="relative flex items-center justify-center gap-3 pt-1 min-h-[48px]">
+              <div class="flex items-center gap-6 sm:gap-10 justify-center">
                 <!-- Team 1 with logo icon -->
                 <div class="flex items-center gap-2.5">
-                  ${renderTeamLogo(nextMatch.team1, 'w-10 h-10 sm:w-12 sm:h-12', 'rounded-2xl shadow-md border border-white/20')}
-                  <div class="text-sm sm:text-base font-black text-white">${nextMatch.team1 || 'TBD'}</div>
+                  ${renderTeamLogo(nextMatch.team1, 'w-12 h-12 sm:w-14 sm:h-14', 'rounded-2xl shadow-md border border-white/20')}
+                  <div class="text-base sm:text-lg font-black text-white">${nextMatch.team1 || 'TBD'}</div>
                 </div>
 
-                <div class="px-3.5 py-1 rounded-xl bg-blue-500/20 text-blue-300 border border-blue-500/30 text-xs font-black font-mono shrink-0 shadow-sm">
+                <div class="px-4 py-1 rounded-xl bg-blue-500/20 text-blue-300 border border-blue-500/30 text-xs font-black font-mono shrink-0 shadow-sm">
                   VS
                 </div>
 
                 <!-- Team 2 with logo icon -->
                 <div class="flex items-center gap-2.5">
-                  ${renderTeamLogo(nextMatch.team2, 'w-10 h-10 sm:w-12 sm:h-12', 'rounded-2xl shadow-md border border-white/20')}
-                  <div class="text-sm sm:text-base font-black text-white">${nextMatch.team2 || 'TBD'}</div>
+                  ${renderTeamLogo(nextMatch.team2, 'w-12 h-12 sm:w-14 sm:h-14', 'rounded-2xl shadow-md border border-white/20')}
+                  <div class="text-base sm:text-lg font-black text-white">${nextMatch.team2 || 'TBD'}</div>
                 </div>
               </div>
             </div>
@@ -8042,7 +8083,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       `;
     }
 
-    // 4. LIVE STAGE: NEXT MATCHUPS (NEXT MATCH & 2ND NEXT MATCH WITH TEAM ICONS)
+    // 4. LIVE STAGE: NEXT MATCHUPS (NEXT MATCH & 2ND NEXT MATCH WITH MASSIVE TEAM ICONS)
     function renderTheaterNextMatchups(container) {
       const state = getStageMatchSequenceState();
       const { nextMatch, secondNextMatch } = state;
@@ -8054,40 +8095,40 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const tSec2 = secondNextMatch ? (DEFAULT_TEAMS.find(t => t.name === secondNextMatch.team2 || (secondNextMatch.team2 === 'COM' && t.name === 'CMID')) || { name: secondNextMatch.team2 || 'TBD', full: secondNextMatch.team2 || 'To Be Determined', mascot: '' }) : null;
 
       container.innerHTML = `
-        <div class="max-w-5xl mx-auto w-full space-y-4 flex flex-col items-center">
+        <div class="w-full max-w-[1720px] mx-auto h-full flex-1 min-h-0 flex flex-col justify-between select-none py-1">
           <!-- Slide Heading -->
-          <div class="text-center space-y-1">
-            <span class="text-xs font-black uppercase tracking-widest text-blue-400 px-4 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 inline-flex items-center gap-2">
+          <div class="text-center space-y-0.5 mb-1 shrink-0">
+            <div class="inline-flex items-center gap-2 px-3.5 py-0.5 rounded-full bg-blue-500/15 border border-blue-500/40 text-blue-300 font-black text-xs uppercase tracking-widest shadow-sm">
               <span>⏭️</span>
-              Official Progression Feed
-            </span>
-            <h2 class="text-xl sm:text-3xl font-black text-white uppercase tracking-tight mt-1">
+              <span>OFFICIAL PROGRESSION FEED</span>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-black text-white uppercase tracking-tight">
               Next Tournament Matchups
             </h2>
-            <p class="text-xs text-slate-400">Scheduled matchups following official 3-day tournament sequence</p>
+            <p class="text-xs text-slate-300 font-medium">Scheduled matchups following official 3-day tournament sequence</p>
           </div>
 
           <!-- 1. HERO NEXT MATCH CARD WITH MASSIVE TEAM LOGOS -->
-          <div class="w-full p-4 sm:p-6 md:p-7 rounded-3xl bg-gradient-to-b from-blue-500/15 via-white/5 to-white/5 border-2 border-blue-500/40 shadow-2xl flex flex-col justify-between space-y-4 relative overflow-hidden">
-            <div class="absolute -top-12 -right-12 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
+          <div class="w-full flex-1 min-h-0 p-4 sm:p-5 md:p-6 rounded-3xl bg-gradient-to-b from-blue-500/15 via-slate-900/95 to-black/90 border-2 border-blue-500/50 shadow-2xl flex flex-col justify-between relative overflow-hidden my-1">
+            <div class="absolute -top-16 -right-16 w-80 h-80 bg-blue-500/15 rounded-full blur-3xl pointer-events-none"></div>
 
             <!-- Header -->
-            <div class="relative flex items-center justify-between gap-2 border-b border-white/10 pb-2.5">
+            <div class="relative flex items-center justify-between gap-2 border-b border-white/10 pb-2 shrink-0">
               <div class="flex items-center gap-2 shrink-0 z-10">
-                <span class="px-3 py-1 rounded-xl text-xs sm:text-sm font-mono font-black bg-blue-500 text-slate-950 uppercase shadow-md shrink-0">
+                <span class="px-3.5 py-1 rounded-xl text-xs sm:text-sm font-mono font-black bg-blue-500 text-slate-950 uppercase shadow-md shrink-0">
                   ${nextMatch?.day || 'STAGE'} · MATCH #${nextMatch?.seq || 'NEXT'}
                 </span>
               </div>
-              <div class="absolute inset-0 pb-2.5 flex items-center justify-center pointer-events-none px-28 sm:px-44">
-                <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-blue-300 truncate max-w-full">
+              <div class="absolute inset-0 pb-2 flex items-center justify-center pointer-events-none px-28 sm:px-44">
+                <span class="text-xs sm:text-sm md:text-base font-black uppercase tracking-wider text-blue-300 truncate max-w-full">
                   ${formatMatchLabelSpelledOut(nextMatch?.label || 'Upcoming Series')}
                 </span>
               </div>
               <div class="flex items-center gap-2 shrink-0 z-10">
-                <span class="px-2.5 py-0.5 rounded-full text-xs font-black uppercase bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                <span class="px-3 py-0.5 rounded-full text-xs font-black uppercase bg-blue-500/20 text-blue-300 border border-blue-500/30">
                   Upcoming
                 </span>
-                <span class="px-2.5 py-0.5 rounded-full text-xs font-black bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                <span class="px-3 py-0.5 rounded-full text-xs font-black bg-purple-500/20 text-purple-300 border border-purple-500/30">
                   BO${nextMatch?.bestOf || 3}
                 </span>
               </div>
@@ -8095,32 +8136,45 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
             <!-- Next Match Arena (With Massive Team Logos) -->
             ${nextMatch ? `
-              <div class="grid grid-cols-11 items-center gap-2 sm:gap-6 py-2 sm:py-4 text-center">
+              <div class="grid grid-cols-11 items-center gap-2 sm:gap-4 py-2 flex-1 min-h-0 text-center">
                 <!-- Team 1 -->
-                <div class="col-span-4 flex flex-col items-center space-y-2">
-                  ${renderTeamLogo(nextMatch.team1, 'w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36', 'rounded-3xl border-3 sm:border-4 border-white/20 shadow-2xl')}
-                  <div class="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-wide truncate max-w-full drop-shadow-md">${nextMatch.team1 || 'TBD'}</div>
+                <div class="col-span-4 flex flex-col items-center justify-center space-y-1.5">
+                  ${renderTeamLogo(nextMatch.team1, 'w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 lg:w-48 lg:h-48', 'rounded-3xl border-4 border-white/20 shadow-2xl')}
+                  <div class="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-wide truncate max-w-full drop-shadow-md">${nextMatch.team1 || 'TBD'}</div>
+                  ${tNext1?.mascot ? `
+                    <div class="text-xs sm:text-sm md:text-base font-bold text-sky-300 truncate max-w-full drop-shadow">
+                      ${tNext1.mascot} · ${tNext1.full}
+                    </div>
+                  ` : ''}
                 </div>
 
                 <!-- VS Center -->
                 <div class="col-span-3 flex flex-col items-center justify-center space-y-2">
-                  <div class="px-5 py-2.5 sm:px-7 sm:py-3 rounded-2xl bg-blue-500/25 text-blue-300 border-2 border-blue-500/50 font-black text-2xl sm:text-4xl md:text-5xl font-mono shadow-2xl">
+                  <div class="px-8 py-3 sm:px-10 sm:py-4 rounded-3xl bg-blue-500/25 text-blue-300 border-2 border-blue-400 font-black text-3xl sm:text-5xl md:text-6xl font-mono shadow-2xl">
                     VS
                   </div>
-                  <span class="text-xs sm:text-sm font-mono text-blue-300 uppercase tracking-widest font-black mt-1">
+                  <span class="text-xs sm:text-sm md:text-base font-mono text-sky-300 uppercase tracking-widest font-black mt-1">
                     Up Next on Stage
+                  </span>
+                  <span class="text-xs font-mono text-slate-400 font-bold">
+                    First to ${Math.ceil((nextMatch?.bestOf || 3) / 2)} Wins
                   </span>
                 </div>
 
                 <!-- Team 2 -->
-                <div class="col-span-4 flex flex-col items-center space-y-2">
-                  ${renderTeamLogo(nextMatch.team2, 'w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36', 'rounded-3xl border-3 sm:border-4 border-white/20 shadow-2xl')}
-                  <div class="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-wide truncate max-w-full drop-shadow-md">${nextMatch.team2 || 'TBD'}</div>
+                <div class="col-span-4 flex flex-col items-center justify-center space-y-1.5">
+                  ${renderTeamLogo(nextMatch.team2, 'w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 lg:w-48 lg:h-48', 'rounded-3xl border-4 border-white/20 shadow-2xl')}
+                  <div class="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-wide truncate max-w-full drop-shadow-md">${nextMatch.team2 || 'TBD'}</div>
+                  ${tNext2?.mascot ? `
+                    <div class="text-xs sm:text-sm md:text-base font-bold text-sky-300 truncate max-w-full drop-shadow">
+                      ${tNext2.mascot} · ${tNext2.full}
+                    </div>
+                  ` : ''}
                 </div>
               </div>
 
               <!-- Footer -->
-              <div class="pt-2 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
+              <div class="pt-2 border-t border-white/10 flex items-center justify-between text-xs text-slate-400 shrink-0">
                 <span class="font-medium">${nextMatch.day} Playing Order</span>
                 <span class="font-bold text-blue-400 font-mono">Immediate Next Series</span>
               </div>
@@ -8133,14 +8187,14 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
           ${secondNextMatch ? `
           <!-- 2. 2ND NEXT MATCH (ON-DECK CARD WITH BIGGER TEAM LOGOS) -->
-          <div class="w-full p-3 sm:p-4 rounded-2xl bg-white/5 border border-purple-500/30 shadow-lg space-y-2">
-            <div class="relative flex items-center justify-between gap-2 border-b border-white/10 pb-1.5">
+          <div class="w-full p-2.5 sm:p-3.5 rounded-2xl bg-white/5 border border-purple-500/30 shadow-lg shrink-0 mt-1">
+            <div class="relative flex items-center justify-between gap-2 border-b border-white/10 pb-1">
               <div class="flex items-center gap-2 shrink-0 z-10">
                 <span class="text-xs font-black uppercase tracking-wider px-2.5 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 shrink-0">
                   ⏩ 2nd Next Match · Match #${secondNextMatch.seq}
                 </span>
               </div>
-              <div class="absolute inset-0 pb-1.5 flex items-center justify-center pointer-events-none px-32 sm:px-44">
+              <div class="absolute inset-0 pb-1 flex items-center justify-center pointer-events-none px-32 sm:px-44">
                 <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-purple-300 truncate max-w-full">
                   ${formatMatchLabelSpelledOut(secondNextMatch.label)}
                 </span>
@@ -8155,24 +8209,25 @@ Check your Browserslist config to be sure that your targets are set up correctly
               </div>
             </div>
 
-            <div class="relative flex flex-col sm:flex-row items-center justify-center gap-3 pt-0.5 min-h-[52px]">
-              <!-- Matchup in the middle -->
-              <div class="flex items-center gap-4 sm:gap-8 justify-center">
+            <div class="relative flex items-center justify-center gap-3 pt-1 min-h-[48px]">
+              <div class="flex items-center gap-6 sm:gap-10 justify-center">
                 <!-- Team 1 with icon -->
                 <div class="flex items-center gap-2.5">
-                  ${renderTeamLogo(secondNextMatch.team1, 'w-10 h-10 sm:w-12 sm:h-12', 'rounded-2xl border border-white/20 shadow-sm shrink-0')}
-                  <div class="text-sm sm:text-base font-black text-white">${secondNextMatch.team1 || 'TBD'}</div>
+                  ${renderTeamLogo(secondNextMatch.team1, 'w-12 h-12 sm:w-14 sm:h-14', 'rounded-2xl border border-white/20 shadow-sm shrink-0')}
+                  <div class="text-base sm:text-lg font-black text-white">${secondNextMatch.team1 || 'TBD'}</div>
+                  ${tSec1?.mascot ? `<span class="text-xs text-purple-300 font-semibold hidden sm:inline">(${tSec1.mascot})</span>` : ''}
                 </div>
 
                 <!-- VS Badge -->
-                <div class="px-3.5 py-1 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-black font-mono shrink-0 shadow-sm">
+                <div class="px-4 py-1 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-black font-mono shrink-0 shadow-sm">
                   VS
                 </div>
 
                 <!-- Team 2 with icon -->
                 <div class="flex items-center gap-2.5">
-                  ${renderTeamLogo(secondNextMatch.team2, 'w-10 h-10 sm:w-12 sm:h-12', 'rounded-2xl border border-white/20 shadow-sm shrink-0')}
-                  <div class="text-sm sm:text-base font-black text-white">${secondNextMatch.team2 || 'TBD'}</div>
+                  ${renderTeamLogo(secondNextMatch.team2, 'w-12 h-12 sm:w-14 sm:h-14', 'rounded-2xl border border-white/20 shadow-sm shrink-0')}
+                  <div class="text-base sm:text-lg font-black text-white">${secondNextMatch.team2 || 'TBD'}</div>
+                  ${tSec2?.mascot ? `<span class="text-xs text-purple-300 font-semibold hidden sm:inline">(${tSec2.mascot})</span>` : ''}
                 </div>
               </div>
             </div>
@@ -8207,53 +8262,59 @@ Check your Browserslist config to be sure that your targets are set up correctly
       ];
 
       container.innerHTML = `
-        <div class="max-w-6xl mx-auto w-full my-auto text-center space-y-4 sm:space-y-5 px-4">
-          <div>
-            <span class="text-xs sm:text-sm font-black uppercase tracking-widest text-amber-400 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 shadow-sm">
+        <div class="w-full max-w-[1720px] mx-auto h-full flex-1 min-h-0 flex flex-col justify-between select-none py-1 text-center">
+          <div class="shrink-0 mb-1">
+            <span class="text-xs sm:text-sm font-black uppercase tracking-widest text-amber-400 px-4 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 shadow-sm inline-block">
               Championship Podium
             </span>
-            <h2 class="text-3xl sm:text-4xl md:text-5xl font-black text-white mt-2 tracking-tight">Tournament Placement</h2>
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-white mt-1 tracking-tight">Tournament Placement & Honor Roll</h2>
             <p class="text-xs sm:text-sm text-slate-300 font-medium mt-0.5">TCC Intramurals 2026 · Esports Championship Honor Roll</p>
           </div>
 
           <!-- Top 3 Championship Podium (Hero Arena Scale) -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 items-end pt-2 max-w-5xl mx-auto">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 items-end flex-1 min-h-0 my-1 max-w-5xl mx-auto w-full">
             <!-- Silver -->
-            <div class="py-3.5 px-4 sm:py-4 sm:px-5 md:py-4.5 md:px-5 rounded-2xl bg-white/5 border-2 border-slate-400/50 flex flex-col items-center space-y-2 order-2 md:order-1 shadow-2xl backdrop-blur-xs">
-              <span class="text-5xl sm:text-6xl">🥈</span>
+            <div class="py-3 px-4 sm:py-4 sm:px-5 rounded-2xl bg-white/5 border-2 border-slate-400/50 flex flex-col items-center space-y-2 order-2 md:order-1 shadow-2xl backdrop-blur-xs">
+              <span class="text-4xl sm:text-5xl">🥈</span>
               <span class="px-3.5 py-0.5 rounded-full text-xs sm:text-sm font-black uppercase bg-slate-300/20 text-slate-200 border border-slate-300/40 tracking-wider">Silver</span>
-              ${renderTeamLogo(silver, 'w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36', 'rounded-2xl border-3 border-slate-300 shadow-xl')}
+              ${silver ? renderTeamLogo(silver, 'w-24 h-24 sm:w-28 sm:h-28 md:w-34 md:h-34', 'rounded-2xl border-3 border-slate-300 shadow-xl') : `
+                <div class="w-24 h-24 sm:w-28 sm:h-28 md:w-34 md:h-34 rounded-2xl bg-slate-800 border-2 border-slate-700 flex items-center justify-center text-3xl font-bold text-slate-400 shadow-xl select-none">?</div>
+              `}
               <div class="w-full truncate">
-                <div class="text-2xl sm:text-3xl font-black text-white truncate">${silverLabel}</div>
+                <div class="text-xl sm:text-2xl md:text-3xl font-black text-white truncate">${silverLabel}</div>
                 <div class="text-xs sm:text-sm text-slate-300 font-semibold mt-0.5 truncate">${silverDesc}</div>
               </div>
             </div>
 
             <!-- Gold -->
-            <div class="py-4 px-5 sm:py-5 sm:px-6 md:py-5 md:px-7 rounded-3xl bg-gradient-to-b from-amber-500/25 via-slate-900/90 to-black/80 border-3 border-amber-400 shadow-2xl shadow-amber-500/30 flex flex-col items-center space-y-2.5 order-1 md:order-2 md:-translate-y-2">
-              <span class="text-6xl sm:text-7xl animate-bounce">🏆</span>
+            <div class="py-3.5 px-5 sm:py-5 sm:px-6 rounded-3xl bg-gradient-to-b from-amber-500/25 via-slate-900/90 to-black/80 border-3 border-amber-400 shadow-2xl shadow-amber-500/30 flex flex-col items-center space-y-2 order-1 md:order-2 md:-translate-y-2">
+              <span class="text-5xl sm:text-6xl animate-bounce">🏆</span>
               <span class="px-4 py-1 rounded-full text-xs sm:text-sm font-black uppercase bg-amber-500 text-black tracking-widest shadow-lg">Champion (Gold)</span>
-              ${renderTeamLogo(gold, 'w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44', 'rounded-3xl border-4 border-amber-400 shadow-2xl p-1.5 bg-amber-400/10')}
+              ${gold ? renderTeamLogo(gold, 'w-32 h-32 sm:w-36 sm:h-36 md:w-42 md:h-42', 'rounded-3xl border-4 border-amber-400 shadow-2xl p-1 bg-amber-400/10') : `
+                <div class="w-32 h-32 sm:w-36 sm:h-36 md:w-42 md:h-42 rounded-3xl bg-slate-800 border-2 border-amber-400/60 flex items-center justify-center text-4xl font-bold text-amber-300 shadow-xl select-none">👑</div>
+              `}
               <div class="w-full truncate">
-                <div class="text-3xl sm:text-4xl font-black text-amber-400 tracking-wide truncate">${goldLabel}</div>
+                <div class="text-2xl sm:text-3xl md:text-4xl font-black text-amber-400 tracking-wide truncate">${goldLabel}</div>
                 <div class="text-xs sm:text-sm font-bold text-white mt-0.5 truncate">${goldDesc}</div>
               </div>
             </div>
 
             <!-- Bronze -->
-            <div class="py-3.5 px-4 sm:py-4 sm:px-5 md:py-4.5 md:px-5 rounded-2xl bg-white/5 border-2 border-amber-700/50 flex flex-col items-center space-y-2 order-3 md:order-3 shadow-2xl backdrop-blur-xs">
-              <span class="text-5xl sm:text-6xl">🥉</span>
+            <div class="py-3 px-4 sm:py-4 sm:px-5 rounded-2xl bg-white/5 border-2 border-amber-700/50 flex flex-col items-center space-y-2 order-3 md:order-3 shadow-2xl backdrop-blur-xs">
+              <span class="text-4xl sm:text-5xl">🥉</span>
               <span class="px-3.5 py-0.5 rounded-full text-xs sm:text-sm font-black uppercase bg-amber-700/20 text-amber-400 border border-amber-700/40 tracking-wider">Bronze</span>
-              ${renderTeamLogo(bronze, 'w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36', 'rounded-2xl border-3 border-amber-600 shadow-xl')}
+              ${bronze ? renderTeamLogo(bronze, 'w-24 h-24 sm:w-28 sm:h-28 md:w-34 md:h-34', 'rounded-2xl border-3 border-amber-600 shadow-xl') : `
+                <div class="w-24 h-24 sm:w-28 sm:h-28 md:w-34 md:h-34 rounded-2xl bg-slate-800 border-2 border-slate-700 flex items-center justify-center text-3xl font-bold text-slate-400 shadow-xl select-none">?</div>
+              `}
               <div class="w-full truncate">
-                <div class="text-2xl sm:text-3xl font-black text-white truncate">${bronze || 'TBD'}</div>
+                <div class="text-xl sm:text-2xl md:text-3xl font-black text-white truncate">${bronze || 'TBD'}</div>
                 <div class="text-xs sm:text-sm text-slate-300 font-semibold mt-0.5 truncate">${bObj.full}</div>
               </div>
             </div>
           </div>
 
           <!-- 4th, 5th, 6th, 7th, 8th Place Row (Large Arena Scale) -->
-          <div class="pt-4 border-t border-white/10 max-w-5xl mx-auto w-full space-y-2">
+          <div class="pt-2 border-t border-white/10 max-w-5xl mx-auto w-full shrink-0 space-y-1">
             <div class="flex items-center justify-between px-2">
               <div class="flex items-center gap-2">
                 <span class="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-200">Tournament Standings · Honor Roll</span>
@@ -8262,16 +8323,16 @@ Check your Browserslist config to be sure that your targets are set up correctly
               <span class="text-xs text-slate-400 font-semibold">Final Arena Placements</span>
             </div>
 
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 sm:gap-3">
+            <div class="grid grid-cols-5 gap-2 sm:gap-3">
               ${standingsList.map(item => {
                 const teamObj = getCollege(item.team);
                 return `
-                  <div class="p-2.5 sm:p-3 rounded-xl bg-slate-900/90 border-2 border-slate-800 hover:border-slate-700 flex flex-col items-center justify-between space-y-1.5 text-center transition shadow-lg">
+                  <div class="p-2 sm:p-2.5 rounded-xl bg-slate-900/90 border-2 border-slate-800 hover:border-slate-700 flex flex-col items-center justify-between space-y-1 text-center transition shadow-lg">
                     <span class="px-2 py-0.5 rounded-md text-[11px] font-mono font-black border-2 ${item.badgeColor}">
                       ${item.label}
                     </span>
-                    ${item.team ? renderTeamLogo(item.team, 'w-11 h-11 sm:w-12 sm:h-12', 'rounded-xl border border-slate-700 shadow-md shrink-0') : `
-                      <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-slate-800/60 border-2 border-dashed border-slate-700 flex items-center justify-center text-sm font-bold text-slate-500 shrink-0 select-none">—</div>
+                    ${item.team ? renderTeamLogo(item.team, 'w-10 h-10 sm:w-12 sm:h-12', 'rounded-xl border border-slate-700 shadow-md shrink-0') : `
+                      <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-800/60 border-2 border-dashed border-slate-700 flex items-center justify-center text-sm font-bold text-slate-500 shrink-0 select-none">—</div>
                     `}
                     <div class="w-full truncate">
                       <div class="text-sm sm:text-base font-black truncate ${item.team ? 'text-white' : 'text-slate-500 italic'}">
