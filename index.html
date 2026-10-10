@@ -1855,7 +1855,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const t2 = m.team2 || 'Team 2';
 
       // If m.games already exists and matches required length (bestOf)
-      if (m.games && Array.isArray(m.games) && m.games.length === bestOf) {
+      const hasExplicitWinners = m.games && Array.isArray(m.games) && m.games.some(g => Boolean(g.winner));
+      if (m.games && Array.isArray(m.games) && m.games.length === bestOf && (hasExplicitWinners || (s1 === null && s2 === null) || (s1 === 0 && s2 === 0))) {
         let w1 = 0, w2 = 0;
         let decided = false;
         for (let i = 0; i < bestOf; i++) {
@@ -8222,6 +8223,61 @@ Check your Browserslist config to be sure that your targets are set up correctly
               </div>
             </div>
 
+            <!-- CODM Game Mode Rotation Chips in Theater Mode Live Stage (if CODM) -->
+            ${currentEsport === 'codm' && ongoingMatch ? (() => {
+              const liveGames = getCodmMatchGames(ongoingMatch);
+              const isSeriesDecided = Boolean(ongoingMatch.winner);
+              const activeGameIdx = !isSeriesDecided ? liveGames.findIndex(g => !g.winner && g.status !== 'not_needed') : -1;
+              const activeGame = activeGameIdx !== -1 ? liveGames[activeGameIdx] : null;
+
+              return `
+                <div class="px-2 sm:px-4 py-2 border-t border-white/10 shrink-0">
+                  <div class="flex items-center justify-between text-xs sm:text-sm mb-1.5 font-bold">
+                    <span class="text-amber-400 font-black uppercase tracking-wider flex items-center gap-1.5">
+                      <span>🎯</span> <span>BO${ongoingMatch.bestOf || 3} Modes Rotation</span>
+                    </span>
+                    ${activeGame ? `
+                      <span class="text-xs sm:text-sm font-black text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-amber-400 beacon-pulse shrink-0"></span>
+                        <span>Now Playing: Game ${activeGame.gameNum} (${activeGame.shortName})</span>
+                      </span>
+                    ` : (isSeriesDecided ? `
+                      <span class="text-xs sm:text-sm font-black text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+                        <span>🏆 Series Concluded</span>
+                      </span>
+                    ` : '')}
+                  </div>
+                  <div class="grid ${(ongoingMatch.bestOf || 3) === 5 ? 'grid-cols-5' : 'grid-cols-3'} gap-2 sm:gap-3 text-center font-mono text-xs sm:text-sm">
+                    ${liveGames.map((g, idx) => {
+                      const isWon = Boolean(g.winner);
+                      const isNotNeeded = g.status === 'not_needed';
+                      const isCurrentActive = idx === activeGameIdx;
+
+                      let chipStyle = '';
+                      if (isWon) {
+                        chipStyle = 'bg-emerald-500/20 border-2 border-emerald-500/50 text-emerald-300 font-black shadow-md';
+                      } else if (isCurrentActive) {
+                        chipStyle = 'codm-game-glow scale-[1.02] z-10 shadow-lg';
+                      } else if (isNotNeeded) {
+                        chipStyle = 'bg-black/30 border border-white/5 text-slate-500 opacity-60';
+                      } else {
+                        chipStyle = 'bg-white/5 border border-white/15 text-slate-300 font-bold';
+                      }
+
+                      return `
+                        <div class="py-2 px-2.5 rounded-xl border ${chipStyle} flex items-center justify-center gap-1.5 sm:gap-2 truncate transition-all duration-300" title="Game ${g.gameNum}: ${g.mode}${isCurrentActive ? ' (Active Game Underway)' : ''}">
+                          <span>${g.icon}</span>
+                          <span class="truncate font-black">${g.shortName}</span>
+                          ${isWon ? `<span class="text-xs font-black text-emerald-300">(${g.winner})</span>` : ''}
+                          ${isCurrentActive ? `<span class="w-2 h-2 rounded-full bg-amber-300 beacon-pulse shrink-0"></span>` : ''}
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+              `;
+            })() : ''}
+
             <!-- Hero Footer -->
             <div class="pt-2 border-t border-white/10 flex items-center justify-between text-xs text-slate-400 shrink-0">
               <span class="font-medium truncate">${ongoingMatch ? 'Official Tournament Match Feed' : 'No active match'}</span>
@@ -8419,6 +8475,29 @@ Check your Browserslist config to be sure that your targets are set up correctly
                   ` : ''}
                 </div>
               </div>
+
+              <!-- CODM Modes Scheduled for Next Match (if CODM) -->
+              ${currentEsport === 'codm' && nextMatch ? (() => {
+                const nextGames = getCodmMatchGames(nextMatch);
+                return `
+                  <div class="px-2 sm:px-4 py-2 border-t border-white/10 shrink-0">
+                    <div class="flex items-center justify-between text-xs sm:text-sm mb-1.5 font-bold">
+                      <span class="text-sky-300 font-black uppercase tracking-wider flex items-center gap-1.5">
+                        <span>🎯</span> <span>BO${nextMatch.bestOf || 3} Scheduled Modes</span>
+                      </span>
+                      <span class="text-xs text-slate-400 font-mono">Opening with ${nextGames[0]?.mode || 'Hardpoint'}</span>
+                    </div>
+                    <div class="grid ${(nextMatch.bestOf || 3) === 5 ? 'grid-cols-5' : 'grid-cols-3'} gap-2 sm:gap-3 text-center font-mono text-xs sm:text-sm">
+                      ${nextGames.map((g, idx) => `
+                        <div class="py-2 px-2.5 rounded-xl border bg-white/5 border-white/15 text-slate-300 font-bold flex items-center justify-center gap-1.5 truncate" title="Game ${g.gameNum}: ${g.mode}">
+                          <span>${g.icon}</span>
+                          <span class="truncate font-black">${g.shortName}</span>
+                        </div>
+                      `).join('')}
+                    </div>
+                  </div>
+                `;
+              })() : ''}
 
               <!-- Footer -->
               <div class="pt-2 border-t border-white/10 flex items-center justify-between text-xs text-slate-400 shrink-0">
