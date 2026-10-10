@@ -136,6 +136,24 @@ try:
     cba_pts_badge = driver.execute_script("return document.getElementById('brPts_CBA').innerText;")
     assert_true(cba_pts_badge == "12 pts", f"CBA points badge is 12 pts (got {cba_pts_badge})")
 
+    # Test squad kills clamping for 28-player lobby (max 24 enemy eliminations per round)
+    driver.execute_script("""
+      document.getElementById('brKills_CCJPS').value = '50';
+      updateBrModalCalculations();
+    """)
+    clamped_val = driver.execute_script("return document.getElementById('brKills_CCJPS').value;")
+    assert_true(clamped_val == '24', f"Manual kill input clamped to 24 for 28-player lobby (got {clamped_val})")
+
+    driver.execute_script("stepBrKills('CCJPS', 5);")
+    stepped_val = driver.execute_script("return document.getElementById('brKills_CCJPS').value;")
+    assert_true(stepped_val == '24', f"Stepping kills beyond 24 clamped to 24 (got {stepped_val})")
+
+    # Reset CCJPS kills back to 5 for Round 1 test
+    driver.execute_script("""
+      document.getElementById('brKills_CCJPS').value = '5';
+      updateBrModalCalculations();
+    """)
+
     # Check duplicate detection validation alert
     driver.execute_script("""
       document.getElementById('brPlacement_CAS').value = '1';
@@ -237,6 +255,33 @@ try:
       return Object.values(CODM_BR_DATA.rounds).filter(r => r.status === 'completed').length;
     """)
     assert_true(completed_rounds == 8, f"All 8 rounds completed (got {completed_rounds})")
+
+    # Verify realistic 28-player lobby simulation constraints across all 8 rounds (7 squads of 4 players)
+    round_kills_data = driver.execute_script("""
+      const data = [];
+      for (let r = 1; r <= 8; r++) {
+        const rnd = CODM_BR_DATA.rounds[r];
+        const killsList = Object.values(rnd.results).map(res => res.kills);
+        const placementsList = Object.values(rnd.results).map(res => res.placement);
+        const totalRoundKills = killsList.reduce((a, b) => a + b, 0);
+        data.push({
+          round: r,
+          killsList: killsList,
+          placementsList: placementsList,
+          totalRoundKills: totalRoundKills
+        });
+      }
+      return data;
+    """)
+
+    for rnd_info in round_kills_data:
+        r_num = rnd_info['round']
+        tot_k = rnd_info['totalRoundKills']
+        k_list = rnd_info['killsList']
+        p_list = rnd_info['placementsList']
+        assert_true(20 <= tot_k <= 24, f"Round {r_num} total kills is {tot_k} (calibrated between 20 and 24 enemy eliminations for 28-player lobby)")
+        assert_true(all(0 <= k <= 24 for k in k_list), f"Round {r_num} all squad kills are between 0 and 24: {k_list}")
+        assert_true(sorted(p_list) == [1, 2, 3, 4, 5, 6, 7], f"Round {r_num} has unique placements 1st-7th: {sorted(p_list)}")
 
     # Verify progress badge
     badge_text = driver.execute_script("return document.getElementById('brProgressBadge').innerText;")

@@ -816,7 +816,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
           CODM 7-College Battle Royale
         </h2>
         <p class="text-xs text-[var(--muted-foreground)] max-w-xl">
-          Official 8-Round competitive series. Each round awards placement points (1st: 10, 2nd: 8, 3rd: 6, 4th: 5, 5th: 4, 6th: 3, 7th: 2) plus 1 point per squad kill. Final placements decided by cumulative points.
+          Official 8-Round competitive series · 7 College Squads of 4 Players (28-Player Lobby). Each round awards placement points (1st: 10, 2nd: 8, 3rd: 6, 4th: 5, 5th: 4, 6th: 3, 7th: 2) plus 1 point per squad kill (max 24 enemy eliminations per round). Final champion decided by cumulative points.
         </p>
       </div>
 
@@ -1510,7 +1510,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 <h3 class="text-sm sm:text-base font-black text-[var(--foreground)] truncate">CODM Battle Royale · Score Editor</h3>
                 <span id="brModalRoundBadge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 shrink-0">Round 1</span>
               </div>
-              <p class="text-[11px] sm:text-xs text-[var(--muted-foreground)] font-medium truncate">Input each squad's Placement (1st-7th) and Total Kills at round end.</p>
+              <p class="text-[11px] sm:text-xs text-[var(--muted-foreground)] font-medium truncate">7 College Squads · 4 Players each (28-Player Lobby). Input Placement (1st-7th) and Squad Kills (0-24).</p>
             </div>
           </div>
           <button type="button" onclick="closeBrScoreModal()" class="w-8 h-8 rounded-xl bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-[var(--muted-foreground)] hover:text-[var(--foreground)] flex items-center justify-center text-xs font-black transition cursor-pointer shrink-0 ml-1" aria-label="Close modal">✕</button>
@@ -5056,7 +5056,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
           badge.innerText = 'BR Simulation';
         }
         if (title) title.innerText = 'Simulate All 8 BR Rounds?';
-        if (msg) msg.innerText = 'This will generate realistic placements (1st to 7th) and squad kill counts across all 8 rounds for the 7 participating colleges.';
+        if (msg) msg.innerText = 'This will generate realistic placements (1st to 7th) and squad kill counts calibrated for 7 squads of 4 players (28-player lobby · max 24 enemy eliminations per round) across all 8 rounds.';
         if (subnote) subnote.innerHTML = '<span>⚡</span> <span>Any currently recorded round results will be replaced with new simulated match data.</span>';
         if (submitBtn) submitBtn.classList.add('bg-purple-600', 'hover:bg-purple-700', 'shadow-purple-600/30');
         if (btnIcon) btnIcon.innerText = '🪂';
@@ -9789,7 +9789,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 <div class="sm:hidden text-[9px] font-bold text-[var(--muted-foreground)] uppercase mb-0.5 text-center">Squad Kills</div>
                 <div class="flex items-center gap-1 justify-center">
                   <button type="button" onclick="stepBrKills('${teamId}', -1)" class="w-7 h-7 rounded-lg bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-white font-black text-xs cursor-pointer flex items-center justify-center shrink-0 active:scale-90 transition">-</button>
-                  <input type="number" id="brKills_${teamId}" value="${curKills}" min="0" max="99" oninput="updateBrModalCalculations()" class="w-10 sm:w-12 px-1 py-1 rounded-lg bg-[var(--card)] border border-[var(--border)] text-center text-xs font-mono font-bold text-rose-400 focus:outline-hidden">
+                  <input type="number" id="brKills_${teamId}" value="${curKills}" min="0" max="24" oninput="updateBrModalCalculations()" class="w-10 sm:w-12 px-1 py-1 rounded-lg bg-[var(--card)] border border-[var(--border)] text-center text-xs font-mono font-bold text-rose-400 focus:outline-hidden">
                   <button type="button" onclick="stepBrKills('${teamId}', 1)" class="w-7 h-7 rounded-lg bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-white font-black text-xs cursor-pointer flex items-center justify-center shrink-0 active:scale-90 transition">+</button>
                 </div>
               </div>
@@ -9825,6 +9825,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       if (!input) return;
       let val = parseInt(input.value || 0, 10) + delta;
       if (val < 0) val = 0;
+      if (val > 24) val = 24;
       input.value = val;
       updateBrModalCalculations();
     }
@@ -9842,7 +9843,12 @@ Check your Browserslist config to be sure that your targets are set up correctly
         const ptsBadgeMobile = document.getElementById(`brPtsMobile_${teamId}`);
 
         const plc = (plcSelect && plcSelect.value) ? parseInt(plcSelect.value, 10) : null;
-        const kls = (killsInput && killsInput.value) ? parseInt(killsInput.value, 10) : 0;
+        let kls = (killsInput && killsInput.value) ? parseInt(killsInput.value, 10) : 0;
+        if (isNaN(kls) || kls < 0) kls = 0;
+        if (kls > 24) {
+          kls = 24;
+          if (killsInput) killsInput.value = 24;
+        }
         const plcPts = (plc && BR_PLACEMENT_POINTS[plc]) ? BR_PLACEMENT_POINTS[plc] : 0;
         const totPts = plcPts + kls;
 
@@ -9920,7 +9926,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         const plcSelect = document.getElementById(`brPlacement_${teamId}`);
         const killsInput = document.getElementById(`brKills_${teamId}`);
         const plc = (plcSelect && plcSelect.value) ? parseInt(plcSelect.value, 10) : null;
-        const kls = (killsInput && killsInput.value) ? Math.max(0, parseInt(killsInput.value, 10) || 0) : 0;
+        const kls = (killsInput && killsInput.value) ? Math.max(0, Math.min(24, parseInt(killsInput.value, 10) || 0)) : 0;
         const plcPts = (plc && BR_PLACEMENT_POINTS[plc]) ? BR_PLACEMENT_POINTS[plc] : 0;
         const totPts = plcPts + kls;
 
@@ -10008,6 +10014,39 @@ Check your Browserslist config to be sure that your targets are set up correctly
       openActionConfirmModal('simulate_br');
     }
 
+    function generateRealisticBrRoundKills() {
+      // 7 squads of 4 players = 28 players total in lobby.
+      // 1 surviving squad means 24 enemy players are eliminated per round.
+      // Total round eliminations across all 7 squads typically ranges from 20 to 24 (accounting for rare zone/circle damage).
+      const targetTotalKills = 20 + Math.floor(Math.random() * 5); // 20 to 24 kills
+      // Weighted base distribution prioritizing higher placements (1st to 7th)
+      const weights = [
+        7.5 + Math.random() * 2.0, // 1st: ~6-9 kills
+        5.0 + Math.random() * 1.8, // 2nd: ~4-6 kills
+        3.8 + Math.random() * 1.5, // 3rd: ~3-5 kills
+        2.5 + Math.random() * 1.2, // 4th: ~2-4 kills
+        1.5 + Math.random() * 1.0, // 5th: ~1-3 kills
+        0.8 + Math.random() * 0.8, // 6th: ~0-2 kills
+        0.3 + Math.random() * 0.5  // 7th: ~0-1 kills
+      ];
+      const weightSum = weights.reduce((a, b) => a + b, 0);
+      let killsByPlacement = weights.map(w => Math.floor((w / weightSum) * targetTotalKills));
+      let allocated = killsByPlacement.reduce((a, b) => a + b, 0);
+      let remainder = targetTotalKills - allocated;
+      let idx = 0;
+      while (remainder > 0) {
+        killsByPlacement[idx % 7]++;
+        remainder--;
+        idx++;
+      }
+      // Occasional clutch aggression from mid-table squads
+      if (Math.random() < 0.35 && killsByPlacement[3] > 0 && killsByPlacement[1] > 2) {
+        killsByPlacement[3]++;
+        killsByPlacement[1]--;
+      }
+      return killsByPlacement;
+    }
+
     function simulateCodmBrTournament() {
       if (!isAdmin('codm')) {
         notifyAuthRequired('admin');
@@ -10017,17 +10056,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
       for (let r = 1; r <= 8; r++) {
         // Randomly shuffle teams for unique 1st to 7th placement
         const shuffled = [...CODM_BR_TEAMS].sort(() => Math.random() - 0.5);
+        const roundKills = generateRealisticBrRoundKills();
         const results = {};
 
         shuffled.forEach((teamId, idx) => {
           const placement = idx + 1; // 1 to 7
           const placementPoints = BR_PLACEMENT_POINTS[placement];
-          // Realistic squad kills based on placement
-          let kills = 0;
-          if (placement === 1) kills = Math.floor(Math.random() * 8) + 5; // 5-12 kills
-          else if (placement === 2) kills = Math.floor(Math.random() * 6) + 4; // 4-9 kills
-          else if (placement === 3) kills = Math.floor(Math.random() * 5) + 3; // 3-7 kills
-          else kills = Math.floor(Math.random() * 5); // 0-4 kills
+          const kills = roundKills[idx]; // calibrated squad kills (sum 20-24, max 24 per squad)
 
           results[teamId] = {
             team: teamId,
