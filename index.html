@@ -455,10 +455,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
               <span>Call of Duty: Mobile</span>
             </h3>
             <p class="text-xs text-slate-400 leading-relaxed font-medium">
-              Features 2 championship modes: the 5v5 Multiplayer Double Elimination tournament (S&D, Control, Hardpoint) and the 7-College 8-Round Battle Royale with full round-by-round points & squad kills leaderboard.
+              Features 2 championship modes: the 5v5 Multiplayer Double Elimination tournament (Hardpoint, Control, S&D · BO5 Grand Finals) and the 7-College 8-Round Battle Royale with full round-by-round points & squad kills leaderboard.
             </p>
             <div class="flex items-center gap-1.5 pt-1 flex-wrap text-[10px] font-bold">
-              <span class="px-2 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-300 font-mono">🎯 MP: 5v5 BO3 Rotation</span>
+              <span class="px-2 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-300 font-mono">🎯 MP: BO3 / BO5 Rotation</span>
               <span class="px-2 py-0.5 rounded-md bg-purple-500/15 border border-purple-500/30 text-purple-300 font-mono">🪂 BR: 7 Teams · 8 Rounds</span>
             </div>
           </div>
@@ -1698,52 +1698,68 @@ Check your Browserslist config to be sure that your targets are set up correctly
         badgeText: 'E-Sports: Call of Duty: Mobile',
         subtitle: 'TAGOLOAN COMMUNITY COLLEGE · INTRAMURALS 2026',
         stageTitle: 'E-Sports: Call of Duty: Mobile',
-        tagline: '5v5 Multi-Player (BO3: S&D, Control, Hardpoint)',
+        tagline: '5v5 Multi-Player (BO3 / BO5: Hardpoint, Control, S&D)',
         icon: '🎯',
         color: '#eab308',
         getLogo: function(theme) { return theme === 'light' ? CODM_LOGO_LIGHT : CODM_LOGO_DARK; }
       }
     };
 
-    const CODM_GAME_MODES = [
-      {
-        gameNum: 1,
-        name: 'Search and Destroy',
-        shortName: 'S&D',
-        icon: '💣',
-        badgeClass: 'bg-rose-500/20 text-rose-400 border border-rose-500/30',
-        scoreUnit: 'Rounds',
-        targetScore: 7,
-        desc: 'First to 7 Rounds (Attack & Defend)',
-        color: '#ef4444'
-      },
-      {
-        gameNum: 2,
-        name: 'Control',
-        shortName: 'Control',
-        icon: '🎮',
-        badgeClass: 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
-        scoreUnit: 'Rounds',
-        targetScore: 3,
-        desc: 'First to 3 Rounds (Zones A & B)',
-        color: '#3b82f6'
-      },
-      {
-        gameNum: 3,
-        name: 'Hardpoint',
-        shortName: 'Hardpoint',
-        icon: '📍',
-        badgeClass: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
-        scoreUnit: 'Points',
-        targetScore: 250,
-        desc: 'First to 250 Points (Decider Match)',
-        color: '#eab308'
+    function getCodmModeInfo(gameNum) {
+      const cycleIdx = (gameNum - 1) % 3;
+      if (cycleIdx === 0) {
+        return {
+          gameNum: gameNum,
+          mode: 'Hardpoint',
+          shortName: 'Hardpoint',
+          icon: '📍',
+          badgeClass: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
+          scoreUnit: 'Points',
+          targetScore: 250,
+          desc: 'First to 250 Points',
+          color: '#eab308'
+        };
+      } else if (cycleIdx === 1) {
+        return {
+          gameNum: gameNum,
+          mode: 'Control',
+          shortName: 'Control',
+          icon: '🎮',
+          badgeClass: 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
+          scoreUnit: 'Rounds',
+          targetScore: 3,
+          desc: gameNum === 5 ? 'First to 3 Rounds (Decider match if BO5)' : 'First to 3 Rounds',
+          color: '#3b82f6'
+        };
+      } else {
+        return {
+          gameNum: gameNum,
+          mode: 'Search and Destroy',
+          shortName: 'S&D',
+          icon: '💣',
+          badgeClass: 'bg-rose-500/20 text-rose-400 border border-rose-500/30',
+          scoreUnit: 'Rounds',
+          targetScore: 7,
+          desc: gameNum === 3 ? 'First to 7 Rounds (Decider match if BO3)' : 'First to 7 Rounds',
+          color: '#ef4444'
+        };
       }
+    }
+
+    const CODM_GAME_MODES = [
+      getCodmModeInfo(1),
+      getCodmModeInfo(2),
+      getCodmModeInfo(3),
+      getCodmModeInfo(4),
+      getCodmModeInfo(5)
     ];
 
     function getMatchBestOf(matchKey, matchObj) {
       if (currentEsport === 'codm') {
-        return 3; // CODM Multi-Player double elimination is strictly BO3
+        const mId = matchKey || (matchObj && matchObj.id) || '';
+        if (mId === 'gf8' || mId === 's8_gf') return 5; // Grand Finals is strictly BO5
+        if (matchObj && (matchObj.id === 'gf8' || matchObj.id === 's8_gf')) return 5;
+        return 3; // All other CODM Multi-Player matches are BO3
       }
       if (matchObj && matchObj.bestOf) return matchObj.bestOf;
       if (typeof MATCH_BEST_OF !== 'undefined' && MATCH_BEST_OF[matchKey] !== undefined) {
@@ -1754,72 +1770,155 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     function getCodmMatchGames(m) {
       if (!m) return [];
-      const s1 = (m.s1 !== null && m.s1 !== undefined && m.s1 !== '') ? Number(m.s1) : 0;
-      const s2 = (m.s2 !== null && m.s2 !== undefined && m.s2 !== '') ? Number(m.s2) : 0;
+      const matchKey = m.id || (typeof activeModalMatchKey !== 'undefined' ? activeModalMatchKey : '') || '';
+      const bestOf = getMatchBestOf(matchKey, m);
+      const targetWins = Math.ceil(bestOf / 2);
+      const s1 = (m.s1 !== null && m.s1 !== undefined && m.s1 !== '') ? Number(m.s1) : null;
+      const s2 = (m.s2 !== null && m.s2 !== undefined && m.s2 !== '') ? Number(m.s2) : null;
       const t1 = m.team1 || 'Team 1';
       const t2 = m.team2 || 'Team 2';
 
-      if (m.games && Array.isArray(m.games) && m.games.length === 3) {
-        // Validate Game 3 status based on the first 2 games
-        const w1First2 = (m.games[0].winner === t1 ? 1 : 0) + (m.games[1].winner === t1 ? 1 : 0);
-        const w2First2 = (m.games[0].winner === t2 ? 1 : 0) + (m.games[1].winner === t2 ? 1 : 0);
+      // If m.games already exists and matches required length (bestOf)
+      if (m.games && Array.isArray(m.games) && m.games.length === bestOf) {
+        let w1 = 0, w2 = 0;
+        let decided = false;
+        for (let i = 0; i < bestOf; i++) {
+          const g = m.games[i];
+          const modeInfo = getCodmModeInfo(i + 1);
+          g.gameNum = i + 1;
+          g.mode = modeInfo.mode;
+          g.shortName = modeInfo.shortName;
+          g.icon = modeInfo.icon;
 
-        if (w1First2 >= 2 || w2First2 >= 2) {
-          m.games[2].winner = null;
-          m.games[2].s1 = null;
-          m.games[2].s2 = null;
-          m.games[2].status = 'not_needed';
-        } else if (w1First2 === 1 && w2First2 === 1) {
-          if (m.games[2].winner) {
-            m.games[2].status = 'completed';
+          if (decided) {
+            g.winner = null;
+            g.s1 = null;
+            g.s2 = null;
+            g.status = 'not_needed';
+          } else if (g.winner === t1) {
+            w1++;
+            g.status = 'completed';
+            if (w1 >= targetWins || w2 >= targetWins) decided = true;
+          } else if (g.winner === t2) {
+            w2++;
+            g.status = 'completed';
+            if (w1 >= targetWins || w2 >= targetWins) decided = true;
           } else {
-            m.games[2].status = 'live';
-          }
-        } else {
-          if (!m.games[2].winner) {
-            m.games[2].status = 'pending';
+            const priorCompleted = (w1 + w2) === i;
+            if (priorCompleted && (w1 > 0 || w2 > 0 || (s1 !== null && s2 !== null))) {
+              g.status = 'live';
+            } else {
+              g.status = 'pending';
+            }
           }
         }
         return m.games;
       }
 
-      const games = [
-        { gameNum: 1, mode: 'Search and Destroy', shortName: 'S&D', icon: '💣', winner: null, s1: null, s2: null, status: 'pending' },
-        { gameNum: 2, mode: 'Control', shortName: 'Control', icon: '🎮', winner: null, s1: null, s2: null, status: 'pending' },
-        { gameNum: 3, mode: 'Hardpoint', shortName: 'Hardpoint', icon: '📍', winner: null, s1: null, s2: null, status: 'pending' }
-      ];
+      // Initialize clean games array for bestOf
+      const games = [];
+      for (let i = 1; i <= bestOf; i++) {
+        const info = getCodmModeInfo(i);
+        games.push({
+          gameNum: i,
+          mode: info.mode,
+          shortName: info.shortName,
+          icon: info.icon,
+          winner: null,
+          s1: null,
+          s2: null,
+          status: 'pending'
+        });
+      }
 
-      if (s1 === 0 && s2 === 0) {
-        if (m.s1 !== null && m.s2 !== null) games[0].status = 'live';
+      // If no scores entered
+      if (s1 === null && s2 === null) {
         return games;
       }
 
-      if (s1 === 2 && s2 === 0) {
-        games[0].winner = t1; games[0].status = 'completed'; games[0].s1 = 7; games[0].s2 = 4;
-        games[1].winner = t1; games[1].status = 'completed'; games[1].s1 = 3; games[1].s2 = 1;
-        games[2].status = 'not_needed';
-      } else if (s1 === 0 && s2 === 2) {
-        games[0].winner = t2; games[0].status = 'completed'; games[0].s1 = 4; games[0].s2 = 7;
-        games[1].winner = t2; games[1].status = 'completed'; games[1].s1 = 1; games[1].s2 = 3;
-        games[2].status = 'not_needed';
-      } else if (s1 === 2 && s2 === 1) {
-        games[0].winner = t1; games[0].status = 'completed'; games[0].s1 = 7; games[0].s2 = 5;
-        games[1].winner = t2; games[1].status = 'completed'; games[1].s1 = 1; games[1].s2 = 3;
-        games[2].winner = t1; games[2].status = 'completed'; games[2].s1 = 250; games[2].s2 = 210;
-      } else if (s1 === 1 && s2 === 2) {
-        games[0].winner = t2; games[0].status = 'completed'; games[0].s1 = 5; games[0].s2 = 7;
-        games[1].winner = t1; games[1].status = 'completed'; games[1].s1 = 3; games[1].s2 = 2;
-        games[2].winner = t2; games[2].status = 'completed'; games[2].s1 = 210; games[2].s2 = 250;
-      } else if (s1 === 1 && s2 === 0) {
-        games[0].winner = t1; games[0].status = 'completed'; games[0].s1 = 7; games[0].s2 = 3;
-        games[1].status = 'live';
-      } else if (s1 === 0 && s2 === 1) {
-        games[0].winner = t2; games[0].status = 'completed'; games[0].s1 = 3; games[0].s2 = 7;
-        games[1].status = 'live';
-      } else if (s1 === 1 && s2 === 1) {
-        games[0].winner = t1; games[0].status = 'completed'; games[0].s1 = 7; games[0].s2 = 4;
-        games[1].winner = t2; games[1].status = 'completed'; games[1].s1 = 1; games[1].s2 = 3;
-        games[2].status = 'live';
+      const s1Num = Number(s1 || 0);
+      const s2Num = Number(s2 || 0);
+
+      if (s1Num === 0 && s2Num === 0) {
+        if (s1 !== null && s2 !== null) games[0].status = 'live';
+        return games;
+      }
+
+      function assignGameScore(g, winnerTeam) {
+        g.winner = winnerTeam;
+        g.status = 'completed';
+        const isT1 = winnerTeam === t1;
+        if (g.mode === 'Hardpoint') {
+          g.s1 = isT1 ? 250 : 185;
+          g.s2 = isT1 ? 185 : 250;
+        } else if (g.mode === 'Control') {
+          g.s1 = isT1 ? 3 : 1;
+          g.s2 = isT1 ? 1 : 3;
+        } else {
+          // Search & Destroy
+          g.s1 = isT1 ? 7 : 4;
+          g.s2 = isT1 ? 4 : 7;
+        }
+      }
+
+      let sequenceWinners = [];
+      if (bestOf === 3) {
+        if (s1Num === 2 && s2Num === 0) sequenceWinners = [t1, t1];
+        else if (s1Num === 0 && s2Num === 2) sequenceWinners = [t2, t2];
+        else if (s1Num === 2 && s2Num === 1) sequenceWinners = [t1, t2, t1];
+        else if (s1Num === 1 && s2Num === 2) sequenceWinners = [t2, t1, t2];
+        else if (s1Num === 1 && s2Num === 0) sequenceWinners = [t1];
+        else if (s1Num === 0 && s2Num === 1) sequenceWinners = [t2];
+        else if (s1Num === 1 && s2Num === 1) sequenceWinners = [t1, t2];
+      } else {
+        // BO5
+        if (s1Num === 3 && s2Num === 0) sequenceWinners = [t1, t1, t1];
+        else if (s1Num === 0 && s2Num === 3) sequenceWinners = [t2, t2, t2];
+        else if (s1Num === 3 && s2Num === 1) sequenceWinners = [t1, t2, t1, t1];
+        else if (s1Num === 1 && s2Num === 3) sequenceWinners = [t2, t1, t2, t2];
+        else if (s1Num === 3 && s2Num === 2) sequenceWinners = [t1, t2, t1, t2, t1];
+        else if (s1Num === 2 && s2Num === 3) sequenceWinners = [t2, t1, t2, t1, t2];
+        else if (s1Num === 1 && s2Num === 0) sequenceWinners = [t1];
+        else if (s1Num === 0 && s2Num === 1) sequenceWinners = [t2];
+        else if (s1Num === 2 && s2Num === 0) sequenceWinners = [t1, t1];
+        else if (s1Num === 0 && s2Num === 2) sequenceWinners = [t2, t2];
+        else if (s1Num === 1 && s2Num === 1) sequenceWinners = [t1, t2];
+        else if (s1Num === 2 && s2Num === 1) sequenceWinners = [t1, t2, t1];
+        else if (s1Num === 1 && s2Num === 2) sequenceWinners = [t2, t1, t2];
+        else if (s1Num === 2 && s2Num === 2) sequenceWinners = [t1, t2, t1, t2];
+      }
+
+      if (sequenceWinners.length === 0) {
+        let left1 = s1Num, left2 = s2Num;
+        for (let i = 0; i < bestOf; i++) {
+          if (left1 > 0 && (left2 === 0 || i % 2 === 0)) {
+            sequenceWinners.push(t1);
+            left1--;
+          } else if (left2 > 0) {
+            sequenceWinners.push(t2);
+            left2--;
+          }
+        }
+      }
+
+      for (let i = 0; i < sequenceWinners.length; i++) {
+        if (i < games.length) {
+          assignGameScore(games[i], sequenceWinners[i]);
+        }
+      }
+
+      const totalW1 = sequenceWinners.filter(w => w === t1).length;
+      const totalW2 = sequenceWinners.filter(w => w === t2).length;
+      const seriesDecided = totalW1 >= targetWins || totalW2 >= targetWins;
+
+      for (let i = sequenceWinners.length; i < games.length; i++) {
+        if (seriesDecided) {
+          games[i].status = 'not_needed';
+        } else if (i === sequenceWinners.length) {
+          games[i].status = 'live';
+        } else {
+          games[i].status = 'pending';
+        }
       }
 
       return games;
@@ -1830,6 +1929,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       if (!container || !match) return;
 
       const games = getCodmMatchGames(match);
+      const bestOf = getMatchBestOf(match.id || (typeof activeModalMatchKey !== 'undefined' ? activeModalMatchKey : ''), match);
       const t1 = match.team1 || 'Team 1';
       const t2 = match.team2 || 'Team 2';
       const t1Mascot = (DEFAULT_TEAMS.find(t => t.name === t1 || (t1 === 'COM' && t.name === 'CMID'))?.mascot) || '';
@@ -1874,7 +1974,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         <div class="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2.5">
           <div class="flex items-center justify-between">
             <span class="text-xs font-black text-amber-400 uppercase tracking-wide flex items-center gap-1.5">
-              <span>🎯</span> <span>CODM BO3 Game Modes Rotation</span>
+              <span>🎯</span> <span>CODM ${bestOf === 5 ? 'BO5 Grand Finals' : 'BO3'} Game Modes Rotation</span>
             </span>
             <span class="text-[10px] font-mono text-[var(--muted-foreground)]">Click winning team per mode</span>
           </div>
@@ -1884,19 +1984,20 @@ Check your Browserslist config to be sure that your targets are set up correctly
               const isT1 = g.winner === t1;
               const isT2 = g.winner === t2;
               const isNotNeeded = g.status === 'not_needed';
+              const modeInfo = getCodmModeInfo(idx + 1);
 
               return `
                 <div class="p-2.5 rounded-xl ${isNotNeeded ? 'bg-black/20 opacity-60 border border-white/5' : 'bg-[var(--card)] border border-[var(--border)]'} flex items-center justify-between gap-2">
                   <div class="flex items-center gap-2 min-w-0">
-                    <span class="w-7 h-7 rounded-lg ${idx === 0 ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : (idx === 1 ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30')} flex items-center justify-center text-xs shrink-0">
+                    <span class="w-7 h-7 rounded-lg ${modeInfo.badgeClass} flex items-center justify-center text-xs shrink-0">
                       ${g.icon}
                     </span>
                     <div class="truncate">
                       <div class="flex items-center gap-1.5">
                         <span class="text-xs font-black text-[var(--foreground)]">Game ${g.gameNum}: ${g.mode}</span>
-                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded ${idx === 0 ? 'bg-rose-500/10 text-rose-400' : (idx === 1 ? 'bg-blue-500/10 text-blue-400' : 'bg-amber-500/10 text-amber-400')} uppercase font-mono">${g.shortName}</span>
+                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded ${modeInfo.badgeClass} uppercase font-mono">${g.shortName}</span>
                       </div>
-                      <span class="text-[10px] text-[var(--muted-foreground)] block truncate">${idx === 0 ? 'First to 7 Rounds' : (idx === 1 ? 'First to 3 Rounds' : 'First to 250 Points (Decider)')}</span>
+                      <span class="text-[10px] text-[var(--muted-foreground)] block truncate">${modeInfo.desc}</span>
                     </div>
                   </div>
 
@@ -1928,6 +2029,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const match = PLAYOFF_DATA[activeModalMatchKey];
       if (!match) return;
 
+      const bestOf = getMatchBestOf(activeModalMatchKey, match);
+      const targetWins = Math.ceil(bestOf / 2);
       const games = getCodmMatchGames(match);
       const t1 = match.team1 || 'Team 1';
       const t2 = match.team2 || 'Team 2';
@@ -1935,15 +2038,15 @@ Check your Browserslist config to be sure that your targets are set up correctly
       if (teamSlot === 1) {
         games[gameIdx].winner = t1;
         games[gameIdx].status = 'completed';
-        if (gameIdx === 0) { games[gameIdx].s1 = 7; games[gameIdx].s2 = 4; }
-        else if (gameIdx === 1) { games[gameIdx].s1 = 3; games[gameIdx].s2 = 1; }
-        else if (gameIdx === 2) { games[gameIdx].s1 = 250; games[gameIdx].s2 = 180; }
+        if (games[gameIdx].mode === 'Hardpoint') { games[gameIdx].s1 = 250; games[gameIdx].s2 = 180; }
+        else if (games[gameIdx].mode === 'Control') { games[gameIdx].s1 = 3; games[gameIdx].s2 = 1; }
+        else { games[gameIdx].s1 = 7; games[gameIdx].s2 = 4; }
       } else if (teamSlot === 2) {
         games[gameIdx].winner = t2;
         games[gameIdx].status = 'completed';
-        if (gameIdx === 0) { games[gameIdx].s1 = 4; games[gameIdx].s2 = 7; }
-        else if (gameIdx === 1) { games[gameIdx].s1 = 1; games[gameIdx].s2 = 3; }
-        else if (gameIdx === 2) { games[gameIdx].s1 = 180; games[gameIdx].s2 = 250; }
+        if (games[gameIdx].mode === 'Hardpoint') { games[gameIdx].s1 = 180; games[gameIdx].s2 = 250; }
+        else if (games[gameIdx].mode === 'Control') { games[gameIdx].s1 = 1; games[gameIdx].s2 = 3; }
+        else { games[gameIdx].s1 = 4; games[gameIdx].s2 = 7; }
       } else {
         games[gameIdx].winner = null;
         games[gameIdx].s1 = null;
@@ -1951,39 +2054,32 @@ Check your Browserslist config to be sure that your targets are set up correctly
         games[gameIdx].status = 'pending';
       }
 
-      // 1. Evaluate results of the first 2 games
-      let first2_w1 = 0, first2_w2 = 0;
-      if (games[0].winner === t1) first2_w1++; else if (games[0].winner === t2) first2_w2++;
-      if (games[1].winner === t1) first2_w1++; else if (games[1].winner === t2) first2_w2++;
-
-      // 2. Determine Game 3 status based on the first 2 games
-      if (first2_w1 >= 2 || first2_w2 >= 2) {
-        // One team won BOTH Game 1 and Game 2 (2-0 sweep): Game 3 is truly not needed!
-        games[2].winner = null;
-        games[2].s1 = null;
-        games[2].s2 = null;
-        games[2].status = 'not_needed';
-      } else if (first2_w1 === 1 && first2_w2 === 1) {
-        // Tied 1-1 after Game 1 and Game 2: Game 3 IS NEEDED!
-        if (games[2].winner) {
-          games[2].status = 'completed';
-        } else {
-          games[2].status = 'live';
-        }
-      } else {
-        // Series in progress (e.g. 1-0 or 0-1 or 0-0): Game 3 is pending
-        games[2].winner = null;
-        games[2].s1 = null;
-        games[2].s2 = null;
-        games[2].status = 'pending';
-      }
-
-      // 3. Calculate total series score across all 3 games
+      // Evaluate series results in order
       let w1 = 0, w2 = 0;
-      games.forEach(g => {
-        if (g.winner === t1) w1++;
-        else if (g.winner === t2) w2++;
-      });
+      let seriesDecided = false;
+      for (let i = 0; i < games.length; i++) {
+        if (seriesDecided) {
+          games[i].winner = null;
+          games[i].s1 = null;
+          games[i].s2 = null;
+          games[i].status = 'not_needed';
+        } else if (games[i].winner === t1) {
+          w1++;
+          games[i].status = 'completed';
+          if (w1 >= targetWins || w2 >= targetWins) seriesDecided = true;
+        } else if (games[i].winner === t2) {
+          w2++;
+          games[i].status = 'completed';
+          if (w1 >= targetWins || w2 >= targetWins) seriesDecided = true;
+        } else {
+          const priorDone = (w1 + w2) === i;
+          if (priorDone && (w1 > 0 || w2 > 0)) {
+            games[i].status = 'live';
+          } else {
+            games[i].status = 'pending';
+          }
+        }
+      }
 
       match.games = games;
 
@@ -2227,7 +2323,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
           lb_sf: { id: 'lb_sf', seq: 11, day: 'DAY 2', label: 'Lower Bracket Semifinal (L5)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
           lb_f: { id: 'lb_f', seq: 13, day: 'DAY 3', label: 'Lower Bracket Final (L6 · BO3)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
 
-          gf8: { id: 'gf8', seq: 14, day: 'DAY 3', label: 'Grand Championship Finals (GF · BO3)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
+          gf8: { id: 'gf8', seq: 14, day: 'DAY 3', label: 'Grand Championship Finals (GF · BO5)', bestOf: 5, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
 
           s8_qf1: { id: 's8_qf1', seq: 1, day: 'DAY 1', label: 'Quarterfinal 1 (U1 · CCJPS BYE)', bestOf: 3, team1: 'CCJPS', team2: 'BYE', s1: null, s2: null, winner: 'CCJPS', loser: null },
           s8_qf2: { id: 's8_qf2', seq: 2, day: 'DAY 1', label: 'Quarterfinal 2 (U2 · CBA vs CHM)', bestOf: 3, team1: 'CBA', team2: 'CHM', s1: null, s2: null, winner: null, loser: null },
@@ -2236,7 +2332,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
           s8_sf1: { id: 's8_sf1', seq: 5, day: 'DAY 2', label: 'Semifinal 1 (U5)', bestOf: 3, team1: 'CCJPS', team2: null, s1: null, s2: null, winner: null, loser: null },
           s8_sf2: { id: 's8_sf2', seq: 6, day: 'DAY 2', label: 'Semifinal 2 (U6)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
           s8_bronze: { id: 's8_bronze', seq: 7, day: 'DAY 3', label: 'Bronze Medal Match (BO3)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null },
-          s8_gf: { id: 's8_gf', seq: 8, day: 'DAY 3', label: 'Grand Championship Finals (GF · BO3)', bestOf: 3, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null }
+          s8_gf: { id: 's8_gf', seq: 8, day: 'DAY 3', label: 'Grand Championship Finals (GF · BO5)', bestOf: 5, team1: null, team2: null, s1: null, s2: null, winner: null, loser: null }
         };
       }
       return {
@@ -2347,7 +2443,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         lb_qf2: 'Lower Bracket Quarterfinal 2 (L4)',
         lb_sf: 'Lower Bracket Semifinal (L5)',
         lb_f: 'Lower Bracket Final (L6 · BO3)',
-        gf8: 'Grand Championship Finals (GF · BO3)',
+        gf8: 'Grand Championship Finals (GF · BO5)',
         s8_qf1: 'Quarterfinal 1 (U1 · CCJPS BYE)',
         s8_qf2: 'Quarterfinal 2 (U2 · CBA vs CHM)',
         s8_qf3: 'Quarterfinal 3 (U3 · CLIS vs CIT)',
@@ -2355,7 +2451,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         s8_sf1: 'Semifinal 1 (U5)',
         s8_sf2: 'Semifinal 2 (U6)',
         s8_bronze: 'Bronze Medal Match (BO3)',
-        s8_gf: 'Grand Championship Finals (GF · BO3)',
+        s8_gf: 'Grand Championship Finals (GF · BO5)',
       } : {
         ub_qf1: 'Upper Bracket Quarterfinal 1 (#1 vs #8)',
         ub_qf2: 'Upper Bracket Quarterfinal 2 (#4 vs #5)',
@@ -2376,14 +2472,16 @@ Check your Browserslist config to be sure that your targets are set up correctly
       for (let k in PLAYOFF_DATA) {
         if (MATCH_SEQUENCES[k] !== undefined) PLAYOFF_DATA[k].seq = MATCH_SEQUENCES[k];
         if (MATCH_DAYS[k] !== undefined) PLAYOFF_DATA[k].day = MATCH_DAYS[k];
-        PLAYOFF_DATA[k].bestOf = getMatchBestOf(k);
+        PLAYOFF_DATA[k].bestOf = getMatchBestOf(k, PLAYOFF_DATA[k]);
         if (CANONICAL_LABELS[k] !== undefined) PLAYOFF_DATA[k].label = CANONICAL_LABELS[k];
         if (PLAYOFF_DATA[k].team1 === 'COM') PLAYOFF_DATA[k].team1 = 'CMID';
         if (PLAYOFF_DATA[k].team2 === 'COM') PLAYOFF_DATA[k].team2 = 'CMID';
         if (PLAYOFF_DATA[k].winner === 'COM') PLAYOFF_DATA[k].winner = 'CMID';
         if (PLAYOFF_DATA[k].loser === 'COM') PLAYOFF_DATA[k].loser = 'CMID';
-        if (currentEsport === 'codm' && !PLAYOFF_DATA[k].games) {
-          PLAYOFF_DATA[k].games = getCodmMatchGames(PLAYOFF_DATA[k]);
+        if (currentEsport === 'codm') {
+          if (!PLAYOFF_DATA[k].games || PLAYOFF_DATA[k].games.length !== PLAYOFF_DATA[k].bestOf) {
+            PLAYOFF_DATA[k].games = getCodmMatchGames(PLAYOFF_DATA[k]);
+          }
         }
       }
       if (currentEsport === 'codm' && typeof loadBrDataFromStorage === 'function') {
@@ -2680,15 +2778,15 @@ Check your Browserslist config to be sure that your targets are set up correctly
         if (btnDouble) btnDouble.className = 'px-3 py-1.5 rounded-lg text-xs font-black transition bg-amber-500 text-white shadow-xs cursor-pointer flex items-center gap-1';
         if (btnSingle) btnSingle.className = 'px-3 py-1.5 rounded-lg text-xs font-black transition text-[var(--muted-foreground)] hover:text-[var(--foreground)] cursor-pointer flex items-center gap-1';
         if (simText) simText.innerText = currentEsport === 'codm' ? 'Simulate Double Elim (CODM)' : 'Simulate Double Elim';
-        if (theaterBadge) theaterBadge.innerText = currentEsport === 'codm' ? 'Double Elim · BO3 MP' : 'Double Elimination';
+        if (theaterBadge) theaterBadge.innerText = currentEsport === 'codm' ? 'Double Elim · BO3/BO5' : 'Double Elimination';
 
         const colCountEl = document.getElementById('metricCollegesCount');
         const colDescEl = document.getElementById('metricCollegesDesc');
 
         if (currentEsport === 'codm') {
           if (mTitle) mTitle.innerText = '12 Played Series (7 Colleges Double Elim)';
-          if (mDesc) mDesc.innerText = '3 Games: Search & Destroy · Control · Hardpoint';
-          if (rTitle) rTitle.innerText = 'All Series BO3 · First to 2 Wins (S&D, Control, HP)';
+          if (mDesc) mDesc.innerText = 'Rotation: Hardpoint · Control · S&D (BO5 Finals)';
+          if (rTitle) rTitle.innerText = 'BO3 Series · BO5 Grand Finals (HP, Control, S&D)';
           if (colCountEl) colCountEl.innerText = '7 Official Teams (CMID No Team)';
           if (colDescEl) colDescEl.innerText = 'Fixed Tournament Draw · No Seeding';
         } else {
@@ -2703,15 +2801,15 @@ Check your Browserslist config to be sure that your targets are set up correctly
         if (btnDouble) btnDouble.className = 'px-3 py-1.5 rounded-lg text-xs font-black transition text-[var(--muted-foreground)] hover:text-[var(--foreground)] cursor-pointer flex items-center gap-1';
         if (btnSingle) btnSingle.className = 'px-3 py-1.5 rounded-lg text-xs font-black transition bg-emerald-600 text-white shadow-xs cursor-pointer flex items-center gap-1';
         if (simText) simText.innerText = currentEsport === 'codm' ? 'Simulate Single Elim (CODM)' : 'Simulate Single Elim';
-        if (theaterBadge) theaterBadge.innerText = currentEsport === 'codm' ? 'Single Elim · BO3 MP' : 'Single Elimination';
+        if (theaterBadge) theaterBadge.innerText = currentEsport === 'codm' ? 'Single Elim · BO3/BO5' : 'Single Elimination';
 
         const colCountEl = document.getElementById('metricCollegesCount');
         const colDescEl = document.getElementById('metricCollegesDesc');
 
         if (currentEsport === 'codm') {
           if (mTitle) mTitle.innerText = '7 Played Series (7 Colleges Single Elim)';
-          if (mDesc) mDesc.innerText = '3 Games: Search & Destroy · Control · Hardpoint';
-          if (rTitle) rTitle.innerText = 'All Series BO3 · First to 2 Wins (S&D, Control, HP)';
+          if (mDesc) mDesc.innerText = 'Rotation: Hardpoint · Control · S&D (BO5 Finals)';
+          if (rTitle) rTitle.innerText = 'BO3 Series · BO5 Grand Finals (HP, Control, S&D)';
           if (colCountEl) colCountEl.innerText = '7 Official Teams (CMID No Team)';
           if (colDescEl) colDescEl.innerText = 'Fixed Tournament Draw · No Seeding';
         } else {
@@ -3195,7 +3293,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         lb_qf2: 'Lower Bracket Quarterfinal 2 (L4)',
         lb_sf: 'Lower Bracket Semifinal (L5)',
         lb_f: 'Lower Bracket Final (L6 · BO3)',
-        gf8: 'Grand Championship Finals (GF · BO3)',
+        gf8: 'Grand Championship Finals (GF · BO5)',
         s8_qf1: 'Quarterfinal 1 (U1 · CCJPS BYE)',
         s8_qf2: 'Quarterfinal 2 (U2 · CBA vs CHM)',
         s8_qf3: 'Quarterfinal 3 (U3 · CLIS vs CIT)',
@@ -3203,7 +3301,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         s8_sf1: 'Semifinal 1 (U5)',
         s8_sf2: 'Semifinal 2 (U6)',
         s8_bronze: 'Bronze Medal Match (BO3)',
-        s8_gf: 'Grand Championship Finals (GF · BO3)'
+        s8_gf: 'Grand Championship Finals (GF · BO5)'
       } : {
         ub_qf1: 'Upper Bracket Quarterfinal 1 (#1 vs #8)',
         ub_qf2: 'Upper Bracket Quarterfinal 2 (#4 vs #5)',
@@ -3582,12 +3680,12 @@ Check your Browserslist config to be sure that your targets are set up correctly
               <div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex flex-col justify-between space-y-1.5">
                 <div class="flex items-center justify-between">
                   <span class="px-2.5 py-0.5 rounded-md bg-amber-500 text-slate-950 font-black text-[9px] uppercase tracking-wider font-sans">👑 DAY 3 · Championship Finals</span>
-                  <span class="text-[9px] text-amber-400 font-bold font-sans">${isCodm ? '2 BO3 Series (S&D, Control, HP)' : '1 BO5 · 1 BO7'}</span>
+                  <span class="text-[9px] text-amber-400 font-bold font-sans">${isCodm ? '1 BO3 · 1 BO5 Series (HP, Control, S&D)' : '1 BO5 · 1 BO7'}</span>
                 </div>
                 <div class="text-[11px] font-bold text-[var(--foreground)] space-y-1">
                   ${isCodm ? `
                     <div class="flex items-center gap-1.5"><span class="text-amber-400 font-black">L6:</span> Lower Final <span class="text-[9px] px-1 bg-amber-500/20 rounded text-amber-300 font-sans font-bold">BO3 ➔ Bronze Medal / GF Qualifier</span></div>
-                    <div class="flex items-center gap-1.5"><span class="text-amber-300 font-black">👑 GF:</span> Grand Championship Finals <span class="text-[9px] px-1 bg-amber-500/30 rounded text-amber-300 font-sans font-black">BO3 ➔ Gold / Silver</span></div>
+                    <div class="flex items-center gap-1.5"><span class="text-amber-300 font-black">👑 GF:</span> Grand Championship Finals <span class="text-[9px] px-1 bg-amber-500/30 rounded text-amber-300 font-sans font-black">BO5 ➔ Gold / Silver</span></div>
                   ` : `
                     <div class="flex items-center gap-1.5"><span class="text-amber-400 font-black">M13:</span> Lower Bracket Final <span class="text-[9px] px-1 bg-amber-500/20 rounded text-amber-300 font-sans font-bold">BO5</span></div>
                     <div class="flex items-center gap-1.5"><span class="text-amber-300 font-black">👑 M14:</span> Grand Finals <span class="text-[9px] px-1 bg-amber-500/30 rounded text-amber-300 font-sans font-black">BO7</span></div>
@@ -3631,7 +3729,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
               <span class="text-[var(--muted-foreground)] shrink-0 font-bold">➔</span>
               <div class="px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-500/25 to-yellow-500/25 border border-amber-500/50 text-amber-300 shrink-0 font-black">
                 <span class="font-sans text-[8px] uppercase tracking-tighter opacity-80 block font-semibold">Grand Championship</span>
-                👑 M8: Grand Finals (${currentEsport === 'codm' ? 'BO3' : 'BO7'})
+                👑 M8: Grand Finals (${currentEsport === 'codm' ? 'BO5' : 'BO7'})
               </div>
             </div>
           </div>
@@ -3679,15 +3777,19 @@ Check your Browserslist config to be sure that your targets are set up correctly
       let codmModesHtml = '';
       if (currentEsport === 'codm' && !isBye) {
         const games = getCodmMatchGames(m);
+        const mBestOf = getMatchBestOf(m.id, m);
+        const seqDesc = mBestOf === 5
+          ? '1: HP · 2: Control · 3: S&D · 4: HP · 5: Control'
+          : '1: HP · 2: Control · 3: S&D';
         codmModesHtml = `
           <div class="pt-2 border-t border-[var(--border)]/60">
             <div class="flex items-center justify-between text-[10px] mb-1.5 font-bold">
               <span class="flex items-center gap-1 text-amber-400 font-black uppercase tracking-wider text-[9px]">
-                <span>🎯</span> <span>BO3 Modes:</span>
+                <span>🎯</span> <span>BO${mBestOf} Modes:</span>
               </span>
-              <span class="text-[9px] text-[var(--muted-foreground)] font-mono">1: S&D · 2: Control · 3: Hardpoint</span>
+              <span class="text-[9px] text-[var(--muted-foreground)] font-mono">${seqDesc}</span>
             </div>
-            <div class="grid grid-cols-3 gap-1.5">
+            <div class="grid ${games.length === 5 ? 'grid-cols-5' : 'grid-cols-3'} gap-1.5">
               ${games.map(g => {
                 const isWon = Boolean(g.winner);
                 const isNotNeeded = g.status === 'not_needed';
@@ -4042,10 +4144,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
             ]
           },
           {
-            title: currentEsport === 'codm' ? 'Finals (Day 3 · All BO3)' : 'Finals (Day 3 · BO5 & BO7)',
-            format: currentEsport === 'codm' ? 'BO3' : 'BO5 & BO7',
+            title: currentEsport === 'codm' ? 'Finals (Day 3 · BO3 Bronze · BO5 Grand Finals)' : 'Finals (Day 3 · BO5 & BO7)',
+            format: currentEsport === 'codm' ? 'BO3 & BO5' : 'BO5 & BO7',
             matches: [
-              { ...p.s8_gf, seq: 8, day: 'DAY 3', feeder: currentEsport === 'codm' ? 'Winner takes 🏆 Gold Championship' : 'Winner takes 🏆 Gold Championship' },
+              { ...p.s8_gf, seq: 8, day: 'DAY 3', feeder: currentEsport === 'codm' ? 'First to 3 wins takes 🏆 Gold Championship' : 'Winner takes 🏆 Gold Championship' },
               { ...p.s8_bronze, seq: 7, day: 'DAY 3', feeder: 'Winner takes 🥉 Bronze Medal (3rd Place)' }
             ]
           }
@@ -4058,7 +4160,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
           { ...p.s8_sf1, seq: 5, day: 'DAY 2', feeder: 'Winner ➔ M8 · Loser ➔ M7' },
           { ...p.s8_sf2, seq: 6, day: 'DAY 2', feeder: 'Winner ➔ M8 · Loser ➔ M7' },
           { ...p.s8_bronze, seq: 7, day: 'DAY 3', feeder: 'Winner takes 🥉 Bronze' },
-          { ...p.s8_gf, seq: 8, day: 'DAY 3', feeder: 'Winner takes 🏆 Gold' }
+          { ...p.s8_gf, seq: 8, day: 'DAY 3', feeder: currentEsport === 'codm' ? 'First to 3 wins takes 🏆 Gold' : 'Winner takes 🏆 Gold' }
         ];
       } else {
         // full tournament (3-Day Official Sequence)
@@ -4091,11 +4193,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
             ]
           },
           {
-            title: currentEsport === 'codm' ? '👑 DAY 3 · Championship Finals (All BO3 · S&D, Control, HP)' : '👑 DAY 3 · Championship Finals (M13 BO5 · M14 BO7)',
-            format: currentEsport === 'codm' ? 'BO3' : 'BO5 & BO7',
+            title: currentEsport === 'codm' ? '👑 DAY 3 · Championship Finals (BO3 LB Final · BO5 Grand Finals)' : '👑 DAY 3 · Championship Finals (M13 BO5 · M14 BO7)',
+            format: currentEsport === 'codm' ? 'BO3 & BO5' : 'BO5 & BO7',
             matches: [
               { ...p.lb_f, seq: 13, day: 'DAY 3', feeder: 'Winner ➔ M14 · Loser 🥉' },
-              { ...p.gf8, seq: 14, day: 'DAY 3', feeder: currentEsport === 'codm' ? 'First to 2 wins takes 🏆 Gold' : 'First to 4 wins takes 🏆 Gold' }
+              { ...p.gf8, seq: 14, day: 'DAY 3', feeder: currentEsport === 'codm' ? 'First to 3 wins takes 🏆 Gold' : 'First to 4 wins takes 🏆 Gold' }
             ]
           }
         ];
@@ -4113,7 +4215,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
           { ...p.lb_sf, seq: 11, day: 'DAY 2', feeder: 'Winner ➔ M13 · Loser 4th' },
           { ...p.ub_f, seq: 12, day: 'DAY 2', feeder: 'Winner ➔ M14 · Loser ➔ M13' },
           { ...p.lb_f, seq: 13, day: 'DAY 3', feeder: 'Winner ➔ M14 · Loser 🥉' },
-          { ...p.gf8, seq: 14, day: 'DAY 3', feeder: 'First to 4 wins takes 🏆 Gold' }
+          { ...p.gf8, seq: 14, day: 'DAY 3', feeder: currentEsport === 'codm' ? 'First to 3 wins takes 🏆 Gold' : 'First to 4 wins takes 🏆 Gold' }
         ];
       }
 
@@ -4354,7 +4456,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 </h3>
                 <p class="text-xs text-[var(--muted-foreground)]">
                   ${currentEsport === 'codm'
-                    ? 'Official Draw: U1 CCJPS (BYE), U2 CBA vs CHM, U3 CLIS vs CIT, U4 COED vs CAS · CMID No Team · BO3 Multi-Player (S&D, Control, Hardpoint)'
+                    ? 'Official Draw: U1 CCJPS (BYE), U2 CBA vs CHM, U3 CLIS vs CIT, U4 COED vs CAS · CMID No Team · BO3 Multi-Player · BO5 Grand Finals (Hardpoint, Control, S&D)'
                     : (isBracketSeeded ? '3-Day Match Sequence (Day 1: M1-M6 · Day 2: M7-M12 · Day 3: M13-M14). Enter scores, quick-advance winners, or simulate.' : 'The bracket is currently blank. Populate seeds to place teams into Quarterfinals.')}
                 </p>
               </div>
@@ -4572,13 +4674,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 👑 DAY 3 · Grand Championship Series
               </span>
               <h3 class="text-xl sm:text-2xl font-black text-[var(--foreground)] tracking-tight">
-                ${currentEsport === 'codm' ? 'Grand Championship Finals (BO3)' : 'Grand Finals (Best-of-7)'}
+                ${currentEsport === 'codm' ? 'Grand Championship Finals (BO5)' : 'Grand Finals (Best-of-7)'}
               </h3>
               <p class="text-xs text-[var(--muted-foreground)]">
-                ${currentEsport === 'codm' ? 'Multi-Player BO3 Rotation: Search and Destroy · Control · Hardpoint' : 'Winner takes 🏆 Gold Medal & Trophy · Runner-up takes 🥈 Silver Medal'}
+                ${currentEsport === 'codm' ? 'Multi-Player BO5 Rotation: Hardpoint · Control · S&D · Hardpoint · Control' : 'Winner takes 🏆 Gold Medal & Trophy · Runner-up takes 🥈 Silver Medal'}
               </p>
             </div>
-            ${renderPlayoffCard(p.gf8, currentEsport === 'codm' ? 'First to 2 wins takes 🏆 Gold Championship' : 'First to 4 wins takes 🏆 Gold Championship', true)}
+            ${renderPlayoffCard(p.gf8, currentEsport === 'codm' ? 'First to 3 wins takes 🏆 Gold Championship' : 'First to 4 wins takes 🏆 Gold Championship', true)}
           </div>
 
         </div>
@@ -4606,7 +4708,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 </h3>
                 <p class="text-xs text-[var(--muted-foreground)]">
                   ${currentEsport === 'codm'
-                    ? 'Official Draw: U1 CCJPS (BYE), U2 CBA vs CHM, U3 CLIS vs CIT, U4 COED vs CAS · CMID No Team · BO3 Multi-Player'
+                    ? 'Official Draw: U1 CCJPS (BYE), U2 CBA vs CHM, U3 CLIS vs CIT, U4 COED vs CAS · CMID No Team · BO3 Series · BO5 Grand Finals'
                     : (isBracketSeeded ? 'Matches seeded with sequences M1-M8. Enter scores, quick-advance winners, or simulate.' : 'The bracket is currently blank. Populate seeds to place teams into Quarterfinals.')}
                 </p>
               </div>
@@ -4697,10 +4799,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
             <div class="space-y-6 flex flex-col justify-center py-2">
               <div>
                 <div class="text-xs font-bold text-amber-500 uppercase tracking-wider mb-2 flex items-center justify-between">
-                  <span>👑 Grand Championship Finals (${currentEsport === 'codm' ? 'BO3' : 'BO7'})</span>
-                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 font-black">First to ${currentEsport === 'codm' ? 2 : 4}</span>
+                  <span>👑 Grand Championship Finals (${currentEsport === 'codm' ? 'BO5' : 'BO7'})</span>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 font-black">First to ${currentEsport === 'codm' ? 3 : 4}</span>
                 </div>
-                ${renderPlayoffCard(p.s8_gf, currentEsport === 'codm' ? 'First to 2 wins takes 🏆 Gold Championship · Runner-up 🥈 Silver' : 'First to 4 wins takes 🏆 Gold Championship · Runner-up 🥈 Silver', true)}
+                ${renderPlayoffCard(p.s8_gf, currentEsport === 'codm' ? 'First to 3 wins takes 🏆 Gold Championship · Runner-up 🥈 Silver' : 'First to 4 wins takes 🏆 Gold Championship · Runner-up 🥈 Silver', true)}
               </div>
 
               <div>
@@ -5163,8 +5265,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
         const scLbF = getRealisticScore(3);
         setPlayoffScore('lb_f', scLbF[0], scLbF[1]);
 
-        // 8. Grand Championship Finals: GF Winner U7 vs Winner L6 (BO3)
-        const scGf = getRealisticScore(3);
+        // 8. Grand Championship Finals: GF Winner U7 vs Winner L6 (BO5)
+        const scGf = getRealisticScore(5);
         setPlayoffScore('gf8', scGf[0], scGf[1]);
 
         updatePlayoffBracket();
@@ -5220,8 +5322,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const scLbF = getRealisticScore(currentEsport === 'codm' ? 3 : 5);
       setPlayoffScore('lb_f', scLbF[0], scLbF[1]);
 
-      // Grand Championship Finals (1 match, BO3 for CODM, BO7 for MLBB)
-      const scGf = getRealisticScore(currentEsport === 'codm' ? 3 : 7);
+      // Grand Championship Finals (1 match, BO5 for CODM, BO7 for MLBB)
+      const scGf = getRealisticScore(currentEsport === 'codm' ? 5 : 7);
       setPlayoffScore('gf8', scGf[0], scGf[1]);
 
       updatePlayoffBracket();
@@ -5262,8 +5364,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const scBronze = getRealisticScore(currentEsport === 'codm' ? 3 : 5);
       setPlayoffScore('s8_bronze', scBronze[0], scBronze[1]);
 
-      // Grand Championship Finals (1 match, BO3 for CODM, BO7 for MLBB)
-      const scGf = getRealisticScore(currentEsport === 'codm' ? 3 : 7);
+      // Grand Championship Finals (1 match, BO5 for CODM, BO7 for MLBB)
+      const scGf = getRealisticScore(currentEsport === 'codm' ? 5 : 7);
       setPlayoffScore('s8_gf', scGf[0], scGf[1]);
 
       updatePlayoffBracket();
@@ -5748,15 +5850,18 @@ Check your Browserslist config to be sure that your targets are set up correctly
             let codmModesScheduleHtml = '';
             if (currentEsport === 'codm' && !isBye) {
               const games = getCodmMatchGames(m);
+              const seqDesc = mBestOf === 5
+                ? '1: HP · 2: Control · 3: S&D · 4: HP · 5: Control'
+                : '1: HP · 2: Control · 3: S&D';
               codmModesScheduleHtml = `
                 <div class="pt-2 border-t border-[var(--border)]/60">
                   <div class="flex items-center justify-between text-[10px] mb-1 font-bold">
                     <span class="text-amber-400 font-black uppercase tracking-wider text-[9px] flex items-center gap-1">
-                      <span>🎯</span> <span>BO3 Modes:</span>
+                      <span>🎯</span> <span>BO${mBestOf} Modes:</span>
                     </span>
-                    <span class="text-[9px] text-[var(--muted-foreground)] font-mono">1: S&D · 2: Control · 3: Hardpoint</span>
+                    <span class="text-[9px] text-[var(--muted-foreground)] font-mono">${seqDesc}</span>
                   </div>
-                  <div class="grid grid-cols-3 gap-1.5">
+                  <div class="grid ${games.length === 5 ? 'grid-cols-5' : 'grid-cols-3'} gap-1.5">
                     ${games.map(g => {
                       const isWon = Boolean(g.winner);
                       const isNotNeeded = g.status === 'not_needed';
@@ -6592,7 +6697,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       if (currentEsport === 'codm') {
         const s1Current = parseInt(document.getElementById('modalScore1')?.value || '0', 10);
         const s2Current = parseInt(document.getElementById('modalScore2')?.value || '0', 10);
-        match.games = getCodmMatchGames({ team1: match.team1, team2: match.team2, s1: s1Current, s2: s2Current });
+        match.games = getCodmMatchGames({ id: match.id, bestOf: match.bestOf, team1: match.team1, team2: match.team2, s1: s1Current, s2: s2Current });
         renderModalCodmModes(match);
       }
 
@@ -6609,7 +6714,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
           const match = PLAYOFF_DATA[activeModalMatchKey];
           if (match) {
             delete match.games;
-            match.games = getCodmMatchGames({ team1: match.team1, team2: match.team2, s1: null, s2: null });
+            match.games = getCodmMatchGames({ id: match.id, bestOf: match.bestOf, team1: match.team1, team2: match.team2, s1: null, s2: null });
             renderModalCodmModes(match);
           }
         }
@@ -6622,7 +6727,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       if (activeModalMatchKey && currentEsport === 'codm') {
         const match = PLAYOFF_DATA[activeModalMatchKey];
         if (match) {
-          match.games = getCodmMatchGames({ team1: match.team1, team2: match.team2, s1, s2 });
+          match.games = getCodmMatchGames({ id: match.id, bestOf: match.bestOf, team1: match.team1, team2: match.team2, s1, s2 });
           renderModalCodmModes(match);
         }
       }
@@ -9125,16 +9230,16 @@ Check your Browserslist config to be sure that your targets are set up correctly
               </div>
             </div>
 
-            <!-- CODM 3-Game Mode Rotation Chips on Live Stage (if CODM) -->
+            <!-- CODM Game Mode Rotation Chips on Live Stage (if CODM) -->
             ${currentEsport === 'codm' ? `
               <div class="px-2 pb-2.5 pt-1.5 border-t border-[var(--border)]/50">
                 <div class="flex items-center justify-between text-[9px] mb-1 font-bold text-[var(--muted-foreground)]">
                   <span class="text-amber-400 font-black uppercase tracking-wider flex items-center gap-1">
-                    <span>🎯</span> <span>BO3 Modes:</span>
+                    <span>🎯</span> <span>BO${liveBestOf} Modes:</span>
                   </span>
-                  <span class="font-mono">1: S&D · 2: Control · 3: Hardpoint</span>
+                  <span class="font-mono">${liveBestOf === 5 ? '1: HP · 2: Control · 3: S&D · 4: HP · 5: Control' : '1: HP · 2: Control · 3: S&D'}</span>
                 </div>
-                <div class="grid grid-cols-3 gap-1.5 text-center font-mono text-[9px]">
+                <div class="grid ${liveBestOf === 5 ? 'grid-cols-5' : 'grid-cols-3'} gap-1.5 text-center font-mono text-[9px]">
                   ${getCodmMatchGames(liveMatch).map((g, idx) => {
                     const isWon = Boolean(g.winner);
                     const isNotNeeded = g.status === 'not_needed';
@@ -10561,7 +10666,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         badge: '⚔️',
         roleTitle: 'CODM Table Marshal',
         scopeTitle: 'Call of Duty: Mobile Only',
-        desc: 'Match score entry (Search & Destroy, Control, Hardpoint) strictly for Call of Duty: Mobile.'
+        desc: 'Match score entry (Hardpoint, Control, Search & Destroy) strictly for Call of Duty: Mobile.'
       }
     ];
 
