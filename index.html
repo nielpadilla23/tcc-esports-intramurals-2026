@@ -8021,6 +8021,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
         ? ['ub_qf1', 'ub_qf2', 'ub_qf3', 'ub_qf4', 'ub_sf1', 'ub_sf2', 'lb_r1_1', 'lb_r1_2', 'lb_qf1', 'lb_qf2', 'lb_sf', 'ub_f', 'lb_f', 'gf8']
         : ['s8_qf1', 's8_qf2', 's8_qf3', 's8_qf4', 's8_sf1', 's8_sf2', 's8_bronze', 's8_gf'];
 
+      const isBye = (m) => Boolean(m && (m.team1 === 'BYE' || m.team2 === 'BYE' || (currentEsport === 'codm' && (m.id === 'ub_qf1' || m.id === 'lb_r1_1'))));
+      const isPlayable = (m) => Boolean(m && !isBye(m) && m.team1 && m.team2 && m.team1 !== 'TBD' && m.team2 !== 'TBD');
+
       const matches = keys.map(k => {
         const m = PLAYOFF_DATA[k];
         if (!m) return null;
@@ -8033,44 +8036,71 @@ Check your Browserslist config to be sure that your targets are set up correctly
         };
       }).filter(Boolean);
 
-      const completedCount = matches.filter(m => m.winner !== null && m.s1 !== null && m.s2 !== null).length;
+      const playableMatches = matches.filter(m => !isBye(m));
+      const allPlayableFinished = playableMatches.length > 0 && playableMatches.every(m => m.winner !== null && m.s1 !== null && m.s2 !== null);
 
       let ongoingIndex = -1;
-      if (completedCount === matches.length) {
-        // All matches completed - highlight Grand Finals as the champion culmination
+      if (allPlayableFinished) {
+        // All playable matches completed - highlight Grand Finals as the champion culmination
         ongoingIndex = matches.length - 1;
       } else {
-        // Find the first match that is playable (has both teams) and not finished
-        ongoingIndex = matches.findIndex(m => (!m.winner || m.s1 === null || m.s2 === null) && m.team1 && m.team2 && m.team1 !== 'TBD' && m.team2 !== 'TBD');
-        
-        // If no match has both teams ready (e.g. initial blank state), pick first uncompleted match
+        // 1. Any playable match with active in-progress scores
+        ongoingIndex = matches.findIndex(m => isPlayable(m) && !m.winner && isValidScore(m.s1) && isValidScore(m.s2) && (Number(m.s1) > 0 || Number(m.s2) > 0));
+
+        // 2. Earliest unplayed playable match with confirmed teams
         if (ongoingIndex === -1) {
-          ongoingIndex = matches.findIndex(m => !m.winner || m.s1 === null || m.s2 === null);
+          ongoingIndex = matches.findIndex(m => isPlayable(m) && !m.winner);
+        }
+
+        // 3. Earliest playable match
+        if (ongoingIndex === -1) {
+          ongoingIndex = matches.findIndex(m => isPlayable(m));
+        }
+
+        // 4. Fallback to first non-bye match
+        if (ongoingIndex === -1) {
+          ongoingIndex = matches.findIndex(m => !isBye(m));
           if (ongoingIndex === -1) ongoingIndex = 0;
         }
       }
 
       const ongoingMatch = matches[ongoingIndex] || null;
 
-      // Recent match: the completed match immediately preceding ongoingMatch, or the latest completed match
+      // Recent match: the completed playable match immediately preceding ongoingMatch, or the latest completed playable match
       let recentMatch = null;
       for (let i = ongoingIndex - 1; i >= 0; i--) {
-        if (matches[i].winner && matches[i].s1 !== null && matches[i].s2 !== null) {
+        if (!isBye(matches[i]) && matches[i].winner && matches[i].s1 !== null && matches[i].s2 !== null) {
           recentMatch = matches[i];
           break;
         }
       }
-      if (!recentMatch && completedCount > 0) {
+      if (!recentMatch) {
         for (let i = matches.length - 1; i >= 0; i--) {
-          if (matches[i].winner && matches[i].s1 !== null && matches[i].s2 !== null && i !== ongoingIndex) {
+          if (!isBye(matches[i]) && matches[i].winner && matches[i].s1 !== null && matches[i].s2 !== null && i !== ongoingIndex) {
             recentMatch = matches[i];
             break;
           }
         }
       }
 
-      const nextMatch = ongoingIndex + 1 < matches.length ? matches[ongoingIndex + 1] : null;
-      const secondNextMatch = ongoingIndex + 2 < matches.length ? matches[ongoingIndex + 2] : null;
+      // Next match & 2nd Next match: skip BYE matches!
+      let nextMatch = null;
+      let secondNextMatch = null;
+      for (let i = ongoingIndex + 1; i < matches.length; i++) {
+        if (!isBye(matches[i]) && !matches[i].winner) {
+          if (!nextMatch) {
+            nextMatch = matches[i];
+          } else if (!secondNextMatch) {
+            secondNextMatch = matches[i];
+            break;
+          }
+        }
+      }
+      if (!nextMatch && ongoingIndex + 1 < matches.length) {
+        for (let i = ongoingIndex + 1; i < matches.length; i++) {
+          if (!isBye(matches[i])) { nextMatch = matches[i]; break; }
+        }
+      }
 
       return { recentMatch, ongoingMatch, nextMatch, secondNextMatch };
     }
@@ -8130,9 +8160,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 </span>
               </div>
               <div class="flex items-center gap-2 shrink-0 z-10">
-                <span class="px-3 py-0.5 rounded-full text-xs font-black uppercase ${isFinished ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : (hasScores ? 'bg-red-500/20 text-red-300 border border-red-500/40' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30')} flex items-center gap-1.5 shadow-sm">
+                <span class="px-3 py-0.5 rounded-full text-xs font-black uppercase ${isFinished ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : (hasScores ? 'bg-red-500/20 text-red-300 border border-red-500/40' : (isByeMatch ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'))} flex items-center gap-1.5 shadow-sm">
                   ${!isFinished && hasScores ? '<span class="w-1.5 h-1.5 rounded-full bg-red-400 beacon-pulse"></span>' : ''}
-                  ${isFinished ? 'Final Result 🏆' : (hasScores ? 'In Progress' : 'On-Going')}
+                  ${isFinished ? 'Final Result 🏆' : (hasScores ? 'In Progress' : (isByeMatch ? 'BYE Advance' : 'On-Going'))}
                 </span>
                 <span class="px-3 py-0.5 rounded-full text-xs font-black bg-purple-500/20 text-purple-300 border border-purple-500/30">
                   BO${ongoingMatch?.bestOf || 3}
@@ -9162,38 +9192,46 @@ Check your Browserslist config to be sure that your targets are set up correctly
       normalizeAllPlayoffData();
 
       // Find Current Match (Live Now):
-      // 1. Any match with active scores in progress (!winner && isValidScore(s1) && isValidScore(s2) && (s1 > 0 || s2 > 0))
-      // 2. Earliest unplayed match with confirmed teams
-      let liveMatch = matches.find(m => isValidScore(m.s1) && isValidScore(m.s2) && (Number(m.s1) > 0 || Number(m.s2) > 0) && !m.winner);
+      const isByeMatch = (m) => Boolean(m && (m.team1 === 'BYE' || m.team2 === 'BYE' || (currentEsport === 'codm' && (m.id === 'ub_qf1' || m.id === 'lb_r1_1'))));
+      const isPlayableMatch = (m) => Boolean(m && !isByeMatch(m) && m.team1 && m.team2 && m.team1 !== 'TBD' && m.team2 !== 'TBD');
+
+      // 1. Any playable match with active scores in progress (!winner && isValidScore(s1) && isValidScore(s2) && (s1 > 0 || s2 > 0))
+      // 2. Earliest unplayed playable match with confirmed teams (excluding BYEs)
+      let liveMatch = matches.find(m => isPlayableMatch(m) && isValidScore(m.s1) && isValidScore(m.s2) && (Number(m.s1) > 0 || Number(m.s2) > 0) && !m.winner);
       if (!liveMatch) {
-        liveMatch = matches.find(m => m.team1 && m.team2 && m.team1 !== 'TBD' && m.team2 !== 'TBD' && !m.winner);
+        liveMatch = matches.find(m => isPlayableMatch(m) && !m.winner);
       }
       if (!liveMatch && matches.length > 0) {
-        liveMatch = matches.find(m => !m.winner) || matches[0];
+        liveMatch = matches.find(m => !isByeMatch(m) && !m.winner) || matches.find(m => !isByeMatch(m)) || matches[0];
       }
 
-      // Find Up Next Match (On Deck):
+      // Find Up Next Match (On Deck - skip BYEs):
       let upNextMatch = null;
       if (liveMatch) {
         const liveIdx = matches.findIndex(m => m.id === liveMatch.id);
         for (let i = liveIdx + 1; i < matches.length; i++) {
           const candidate = matches[i];
-          if (candidate.team1 && candidate.team2 && candidate.team1 !== 'TBD' && candidate.team2 !== 'TBD' && !candidate.winner) {
+          if (isPlayableMatch(candidate) && !candidate.winner) {
             upNextMatch = candidate;
             break;
           }
         }
         if (!upNextMatch && liveIdx + 1 < matches.length) {
-          upNextMatch = matches[liveIdx + 1];
+          for (let i = liveIdx + 1; i < matches.length; i++) {
+            if (!isByeMatch(matches[i]) && !matches[i].winner) {
+              upNextMatch = matches[i];
+              break;
+            }
+          }
         }
       }
 
-      // Find Recent Match (Most recently concluded series)
+      // Find Recent Match (Most recently concluded playable series - skip BYEs)
       let recentMatch = null;
       if (liveMatch) {
         const liveIdx = matches.findIndex(m => m.id === liveMatch.id);
         for (let i = liveIdx - 1; i >= 0; i--) {
-          if (matches[i] && matches[i].winner && isValidScore(matches[i].s1) && isValidScore(matches[i].s2)) {
+          if (matches[i] && !isByeMatch(matches[i]) && matches[i].winner && isValidScore(matches[i].s1) && isValidScore(matches[i].s2)) {
             recentMatch = matches[i];
             break;
           }
@@ -9201,7 +9239,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       }
       if (!recentMatch) {
         for (let i = matches.length - 1; i >= 0; i--) {
-          if (matches[i] && matches[i].winner && isValidScore(matches[i].s1) && isValidScore(matches[i].s2)) {
+          if (matches[i] && !isByeMatch(matches[i]) && matches[i].winner && isValidScore(matches[i].s1) && isValidScore(matches[i].s2)) {
             recentMatch = matches[i];
             break;
           }
