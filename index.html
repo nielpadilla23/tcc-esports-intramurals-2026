@@ -586,6 +586,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
             <div class="px-3.5 py-1.5 border-b border-[var(--border)] text-[10px] font-black uppercase text-amber-400 tracking-wider">
               👑 Director Stage Feeds
             </div>
+            <button onclick="openLiveStageFor('all'); closeLiveStageMenu();" class="w-full text-left px-3.5 py-2 hover:bg-[var(--secondary)] flex items-center gap-2.5 font-bold text-[var(--foreground)] cursor-pointer bg-emerald-500/10 border-b border-[var(--border)]">
+              <span class="text-base">🔄</span>
+              <div>
+                <div class="text-xs font-black text-emerald-400">Both Esports (Auto-Cycle)</div>
+                <div class="text-[10px] text-[var(--muted-foreground)]">Auto-rotates MLBB & CODM MP</div>
+              </div>
+            </button>
             <button onclick="openLiveStageFor('mlbb'); closeLiveStageMenu();" class="w-full text-left px-3.5 py-2 hover:bg-[var(--secondary)] flex items-center gap-2.5 font-bold text-[var(--foreground)] cursor-pointer">
               <span class="text-base">🎮</span>
               <div>
@@ -956,23 +963,28 @@ Check your Browserslist config to be sure that your targets are set up correctly
         </div>
       </div>
 
-      <!-- Stage Esport Switcher for Director (MLBB / CODM MP) -->
+      <!-- Stage Esport Switcher / Filter for Director -->
       <div id="theaterEsportSwitcher" class="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10 shrink-0 text-xs">
-        <button id="theaterBtnSwitchMlbb" onclick="switchTheaterEsport('mlbb')" title="Switch Stage to Mobile Legends: Bang Bang" class="px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black transition flex items-center gap-1.5 cursor-pointer">
-          <img src="assets/mlbb_logo.png" class="w-4 h-4 object-contain inline-block shrink-0" />
-          <span class="hidden md:inline">MLBB Stage</span>
-          <span class="md:hidden">MLBB</span>
+        <button id="theaterBtnSwitchAuto" onclick="setTheaterEsportFilter('all')" title="Auto-Cycle Both Esports (MLBB & CODM MP)" class="px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black transition flex items-center gap-1.5 cursor-pointer">
+          <span class="text-xs">🔄</span>
+          <span class="hidden md:inline">Both Esports (Auto)</span>
+          <span class="md:hidden">Both</span>
         </button>
-        <button id="theaterBtnSwitchCodmMp" onclick="switchTheaterEsport('codm')" title="Switch Stage to Call of Duty: Mobile (5v5 MP)" class="px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black transition flex items-center gap-1.5 cursor-pointer">
-          <img src="assets/codm_logo.png" class="w-4 h-4 object-contain inline-block shrink-0" />
-          <span class="hidden md:inline">CODM MP Stage</span>
-          <span class="md:hidden">CODM</span>
+        <button id="theaterBtnSwitchMlbb" onclick="setTheaterEsportFilter('mlbb')" title="Filter to Mobile Legends: Bang Bang Only" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer">
+          <span class="text-xs">🎮</span>
+          <span class="hidden lg:inline">MLBB Only</span>
+          <span class="lg:hidden">MLBB</span>
+        </button>
+        <button id="theaterBtnSwitchCodmMp" onclick="setTheaterEsportFilter('codm')" title="Filter to Call of Duty: Mobile (5v5 MP) Only" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer">
+          <span class="text-xs">🎯</span>
+          <span class="hidden lg:inline">CODM MP Only</span>
+          <span class="lg:hidden">CODM</span>
         </button>
       </div>
 
       <!-- Slide Switcher Navigation in Stage Mode: On-Going Matchup, Next Matchup, Upper Bracket, Lower Bracket, Podium -->
       <div class="flex items-center gap-2 shrink-0">
-        <div id="theaterTabsContainer" class="flex items-center bg-white/5 p-1 rounded-xl border border-white/10 text-xs font-bold overflow-x-auto max-w-full">
+        <div id="theaterTabsContainer" class="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10 text-xs font-bold overflow-x-auto max-w-[42vw] lg:max-w-[48vw] scrollbar-none">
           <!-- Dynamically populated via renderTheaterTabs() -->
         </div>
         <button onclick="toggleTheaterFullscreen()" title="Toggle Fullscreen (F)" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition cursor-pointer text-xs shrink-0">
@@ -2245,6 +2257,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
     }
 
     let currentEsport = localStorage.getItem('tcc_current_esport_v1') || 'mlbb';
+    var isSettingTheaterSlide = false;
 
     function getStorageKey(suffix) {
       return currentEsport + '_' + suffix;
@@ -2685,21 +2698,26 @@ Check your Browserslist config to be sure that your targets are set up correctly
       if (currentTab === 'database' && typeof TournamentResultsDB !== 'undefined') {
         TournamentResultsDB.renderDatabaseView('resultsDatabaseInlineContainer');
       }
-      if (typeof isTheaterModeOpen !== 'undefined' && isTheaterModeOpen) renderTheaterCurrentSlide();
+      if (typeof isTheaterModeOpen !== 'undefined' && isTheaterModeOpen && !isSettingTheaterSlide) {
+        renderTheaterCurrentSlide();
+      }
 
       // Update Auth RBAC & Headers for the new esport
       if (typeof updateAdminUI === 'function') updateAdminUI();
       if (typeof updateCodmModeUI === 'function') updateCodmModeUI();
 
-      const cfg = getCurrentEsportConfig();
-      if (typeof currentSession !== 'undefined' && currentSession && currentSession.gameScope !== 'all') {
-        if (currentSession.gameScope === currentEsport) {
-          showToast(`Switched to ${cfg.fullName} (${cfg.name}) · ${currentSession.name} Active`);
+      // Suppress toast notifications during Live Stage carousel rotation to keep the LED stage clean
+      if (typeof isTheaterModeOpen === 'undefined' || !isTheaterModeOpen) {
+        const cfg = getCurrentEsportConfig();
+        if (typeof currentSession !== 'undefined' && currentSession && currentSession.gameScope !== 'all') {
+          if (currentSession.gameScope === currentEsport) {
+            showToast(`Switched to ${cfg.fullName} (${cfg.name}) · ${currentSession.name} Active`);
+          } else {
+            showToast(`Switched to ${cfg.fullName} · 🔒 Scoped to ${currentSession.gameScope.toUpperCase()} only (Read Only)`);
+          }
         } else {
-          showToast(`Switched to ${cfg.fullName} · 🔒 Scoped to ${currentSession.gameScope.toUpperCase()} only (Read Only)`);
+          showToast(`Switched active tournament to ${cfg.fullName} (${cfg.name})`);
         }
-      } else {
-        showToast(`Switched active tournament to ${cfg.fullName} (${cfg.name})`);
       }
     }
 
@@ -7385,13 +7403,18 @@ Check your Browserslist config to be sure that your targets are set up correctly
       }
     }
 
+    let theaterEsportFilter = 'all'; // 'all' (Auto-Cycle Both Esports - default), 'mlbb', or 'codm'
+    isSettingTheaterSlide = false;
+
     // Dynamic list of active slides in Live Stage for both MLBB and CODM MP
     function getActiveTheaterSlides() {
-      // 1. If CODM Battle Royale Mode is active, show only the dedicated BR Live Stage
-      if (currentEsport === 'codm' && typeof codmMode !== 'undefined' && codmMode === 'br') {
+      // 1. If CODM Battle Royale Mode is explicitly active in single-mode view
+      if (theaterEsportFilter === 'codm_br' || (currentEsport === 'codm' && typeof codmMode !== 'undefined' && codmMode === 'br' && theaterEsportFilter !== 'all')) {
         return [
           {
             id: 'br_live_stage',
+            esport: 'codm',
+            mode: 'br',
             title: 'BR Live Stage',
             tabHtml: '<span>🪂</span> Live Accumulated Standings & Leaders',
             render: (container) => renderBrLiveStage(container)
@@ -7399,51 +7422,181 @@ Check your Browserslist config to be sure that your targets are set up correctly
         ];
       }
 
-      const slides = [];
-
-      // 1. On-Going Matchup
-      slides.push({
-        id: 'live_match',
-        title: 'On-Going Matchup',
-        tabHtml: '<span class="w-2 h-2 rounded-full bg-red-500 beacon-pulse"></span> On-Going Matchup',
-        render: (container) => renderTheaterLiveMatches(container)
-      });
-
-      // 2. Next Matchup
-      slides.push({
-        id: 'next_matchups',
-        title: 'Next Matchup',
-        tabHtml: '<span>⏭️</span> Next Matchup',
-        render: (container) => renderTheaterNextMatchups(container)
-      });
-
-      // 3. Upper Bracket
-      slides.push({
-        id: 'upper_bracket',
-        title: 'Upper Bracket',
-        tabHtml: '<span>⚡</span> Upper Bracket',
-        render: (container) => renderTheaterUpperBracket(container)
-      });
-
-      // 4. Lower Bracket (Double Elimination)
-      if (tournamentMode === 'double_elim') {
-        slides.push({
-          id: 'lower_bracket',
-          title: 'Lower Bracket',
-          tabHtml: '<span>🛡️</span> Lower Bracket',
-          render: (container) => renderTheaterLowerBracket(container)
-        });
+      // 2. MLBB Only Filter
+      if (theaterEsportFilter === 'mlbb') {
+        return [
+          {
+            id: 'mlbb_live_match',
+            esport: 'mlbb',
+            mode: 'mp',
+            title: 'MLBB On-Going Matchup',
+            tabHtml: '<span class="w-2 h-2 rounded-full bg-red-500 beacon-pulse"></span> On-Going Matchup',
+            render: (container) => renderTheaterLiveMatches(container)
+          },
+          {
+            id: 'mlbb_next_match',
+            esport: 'mlbb',
+            mode: 'mp',
+            title: 'MLBB Next Matchup',
+            tabHtml: '<span>⏭️</span> Next Matchup',
+            render: (container) => renderTheaterNextMatchups(container)
+          },
+          {
+            id: 'mlbb_upper_bracket',
+            esport: 'mlbb',
+            mode: 'mp',
+            title: 'MLBB Upper Bracket',
+            tabHtml: '<span>⚡</span> Upper Bracket',
+            render: (container) => renderTheaterUpperBracket(container)
+          },
+          {
+            id: 'mlbb_lower_bracket',
+            esport: 'mlbb',
+            mode: 'mp',
+            title: 'MLBB Lower Bracket',
+            tabHtml: '<span>🛡️</span> Lower Bracket',
+            render: (container) => renderTheaterLowerBracket(container)
+          },
+          {
+            id: 'mlbb_podium',
+            esport: 'mlbb',
+            mode: 'mp',
+            title: 'MLBB Podium',
+            tabHtml: '<span>👑</span> Podium',
+            render: (container) => renderTheaterPodium(container)
+          }
+        ];
       }
 
-      // 5. Championship Podium
-      slides.push({
-        id: 'podium',
-        title: 'Podium',
-        tabHtml: '<span>👑</span> Podium',
-        render: (container) => renderTheaterPodium(container)
-      });
+      // 3. CODM Only Filter
+      if (theaterEsportFilter === 'codm') {
+        return [
+          {
+            id: 'codm_live_match',
+            esport: 'codm',
+            mode: 'mp',
+            title: 'CODM On-Going Matchup',
+            tabHtml: '<span class="w-2 h-2 rounded-full bg-red-500 beacon-pulse"></span> On-Going Matchup',
+            render: (container) => renderTheaterLiveMatches(container)
+          },
+          {
+            id: 'codm_next_match',
+            esport: 'codm',
+            mode: 'mp',
+            title: 'CODM Next Matchup',
+            tabHtml: '<span>⏭️</span> Next Matchup',
+            render: (container) => renderTheaterNextMatchups(container)
+          },
+          {
+            id: 'codm_upper_bracket',
+            esport: 'codm',
+            mode: 'mp',
+            title: 'CODM Upper Bracket',
+            tabHtml: '<span>⚡</span> Upper Bracket',
+            render: (container) => renderTheaterUpperBracket(container)
+          },
+          {
+            id: 'codm_lower_bracket',
+            esport: 'codm',
+            mode: 'mp',
+            title: 'CODM Lower Bracket',
+            tabHtml: '<span>🛡️</span> Lower Bracket',
+            render: (container) => renderTheaterLowerBracket(container)
+          },
+          {
+            id: 'codm_podium',
+            esport: 'codm',
+            mode: 'mp',
+            title: 'CODM Podium',
+            tabHtml: '<span>👑</span> Podium',
+            render: (container) => renderTheaterPodium(container)
+          }
+        ];
+      }
 
-      return slides;
+      // 4. DEFAULT: 'all' -> AUTOMATICALLY INCLUDES & ROTATES BOTH ESPORTS
+      return [
+        {
+          id: 'mlbb_live_match',
+          esport: 'mlbb',
+          mode: 'mp',
+          title: 'MLBB On-Going Matchup',
+          tabHtml: '<span class="w-2 h-2 rounded-full bg-red-500 beacon-pulse"></span> 🎮 MLBB Live',
+          render: (container) => renderTheaterLiveMatches(container)
+        },
+        {
+          id: 'codm_live_match',
+          esport: 'codm',
+          mode: 'mp',
+          title: 'CODM On-Going Matchup',
+          tabHtml: '<span class="w-2 h-2 rounded-full bg-amber-500 beacon-pulse"></span> 🎯 CODM Live',
+          render: (container) => renderTheaterLiveMatches(container)
+        },
+        {
+          id: 'mlbb_next_match',
+          esport: 'mlbb',
+          mode: 'mp',
+          title: 'MLBB Next Matchup',
+          tabHtml: '<span>⏭️</span> 🎮 MLBB Next',
+          render: (container) => renderTheaterNextMatchups(container)
+        },
+        {
+          id: 'codm_next_match',
+          esport: 'codm',
+          mode: 'mp',
+          title: 'CODM Next Matchup',
+          tabHtml: '<span>⏭️</span> 🎯 CODM Next',
+          render: (container) => renderTheaterNextMatchups(container)
+        },
+        {
+          id: 'mlbb_upper_bracket',
+          esport: 'mlbb',
+          mode: 'mp',
+          title: 'MLBB Upper Bracket',
+          tabHtml: '<span>⚡</span> 🎮 MLBB UB',
+          render: (container) => renderTheaterUpperBracket(container)
+        },
+        {
+          id: 'codm_upper_bracket',
+          esport: 'codm',
+          mode: 'mp',
+          title: 'CODM Upper Bracket',
+          tabHtml: '<span>⚡</span> 🎯 CODM UB',
+          render: (container) => renderTheaterUpperBracket(container)
+        },
+        {
+          id: 'mlbb_lower_bracket',
+          esport: 'mlbb',
+          mode: 'mp',
+          title: 'MLBB Lower Bracket',
+          tabHtml: '<span>🛡️</span> 🎮 MLBB LB',
+          render: (container) => renderTheaterLowerBracket(container)
+        },
+        {
+          id: 'codm_lower_bracket',
+          esport: 'codm',
+          mode: 'mp',
+          title: 'CODM Lower Bracket',
+          tabHtml: '<span>🛡️</span> 🎯 CODM LB',
+          render: (container) => renderTheaterLowerBracket(container)
+        },
+        {
+          id: 'mlbb_podium',
+          esport: 'mlbb',
+          mode: 'mp',
+          title: 'MLBB Championship Podium',
+          tabHtml: '<span>👑</span> 🎮 MLBB Podium',
+          render: (container) => renderTheaterPodium(container)
+        },
+        {
+          id: 'codm_podium',
+          esport: 'codm',
+          mode: 'mp',
+          title: 'CODM Championship Podium',
+          tabHtml: '<span>👑</span> 🎯 CODM Podium',
+          render: (container) => renderTheaterPodium(container)
+        }
+      ];
     }
 
     function renderTheaterTabs() {
@@ -7464,14 +7617,20 @@ Check your Browserslist config to be sure that your targets are set up correctly
       container.innerHTML = slides.map((s, i) => {
         const isActive = i === theaterCurrentSlide;
         const cls = isActive
-          ? 'px-2.5 sm:px-3 py-1 rounded-lg transition bg-amber-500 text-slate-950 shadow-md cursor-pointer font-black flex items-center gap-1.5 whitespace-nowrap'
-          : 'px-2.5 sm:px-3 py-1 rounded-lg transition text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer font-bold flex items-center gap-1.5 whitespace-nowrap';
+          ? 'px-2.5 sm:px-3 py-1 rounded-lg transition bg-amber-500 text-slate-950 shadow-md cursor-pointer font-black flex items-center gap-1.5 whitespace-nowrap text-[11px] sm:text-xs shrink-0'
+          : 'px-2.5 sm:px-3 py-1 rounded-lg transition text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer font-bold flex items-center gap-1.5 whitespace-nowrap text-[11px] sm:text-xs shrink-0';
         return `
           <button onclick="setTheaterSlide(${i})" id="theaterTab-${i}" class="${cls}">
             ${s.tabHtml}
           </button>
         `;
       }).join('');
+
+      // Auto-scroll active tab into view smoothly
+      const activeEl = document.getElementById(`theaterTab-${theaterCurrentSlide}`);
+      if (activeEl && container) {
+        activeEl.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+      }
     }
 
     function updateTheaterHeader() {
@@ -7492,7 +7651,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       } else if (currentEsport === 'codm') {
         if (theaterTitle) theaterTitle.textContent = 'ESPORTS: CALL OF DUTY: MOBILE (5v5 MP)';
         if (theaterBadge) {
-          theaterBadge.textContent = tournamentMode === 'double_elim' ? 'Double Elim · BO3 MP' : 'Single Elimination';
+          theaterBadge.textContent = theaterEsportFilter === 'all' ? 'Auto-Cycle · CODM 5v5 MP' : (tournamentMode === 'double_elim' ? 'Double Elim · BO3 MP' : 'Single Elimination');
           theaterBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30 whitespace-nowrap';
         }
         if (theaterLogo) {
@@ -7502,7 +7661,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       } else {
         if (theaterTitle) theaterTitle.textContent = 'ESPORTS: MOBILE LEGENDS BANG BANG';
         if (theaterBadge) {
-          theaterBadge.textContent = tournamentMode === 'double_elim' ? 'Double Elimination' : 'Single Elimination';
+          theaterBadge.textContent = theaterEsportFilter === 'all' ? 'Auto-Cycle · MLBB' : (tournamentMode === 'double_elim' ? 'Double Elimination' : 'Single Elimination');
           theaterBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-bold border border-blue-500/30 whitespace-nowrap';
         }
         if (theaterLogo) {
@@ -7511,49 +7670,52 @@ Check your Browserslist config to be sure that your targets are set up correctly
         }
       }
 
-      // Update Esport Switcher Active Pills in Live Stage Header
+      // Update Esport Switcher / Filter Active Pills in Live Stage Header
+      const btnAuto = document.getElementById('theaterBtnSwitchAuto');
       const btnMlbb = document.getElementById('theaterBtnSwitchMlbb');
       const btnCodm = document.getElementById('theaterBtnSwitchCodmMp');
-      const isCodmMp = currentEsport === 'codm' && (typeof codmMode === 'undefined' || codmMode !== 'br');
-      if (btnMlbb) {
-        btnMlbb.className = currentEsport === 'mlbb'
-          ? 'px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black bg-blue-600 text-white shadow-md border border-blue-400 flex items-center gap-1.5 cursor-pointer'
+      if (btnAuto) {
+        btnAuto.className = theaterEsportFilter === 'all'
+          ? 'px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md border border-emerald-400 flex items-center gap-1.5 cursor-pointer'
           : 'px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold text-slate-300 hover:text-white hover:bg-white/10 flex items-center gap-1.5 cursor-pointer';
+      }
+      if (btnMlbb) {
+        btnMlbb.className = theaterEsportFilter === 'mlbb'
+          ? 'px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-blue-600 text-white shadow-md border border-blue-400 flex items-center gap-1 cursor-pointer'
+          : 'px-2 sm:px-2.5 py-1 rounded-lg text-xs font-bold text-slate-300 hover:text-white hover:bg-white/10 flex items-center gap-1 cursor-pointer';
       }
       if (btnCodm) {
-        btnCodm.className = isCodmMp
-          ? 'px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black bg-amber-500 text-slate-950 shadow-md border border-amber-300 flex items-center gap-1.5 cursor-pointer'
-          : 'px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold text-slate-300 hover:text-white hover:bg-white/10 flex items-center gap-1.5 cursor-pointer';
+        btnCodm.className = theaterEsportFilter === 'codm'
+          ? 'px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-amber-500 text-slate-950 shadow-md border border-amber-300 flex items-center gap-1 cursor-pointer'
+          : 'px-2 sm:px-2.5 py-1 rounded-lg text-xs font-bold text-slate-300 hover:text-white hover:bg-white/10 flex items-center gap-1 cursor-pointer';
       }
+    }
+
+    function setTheaterEsportFilter(filter) {
+      theaterEsportFilter = filter;
+      theaterCurrentSlide = 0;
+      updateTheaterHeader();
+      renderTheaterTabs();
+      setTheaterSlide(0);
     }
 
     function switchTheaterEsport(esport) {
-      if (esport === 'codm') {
-        codmMode = 'mp';
-        switchEsport('codm');
-      } else if (esport === 'codm_br') {
-        codmMode = 'br';
-        switchEsport('codm');
-      } else {
-        switchEsport('mlbb');
-      }
-      updateTheaterHeader();
-      renderTheaterTabs();
-      const slides = getActiveTheaterSlides();
-      if (theaterCurrentSlide >= slides.length) {
-        theaterCurrentSlide = 0;
-      }
-      setTheaterSlide(theaterCurrentSlide || 0);
+      setTheaterEsportFilter(esport);
     }
 
     function openLiveStageFor(esport, mode = 'mp') {
-      if (esport === 'codm') {
+      let filter = 'all';
+      if (esport === 'all') {
+        filter = 'all';
+      } else if (esport === 'codm') {
         codmMode = mode;
+        filter = mode === 'br' ? 'codm_br' : 'codm';
         switchEsport('codm');
       } else {
+        filter = 'mlbb';
         switchEsport('mlbb');
       }
-      openTheaterMode(true);
+      openTheaterMode(true, filter);
     }
 
     function toggleLiveStageMenu(e) {
@@ -7567,7 +7729,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       if (dd) dd.classList.add('hidden');
     }
 
-    function openTheaterMode(allowViewer = false) {
+    function openTheaterMode(allowViewer = false, initialFilter = null) {
       if (!allowViewer && !isAdmin()) {
         notifyAuthRequired('admin');
         return;
@@ -7578,6 +7740,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       isTheaterModeOpen = true;
       document.body.style.overflow = 'hidden';
       theaterCurrentSlide = 0;
+      theaterEsportFilter = initialFilter || 'all'; // Default to Both Esports Auto-Cycle!
       updateTheaterHeader();
       renderTheaterTabs();
       setTheaterSlide(0);
@@ -7622,9 +7785,28 @@ Check your Browserslist config to be sure that your targets are set up correctly
       if (index >= slides.length) index = slides.length - 1;
 
       theaterCurrentSlide = index;
+      const targetSlide = slides[index];
+
+      // Auto-switch active esport context if slide belongs to another esport
+      if (targetSlide && targetSlide.esport && targetSlide.esport !== currentEsport) {
+        if (!isSettingTheaterSlide) {
+          isSettingTheaterSlide = true;
+          try {
+            if (targetSlide.esport === 'codm' && targetSlide.mode) {
+              codmMode = targetSlide.mode;
+            }
+            switchEsport(targetSlide.esport);
+          } finally {
+            isSettingTheaterSlide = false;
+          }
+        }
+      } else if (targetSlide && targetSlide.esport === 'codm' && targetSlide.mode && typeof codmMode !== 'undefined' && codmMode !== targetSlide.mode) {
+        codmMode = targetSlide.mode;
+      }
+
       theaterElapsed = 0;
       updateTheaterProgressBar(0);
-
+      updateTheaterHeader();
       renderTheaterTabs();
 
       const numEl = document.getElementById('theaterSlideNum');
@@ -7633,8 +7815,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
       if (totalEl) totalEl.innerText = slides.length;
 
       const body = document.getElementById('theaterSlideBody');
-      if (body && slides[index]) {
-        slides[index].render(body);
+      if (body && targetSlide) {
+        targetSlide.render(body);
       }
     }
 
