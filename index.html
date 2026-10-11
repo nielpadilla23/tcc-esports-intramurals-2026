@@ -572,10 +572,43 @@ Check your Browserslist config to be sure that your targets are set up correctly
           <span>⚡</span> <span id="simulateBtnText">Simulate Double Elim</span>
         </button>
 
-        <!-- Live Stage Screen (Theater Mode - Admin Only) -->
-        <button onclick="openTheaterMode()" title="Full screen projector / LED wall stage mode" class="admin-only flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-black shadow-md shadow-purple-600/20 transition cursor-pointer">
-          <span>📺</span> Live Stage
-        </button>
+        <!-- Live Stage Screen (Theater Mode - Admin / Director) -->
+        <div class="admin-only relative inline-block text-left" id="liveStageDropdownContainer">
+          <div class="flex items-center rounded-xl bg-purple-600 hover:bg-purple-700 shadow-md shadow-purple-600/20 transition overflow-hidden">
+            <button onclick="openTheaterMode()" title="Full screen projector / LED wall stage mode" class="flex items-center gap-1.5 px-3 py-1.5 text-white text-xs font-black cursor-pointer">
+              <span>📺</span> <span>Live Stage</span>
+            </button>
+            <button onclick="toggleLiveStageMenu(event)" title="Choose Esport Live Stage Screen (MLBB / CODM MP / CODM BR)" class="px-2 py-1.5 border-l border-purple-500/50 text-white/80 hover:text-white hover:bg-purple-800 text-xs font-bold cursor-pointer transition">
+              ▼
+            </button>
+          </div>
+          <div id="liveStageDropdown" class="hidden absolute right-0 mt-2 w-56 rounded-2xl bg-[var(--card)] border border-[var(--border)] shadow-2xl z-50 py-1.5 text-xs select-none backdrop-blur-md">
+            <div class="px-3.5 py-1.5 border-b border-[var(--border)] text-[10px] font-black uppercase text-amber-400 tracking-wider">
+              👑 Director Stage Feeds
+            </div>
+            <button onclick="openLiveStageFor('mlbb'); closeLiveStageMenu();" class="w-full text-left px-3.5 py-2 hover:bg-[var(--secondary)] flex items-center gap-2.5 font-bold text-[var(--foreground)] cursor-pointer">
+              <span class="text-base">🎮</span>
+              <div>
+                <div class="text-xs font-black text-sky-400">MLBB Live Stage</div>
+                <div class="text-[10px] text-[var(--muted-foreground)]">On-Going, Next, UB, LB, Podium</div>
+              </div>
+            </button>
+            <button onclick="openLiveStageFor('codm', 'mp'); closeLiveStageMenu();" class="w-full text-left px-3.5 py-2 hover:bg-[var(--secondary)] flex items-center gap-2.5 font-bold text-[var(--foreground)] cursor-pointer">
+              <span class="text-base">🎯</span>
+              <div>
+                <div class="text-xs font-black text-amber-400">CODM MP Live Stage</div>
+                <div class="text-[10px] text-[var(--muted-foreground)]">On-Going, Next, UB, LB, Podium</div>
+              </div>
+            </button>
+            <button onclick="openLiveStageFor('codm', 'br'); closeLiveStageMenu();" class="w-full text-left px-3.5 py-2 hover:bg-[var(--secondary)] flex items-center gap-2.5 font-bold text-[var(--foreground)] cursor-pointer border-t border-[var(--border)]">
+              <span class="text-base">🪂</span>
+              <div>
+                <div class="text-xs font-black text-purple-400">CODM BR Live Stage</div>
+                <div class="text-[10px] text-[var(--muted-foreground)]">Battle Royale Stage Feed</div>
+              </div>
+            </button>
+          </div>
+        </div>
 
         <!-- Cloud Sync Badge & Config Modal Trigger (Admin Only) -->
         <button id="cloudSyncStatusBadge" onclick="openCloudSyncModal()" title="Real-Time Cloud Synchronization Status (Firebase Realtime Database)" class="admin-only flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[var(--border)] hover:bg-[var(--secondary)] text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition cursor-pointer">
@@ -909,12 +942,12 @@ Check your Browserslist config to be sure that your targets are set up correctly
   <!-- Live Stage Screen Overlay (Theater Mode) -->
   <div id="theaterModeOverlay" class="fixed inset-0 z-50 bg-[#070b14] text-white flex flex-col hidden select-none overflow-hidden transition-all duration-300">
     <!-- Top Stage Header -->
-    <header id="theaterHeader" class="px-3 sm:px-6 py-2.5 sm:py-4 flex items-center justify-between border-b border-white/10 bg-black/40 backdrop-blur-md transition-opacity duration-300">
-      <div class="flex items-center gap-3.5">
+    <header id="theaterHeader" class="px-3 sm:px-6 py-2 sm:py-3.5 flex items-center justify-between border-b border-white/10 bg-black/40 backdrop-blur-md transition-opacity duration-300 gap-2 sm:gap-4">
+      <div class="flex items-center gap-3 shrink-0">
         <img id="theaterEsportLogo" src="" alt="E-Sports Stage Logo" class="h-8 sm:h-9 w-auto object-contain drop-shadow shrink-0 select-none" />
         <div class="flex flex-col">
           <div class="text-xs sm:text-sm font-black tracking-wider text-amber-400 uppercase flex items-center gap-1.5 sm:gap-2 flex-wrap">
-            <span id="theaterEsportTitle" class="truncate">E-Sports: Mobile Legends Bang Bang</span>
+            <span id="theaterEsportTitle" class="truncate font-black">ESPORTS: MOBILE LEGENDS BANG BANG</span>
             <span id="theaterFormatBadge" class="text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30 whitespace-nowrap shrink-0">
               Double Elimination
             </span>
@@ -923,15 +956,29 @@ Check your Browserslist config to be sure that your targets are set up correctly
         </div>
       </div>
 
-      <!-- Slide Switcher Navigation in Stage Mode: Upper Bracket, Lower Bracket, Live Match, Next Matchups, Podium -->
-      <div class="flex items-center gap-2">
-        <div id="theaterTabsContainer" class="flex items-center bg-white/5 p-1 rounded-xl border border-white/10 text-xs font-bold">
+      <!-- Stage Esport Switcher for Director (MLBB / CODM MP) -->
+      <div id="theaterEsportSwitcher" class="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10 shrink-0 text-xs">
+        <button id="theaterBtnSwitchMlbb" onclick="switchTheaterEsport('mlbb')" title="Switch Stage to Mobile Legends: Bang Bang" class="px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black transition flex items-center gap-1.5 cursor-pointer">
+          <img src="assets/mlbb_logo.png" class="w-4 h-4 object-contain inline-block shrink-0" />
+          <span class="hidden md:inline">MLBB Stage</span>
+          <span class="md:hidden">MLBB</span>
+        </button>
+        <button id="theaterBtnSwitchCodmMp" onclick="switchTheaterEsport('codm')" title="Switch Stage to Call of Duty: Mobile (5v5 MP)" class="px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black transition flex items-center gap-1.5 cursor-pointer">
+          <img src="assets/codm_logo.png" class="w-4 h-4 object-contain inline-block shrink-0" />
+          <span class="hidden md:inline">CODM MP Stage</span>
+          <span class="md:hidden">CODM</span>
+        </button>
+      </div>
+
+      <!-- Slide Switcher Navigation in Stage Mode: On-Going Matchup, Next Matchup, Upper Bracket, Lower Bracket, Podium -->
+      <div class="flex items-center gap-2 shrink-0">
+        <div id="theaterTabsContainer" class="flex items-center bg-white/5 p-1 rounded-xl border border-white/10 text-xs font-bold overflow-x-auto max-w-full">
           <!-- Dynamically populated via renderTheaterTabs() -->
         </div>
-        <button onclick="toggleTheaterFullscreen()" title="Toggle Fullscreen (F)" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition cursor-pointer text-xs">
+        <button onclick="toggleTheaterFullscreen()" title="Toggle Fullscreen (F)" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition cursor-pointer text-xs shrink-0">
           ⛶
         </button>
-        <button onclick="closeTheaterMode()" title="Exit Stage Mode (ESC)" class="p-2 rounded-xl bg-red-600/30 hover:bg-red-600 border border-red-500/40 text-red-300 hover:text-white transition cursor-pointer text-xs">
+        <button onclick="closeTheaterMode()" title="Exit Stage Mode (ESC)" class="p-2 rounded-xl bg-red-600/30 hover:bg-red-600 border border-red-500/40 text-red-300 hover:text-white transition cursor-pointer text-xs shrink-0">
           ✕
         </button>
       </div>
@@ -7338,7 +7385,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       }
     }
 
-    // Dynamic list of active slides in Live Stage based on tournament progression
+    // Dynamic list of active slides in Live Stage for both MLBB and CODM MP
     function getActiveTheaterSlides() {
       // 1. If CODM Battle Royale Mode is active, show only the dedicated BR Live Stage
       if (currentEsport === 'codm' && typeof codmMode !== 'undefined' && codmMode === 'br') {
@@ -7354,18 +7401,32 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
       const slides = [];
 
-      // 1. Upper Bracket (only if matches are NOT done)
-      if (!isUpperBracketDone()) {
-        slides.push({
-          id: 'upper_bracket',
-          title: 'Upper Bracket',
-          tabHtml: '<span>⚔️</span> Upper Bracket',
-          render: (container) => renderTheaterUpperBracket(container)
-        });
-      }
+      // 1. On-Going Matchup
+      slides.push({
+        id: 'live_match',
+        title: 'On-Going Matchup',
+        tabHtml: '<span class="w-2 h-2 rounded-full bg-red-500 beacon-pulse"></span> On-Going Matchup',
+        render: (container) => renderTheaterLiveMatches(container)
+      });
 
-      // 2. Lower Bracket (only if matches are NOT done)
-      if (!isLowerBracketDone()) {
+      // 2. Next Matchup
+      slides.push({
+        id: 'next_matchups',
+        title: 'Next Matchup',
+        tabHtml: '<span>⏭️</span> Next Matchup',
+        render: (container) => renderTheaterNextMatchups(container)
+      });
+
+      // 3. Upper Bracket
+      slides.push({
+        id: 'upper_bracket',
+        title: 'Upper Bracket',
+        tabHtml: '<span>⚡</span> Upper Bracket',
+        render: (container) => renderTheaterUpperBracket(container)
+      });
+
+      // 4. Lower Bracket (Double Elimination)
+      if (tournamentMode === 'double_elim') {
         slides.push({
           id: 'lower_bracket',
           title: 'Lower Bracket',
@@ -7374,35 +7435,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
         });
       }
 
-      // 3. Live Match: On-Going & Recent
+      // 5. Championship Podium
       slides.push({
-        id: 'live_match',
-        title: 'Live Match',
-        tabHtml: '<span class="w-2 h-2 rounded-full bg-red-500 beacon-pulse"></span> Live Match',
-        render: (container) => renderTheaterLiveMatches(container)
+        id: 'podium',
+        title: 'Podium',
+        tabHtml: '<span>👑</span> Podium',
+        render: (container) => renderTheaterPodium(container)
       });
-
-      // 4. Next Matchups (only if there are upcoming scheduled matches)
-      const state = getStageMatchSequenceState();
-      if (state.nextMatch || state.secondNextMatch) {
-        slides.push({
-          id: 'next_matchups',
-          title: 'Next Matchups',
-          tabHtml: '<span>⏭️</span> Next Matchups',
-          render: (container) => renderTheaterNextMatchups(container)
-        });
-      }
-
-      // 5. Podium (do not show yet if there is no team who got bronze or other medals)
-      const podium = getPodiumMedalists();
-      if (podium.hasAny) {
-        slides.push({
-          id: 'podium',
-          title: 'Podium',
-          tabHtml: '<span>🏆</span> Podium',
-          render: (container) => renderTheaterPodium(container)
-        });
-      }
 
       return slides;
     }
@@ -7425,8 +7464,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
       container.innerHTML = slides.map((s, i) => {
         const isActive = i === theaterCurrentSlide;
         const cls = isActive
-          ? 'px-3 py-1 rounded-lg transition bg-amber-500 text-white shadow-xs cursor-pointer font-black flex items-center gap-1.5'
-          : 'px-3 py-1 rounded-lg transition text-slate-400 hover:text-white cursor-pointer font-bold flex items-center gap-1.5';
+          ? 'px-2.5 sm:px-3 py-1 rounded-lg transition bg-amber-500 text-slate-950 shadow-md cursor-pointer font-black flex items-center gap-1.5 whitespace-nowrap'
+          : 'px-2.5 sm:px-3 py-1 rounded-lg transition text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer font-bold flex items-center gap-1.5 whitespace-nowrap';
         return `
           <button onclick="setTheaterSlide(${i})" id="theaterTab-${i}" class="${cls}">
             ${s.tabHtml}
@@ -7441,36 +7480,91 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const theaterBadge = document.getElementById('theaterFormatBadge');
 
       if (currentEsport === 'codm' && typeof codmMode !== 'undefined' && codmMode === 'br') {
-        if (theaterTitle) theaterTitle.textContent = 'CODM Battle Royale Championship';
+        if (theaterTitle) theaterTitle.textContent = 'ESPORTS: CALL OF DUTY: MOBILE (BATTLE ROYALE)';
         if (theaterBadge) {
           theaterBadge.textContent = '7 College Squads · 8 Rounds · Live Stage';
-          theaterBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30';
+          theaterBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30 whitespace-nowrap';
         }
         if (theaterLogo) {
           theaterLogo.src = ESPORTS_CONFIG.codm.getLogo(typeof theme !== 'undefined' ? theme : 'dark');
           theaterLogo.alt = 'CODM Battle Royale';
         }
       } else if (currentEsport === 'codm') {
-        if (theaterTitle) theaterTitle.textContent = ESPORTS_CONFIG.codm.stageTitle;
+        if (theaterTitle) theaterTitle.textContent = 'ESPORTS: CALL OF DUTY: MOBILE (5v5 MP)';
         if (theaterBadge) {
           theaterBadge.textContent = tournamentMode === 'double_elim' ? 'Double Elim · BO3 MP' : 'Single Elimination';
-          theaterBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30';
+          theaterBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30 whitespace-nowrap';
         }
         if (theaterLogo) {
           theaterLogo.src = ESPORTS_CONFIG.codm.getLogo(typeof theme !== 'undefined' ? theme : 'dark');
           theaterLogo.alt = ESPORTS_CONFIG.codm.fullName;
         }
       } else {
-        if (theaterTitle) theaterTitle.textContent = ESPORTS_CONFIG.mlbb.stageTitle;
+        if (theaterTitle) theaterTitle.textContent = 'ESPORTS: MOBILE LEGENDS BANG BANG';
         if (theaterBadge) {
           theaterBadge.textContent = tournamentMode === 'double_elim' ? 'Double Elimination' : 'Single Elimination';
-          theaterBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-bold border border-blue-500/30';
+          theaterBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-bold border border-blue-500/30 whitespace-nowrap';
         }
         if (theaterLogo) {
           theaterLogo.src = ESPORTS_CONFIG.mlbb.getLogo(typeof theme !== 'undefined' ? theme : 'dark');
           theaterLogo.alt = ESPORTS_CONFIG.mlbb.fullName;
         }
       }
+
+      // Update Esport Switcher Active Pills in Live Stage Header
+      const btnMlbb = document.getElementById('theaterBtnSwitchMlbb');
+      const btnCodm = document.getElementById('theaterBtnSwitchCodmMp');
+      const isCodmMp = currentEsport === 'codm' && (typeof codmMode === 'undefined' || codmMode !== 'br');
+      if (btnMlbb) {
+        btnMlbb.className = currentEsport === 'mlbb'
+          ? 'px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black bg-blue-600 text-white shadow-md border border-blue-400 flex items-center gap-1.5 cursor-pointer'
+          : 'px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold text-slate-300 hover:text-white hover:bg-white/10 flex items-center gap-1.5 cursor-pointer';
+      }
+      if (btnCodm) {
+        btnCodm.className = isCodmMp
+          ? 'px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black bg-amber-500 text-slate-950 shadow-md border border-amber-300 flex items-center gap-1.5 cursor-pointer'
+          : 'px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold text-slate-300 hover:text-white hover:bg-white/10 flex items-center gap-1.5 cursor-pointer';
+      }
+    }
+
+    function switchTheaterEsport(esport) {
+      if (esport === 'codm') {
+        codmMode = 'mp';
+        switchEsport('codm');
+      } else if (esport === 'codm_br') {
+        codmMode = 'br';
+        switchEsport('codm');
+      } else {
+        switchEsport('mlbb');
+      }
+      updateTheaterHeader();
+      renderTheaterTabs();
+      const slides = getActiveTheaterSlides();
+      if (theaterCurrentSlide >= slides.length) {
+        theaterCurrentSlide = 0;
+      }
+      setTheaterSlide(theaterCurrentSlide || 0);
+    }
+
+    function openLiveStageFor(esport, mode = 'mp') {
+      if (esport === 'codm') {
+        codmMode = mode;
+        switchEsport('codm');
+      } else {
+        switchEsport('mlbb');
+      }
+      openTheaterMode(true);
+    }
+
+    function toggleLiveStageMenu(e) {
+      if (e) e.stopPropagation();
+      const dd = document.getElementById('liveStageDropdown');
+      if (dd) dd.classList.toggle('hidden');
+    }
+
+    function closeLiveStageMenu() {
+      const dd = document.getElementById('liveStageDropdown');
+      if (dd) dd.classList.add('hidden');
     }
 
     function openTheaterMode(allowViewer = false) {
@@ -7799,19 +7893,20 @@ Check your Browserslist config to be sure that your targets are set up correctly
     // 1. LIVE STAGE: UPPER BRACKET
     function renderTheaterUpperBracket(container) {
       const p = PLAYOFF_DATA;
+      const isCodm = currentEsport === 'codm';
       if (tournamentMode === 'double_elim') {
         container.innerHTML = `
           <div class="w-full max-w-[1840px] mx-auto h-full flex-1 min-h-0 flex flex-col justify-between select-none py-1">
             <div class="text-center space-y-0.5 mb-0.5 shrink-0">
               <div class="inline-flex items-center gap-2 px-3.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 font-black text-xs uppercase tracking-widest shadow-sm">
-                <span>⚡ UPPER BRACKET ARENA FEED</span>
+                <span>⚡ ${isCodm ? 'ESPORTS: CALL OF DUTY MOBILE (5v5 MP)' : 'ESPORTS: MOBILE LEGENDS: BANG BANG'}</span>
                 <span class="text-cyan-400">·</span>
-                <span>DOUBLE-LIFE KNOCKOUT</span>
+                <span>UPPER BRACKET ARENA FEED</span>
               </div>
-              <h2 class="text-lg sm:text-xl font-black text-white uppercase tracking-tight">
-                Upper Bracket Matches
+              <h2 class="text-lg sm:text-xl md:text-2xl font-black text-white uppercase tracking-tight">
+                ${isCodm ? 'ESPORTS - CALL OF DUTY MOBILE' : 'ESPORTS - MOBILE LEGENDS: BANG BANG'} · UPPER BRACKET
               </h2>
-              <p class="text-[11px] text-slate-300 font-medium">Day 1 Opening & Semifinals (BO3) · Day 2 Upper Final (BO5)</p>
+              <p class="text-[11px] text-slate-300 font-medium">Tagoloan Community College · Intramurals 2026 · ${isCodm ? 'CODM 5v5 Multiplayer' : 'Mobile Legends: Bang Bang'} Upper Bracket Stage</p>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 flex-1 min-h-0 items-stretch">
@@ -7912,19 +8007,20 @@ Check your Browserslist config to be sure that your targets are set up correctly
     // 2. LIVE STAGE: LOWER BRACKET
     function renderTheaterLowerBracket(container) {
       const p = PLAYOFF_DATA;
+      const isCodm = currentEsport === 'codm';
       if (tournamentMode === 'double_elim') {
         container.innerHTML = `
           <div class="w-full max-w-[1840px] mx-auto h-full flex-1 min-h-0 flex flex-col justify-between select-none py-1">
             <div class="text-center space-y-0.5 mb-1 shrink-0">
               <div class="inline-flex items-center gap-2 px-3.5 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/40 text-rose-300 font-black text-xs uppercase tracking-widest shadow-sm">
-                <span>🔥 LOWER BRACKET ARENA FEED</span>
+                <span>🔥 ${isCodm ? 'ESPORTS: CALL OF DUTY MOBILE (5v5 MP)' : 'ESPORTS: MOBILE LEGENDS: BANG BANG'}</span>
                 <span class="text-rose-400">·</span>
-                <span>SUDDEN DEATH ELIMINATION</span>
+                <span>LOWER BRACKET ARENA FEED</span>
               </div>
-              <h2 class="text-xl sm:text-2xl font-black text-white uppercase tracking-tight">
-                Lower Bracket Matches
+              <h2 class="text-xl sm:text-2xl md:text-3xl font-black text-white uppercase tracking-tight">
+                ${isCodm ? 'ESPORTS - CALL OF DUTY MOBILE' : 'ESPORTS - MOBILE LEGENDS: BANG BANG'} · LOWER BRACKET
               </h2>
-              <p class="text-xs text-slate-300 font-medium">Day 2 Elimination Rounds · Day 3 Lower Bracket Final (BO5)</p>
+              <p class="text-xs text-slate-300 font-medium">Tagoloan Community College · Intramurals 2026 · ${isCodm ? 'CODM 5v5 Multiplayer' : 'Mobile Legends: Bang Bang'} Lower Bracket Elimination Stage</p>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 flex-1 min-h-0 items-stretch">
@@ -8137,6 +8233,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
     function renderTheaterLiveMatches(container) {
       const state = getStageMatchSequenceState();
       const { recentMatch, ongoingMatch, nextMatch } = state;
+      const isCodm = currentEsport === 'codm';
 
       const hasScores = ongoingMatch && ongoingMatch.s1 !== null && ongoingMatch.s2 !== null;
       const isFinished = hasScores && ongoingMatch.winner !== null;
@@ -8161,14 +8258,16 @@ Check your Browserslist config to be sure that your targets are set up correctly
         <div class="w-full max-w-[1720px] mx-auto h-full flex-1 min-h-0 flex flex-col justify-between select-none py-1">
           <!-- Slide Heading -->
           <div class="text-center space-y-0.5 mb-1 shrink-0">
-            <div class="inline-flex items-center gap-2 px-3.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-300 font-black text-xs uppercase tracking-widest shadow-sm">
+            <div class="inline-flex items-center gap-2 px-3.5 py-0.5 rounded-full ${isCodm ? 'bg-amber-500/15 border border-amber-500/40 text-amber-300' : 'bg-sky-500/15 border border-sky-500/40 text-sky-300'} font-black text-xs uppercase tracking-widest shadow-sm">
               <span class="w-2 h-2 rounded-full bg-red-500 beacon-pulse"></span>
-              <span>LIVE ARENA STAGE FEED</span>
+              <span>${isCodm ? 'ESPORTS: CALL OF DUTY MOBILE (5v5 MP)' : 'ESPORTS: MOBILE LEGENDS: BANG BANG'}</span>
+              <span>·</span>
+              <span>LIVE ARENA MATCH</span>
             </div>
-            <h2 class="text-xl sm:text-2xl font-black text-white uppercase tracking-tight">
-              On-Going & Recent Match
+            <h2 class="text-xl sm:text-2xl md:text-3xl font-black text-white uppercase tracking-tight">
+              ${isCodm ? 'ESPORTS - CALL OF DUTY MOBILE' : 'ESPORTS - MOBILE LEGENDS: BANG BANG'} · ON-GOING MATCHUP
             </h2>
-            <p class="text-xs text-slate-300 font-medium">Match tracking based on official playing order: Current Arena Series & Concluded Result</p>
+            <p class="text-xs text-slate-300 font-medium">Tagoloan Community College · Intramurals 2026 · Real-Time Arena Stage Broadcast</p>
           </div>
 
           <!-- 1. HERO ON-GOING MATCH (MASSIVE JUMBOTRON DISPLAY FOR FAR-AWAY AUDIENCE) -->
@@ -8417,6 +8516,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
     function renderTheaterNextMatchups(container) {
       const state = getStageMatchSequenceState();
       const { nextMatch, secondNextMatch } = state;
+      const isCodm = currentEsport === 'codm';
 
       const tNext1 = nextMatch ? (DEFAULT_TEAMS.find(t => t.name === nextMatch.team1 || (nextMatch.team1 === 'COM' && t.name === 'CMID')) || { name: nextMatch.team1 || 'TBD', full: nextMatch.team1 || 'To Be Determined', mascot: '' }) : null;
       const tNext2 = nextMatch ? (DEFAULT_TEAMS.find(t => t.name === nextMatch.team2 || (nextMatch.team2 === 'COM' && t.name === 'CMID')) || { name: nextMatch.team2 || 'TBD', full: nextMatch.team2 || 'To Be Determined', mascot: '' }) : null;
@@ -8428,14 +8528,16 @@ Check your Browserslist config to be sure that your targets are set up correctly
         <div class="w-full max-w-[1720px] mx-auto h-full flex-1 min-h-0 flex flex-col justify-between select-none py-1">
           <!-- Slide Heading -->
           <div class="text-center space-y-0.5 mb-1 shrink-0">
-            <div class="inline-flex items-center gap-2 px-3.5 py-0.5 rounded-full bg-blue-500/15 border border-blue-500/40 text-blue-300 font-black text-xs uppercase tracking-widest shadow-sm">
+            <div class="inline-flex items-center gap-2 px-3.5 py-0.5 rounded-full ${isCodm ? 'bg-amber-500/15 border border-amber-500/40 text-amber-300' : 'bg-blue-500/15 border border-blue-500/40 text-blue-300'} font-black text-xs uppercase tracking-widest shadow-sm">
               <span>⏭️</span>
+              <span>${isCodm ? 'ESPORTS: CALL OF DUTY MOBILE (5v5 MP)' : 'ESPORTS: MOBILE LEGENDS: BANG BANG'}</span>
+              <span>·</span>
               <span>OFFICIAL PROGRESSION FEED</span>
             </div>
-            <h2 class="text-xl sm:text-2xl font-black text-white uppercase tracking-tight">
-              Next Tournament Matchups
+            <h2 class="text-xl sm:text-2xl md:text-3xl font-black text-white uppercase tracking-tight">
+              ${isCodm ? 'ESPORTS - CALL OF DUTY MOBILE' : 'ESPORTS - MOBILE LEGENDS: BANG BANG'} · NEXT MATCHUP
             </h2>
-            <p class="text-xs text-slate-300 font-medium">Scheduled matchups following official 3-day tournament sequence</p>
+            <p class="text-xs text-slate-300 font-medium">Tagoloan Community College · Intramurals 2026 · Scheduled Series Following Official 3-Day Sequence</p>
           </div>
 
           <!-- 1. HERO NEXT MATCH CARD WITH MASSIVE TEAM LOGOS -->
@@ -8986,8 +9088,12 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
     window.addEventListener('click', (e) => {
       const dd = document.getElementById('dataMenuDropdown');
-      if (dd && !e.target.closest('.relative.inline-block')) {
+      if (dd && !e.target.closest('#dataMenuDropdown') && !e.target.closest('button[onclick*="toggleDataMenu"]')) {
         dd.classList.add('hidden');
+      }
+      const lsDd = document.getElementById('liveStageDropdown');
+      if (lsDd && !e.target.closest('#liveStageDropdownContainer')) {
+        lsDd.classList.add('hidden');
       }
     });
 
