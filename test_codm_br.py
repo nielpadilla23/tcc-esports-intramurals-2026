@@ -86,6 +86,8 @@ try:
     assert_true(driver.execute_script("return canScore('codm');"), "CODM Marshal canScore('codm') is True")
 
     print("\n--- 4. TEST BR SCORE ENTRY MODAL & SCORING CALCULATIONS (ROUND 1) ---")
+    driver.execute_script("CODM_BR_DATA = getBlankBrData(); saveBrDataToStorage(); renderCodmBattleRoyale();")
+    time.sleep(0.3)
     driver.execute_script("openBrScoreModal(1);")
     time.sleep(0.3)
     br_modal_open = not driver.execute_script("return document.getElementById('codmBrScoreModal').classList.contains('hidden');")
@@ -309,6 +311,9 @@ try:
                     f"Rank {i+1} ({standings_sim[i]['totalPoints']}) >= Rank {i+2} ({standings_sim[i+1]['totalPoints']})")
 
     print(f"Simulated Champion: {standings_sim[0]['name']} ({standings_sim[0]['mascot']}) with {standings_sim[0]['totalPoints']} PTS ({standings_sim[0]['totalKills']} Kills)!")
+    assert_true(standings_sim[0]['id'] == 'CHM', f"Gold (1st) is CHM (got {standings_sim[0]['id']})")
+    assert_true(standings_sim[1]['id'] == 'CIT', f"Silver (2nd) is CIT (got {standings_sim[1]['id']})")
+    assert_true(standings_sim[2]['id'] == 'CCJPS', f"Bronze (3rd) is CCJPS (got {standings_sim[2]['id']})")
 
     # Verify Podium cards in DOM when all 8 rounds are complete
     podium_html = driver.execute_script("return document.getElementById('brPodiumContainer').innerHTML;")

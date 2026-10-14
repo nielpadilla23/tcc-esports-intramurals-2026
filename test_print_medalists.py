@@ -67,18 +67,8 @@ def run_tests():
         localStorage.setItem('codm_playoff_data_v9', JSON.stringify(codmData));
         localStorage.setItem('codm_tournament_mode_v9', 'double_elim');
 
-        // Mock CODM BR Data with completed rounds
+        // Use Official CODM BR Data with completed rounds
         CODM_BR_DATA = getDefaultBrData();
-        for (let r = 1; r <= 8; r++) {
-            CODM_BR_DATA.rounds[r].status = 'completed';
-            CODM_BR_DATA.rounds[r].results['CIT'] = { team: 'CIT', placement: 1, kills: 12 };
-            CODM_BR_DATA.rounds[r].results['CCJPS'] = { team: 'CCJPS', placement: 2, kills: 8 };
-            CODM_BR_DATA.rounds[r].results['COED'] = { team: 'COED', placement: 3, kills: 6 };
-            CODM_BR_DATA.rounds[r].results['CAS'] = { team: 'CAS', placement: 4, kills: 4 };
-            CODM_BR_DATA.rounds[r].results['CBA'] = { team: 'CBA', placement: 5, kills: 2 };
-            CODM_BR_DATA.rounds[r].results['CHM'] = { team: 'CHM', placement: 6, kills: 1 };
-            CODM_BR_DATA.rounds[r].results['CLIS'] = { team: 'CLIS', placement: 7, kills: 0 };
-        }
         saveBrDataToStorage();
 
         // Refresh active MLBB
@@ -101,19 +91,24 @@ def run_tests():
     assert codm_med['bronze'] == 'CAS', f"Expected CAS, got {codm_med['bronze']}"
 
     print(f"CODM BR Medalists: Gold={br_med['gold']}, Silver={br_med['silver']}, Bronze={br_med['bronze']}")
-    assert br_med['gold'] == 'CIT', f"Expected CIT, got {br_med['gold']}"
-    assert br_med['silver'] == 'CCJPS', f"Expected CCJPS, got {br_med['silver']}"
-    assert br_med['bronze'] == 'COED', f"Expected COED, got {br_med['bronze']}"
+    assert br_med['gold'] == 'CHM', f"Expected CHM, got {br_med['gold']}"
+    assert br_med['silver'] == 'CIT', f"Expected CIT, got {br_med['silver']}"
+    assert br_med['bronze'] == 'CCJPS', f"Expected CCJPS, got {br_med['bronze']}"
 
     # Verify Overall Medal Tally
     print("\n--- Testing Overall Medal Tally Calculation ---")
     tally = driver.execute_script("return calculateOverallMedalTally();")
-    for t in tally[:4]:
+    for t in tally[:5]:
         print(f"Rank {t['rank']}: {t['name']} - Gold: {t['gold']}, Silver: {t['silver']}, Bronze: {t['bronze']}, Total: {t['totalMedals']}, Points: {t['points']}")
     
-    assert tally[0]['name'] == 'CIT', "CIT should be #1 with 2 Golds"
-    assert tally[0]['gold'] == 2
-    assert tally[1]['name'] == 'CBA', "CBA should be #2 with 1 Gold and 1 Silver"
+    cit_tally = next(t for t in tally if t['name'] == 'CIT')
+    chm_tally = next(t for t in tally if t['name'] == 'CHM')
+    cba_tally = next(t for t in tally if t['name'] == 'CBA')
+    ccjps_tally = next(t for t in tally if t['name'] == 'CCJPS')
+    assert cit_tally['gold'] == 1 and cit_tally['silver'] == 1, "CIT has 1 Gold (MLBB) and 1 Silver (CODM BR)"
+    assert chm_tally['gold'] == 1 and chm_tally['silver'] == 1, "CHM has 1 Gold (CODM BR) and 1 Silver (CODM MP)"
+    assert cba_tally['gold'] == 1 and cba_tally['silver'] == 1, "CBA has 1 Gold (CODM MP) and 1 Silver (MLBB)"
+    assert ccjps_tally['bronze'] == 2, "CCJPS has 2 Bronzes (MLBB + CODM BR)"
 
     # Test printPodiumMedalists execution and iframe generation
     print("\n--- Testing printPodiumMedalists('all') generation ---")

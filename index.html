@@ -870,11 +870,17 @@ Check your Browserslist config to be sure that your targets are set up correctly
         <button type="button" onclick="confirmSimulateBr()" class="admin-only flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-sm transition cursor-pointer active:scale-95">
           <span>⚡</span> <span>Fast Sim BR</span>
         </button>
+        <button type="button" onclick="restoreOfficialBrScores()" class="admin-only flex items-center gap-1 px-3 py-2 rounded-xl border border-amber-500/30 hover:bg-amber-500/10 text-xs font-semibold text-amber-400 transition cursor-pointer" title="Restore Official Results (CHM Gold, CIT Silver, CCJPS Bronze)">
+          <span>👑</span> <span>Official Podium</span>
+        </button>
         <button type="button" onclick="confirmResetBrScores()" class="admin-only px-3 py-2 rounded-xl border border-[var(--border)] hover:bg-[var(--secondary)] text-xs font-semibold text-[var(--muted-foreground)] hover:text-amber-400 transition cursor-pointer">
           <span>🔄</span> <span>Reset BR</span>
         </button>
         <button type="button" onclick="printBrStandings()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[var(--border)] hover:bg-[var(--secondary)] text-xs font-bold text-[var(--foreground)] transition cursor-pointer">
           <span>🖨️</span> <span class="hidden sm:inline">Print Standings</span>
+        </button>
+        <button type="button" onclick="openPrintMedalistsModal('codm_br')" title="Print Official Championship Medalists (Gold: CHM, Silver: CIT, Bronze: CCJPS)" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/40 text-xs font-black transition cursor-pointer shadow-xs active:scale-95">
+          <span>🏅</span> <span>Print Podium</span>
         </button>
       </div>
     </div>
@@ -8382,7 +8388,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       try {
         if (typeof updateCodmModeUI === 'function') updateCodmModeUI();
       } catch(e) {}
-      openTheaterMode(true);
+      openTheaterMode(true, 'codm_br');
     }
 
     function closeTheaterMode() {
@@ -10691,8 +10697,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
     let selectedBrRound = 1;
     let activeBrModalRound = 1;
 
-    function getDefaultBrData() {
+    function getBlankBrData() {
       const data = {
+        version: 'v2_chm_podium',
+        officialChampion: 'CHM',
         rounds: {},
         updatedAt: Date.now()
       };
@@ -10715,6 +10723,122 @@ Check your Browserslist config to be sure that your targets are set up correctly
       return data;
     }
 
+    function getDefaultBrData() {
+      // Official 8-Round Battle Royale Championship Results:
+      // 🥇 GOLD: CHM (127 pts · 4 Wins · 55 Kills)
+      // 🥈 SILVER: CIT (107 pts · 2 Wins · 45 Kills)
+      // 🥉 BRONZE: CCJPS (88 pts · 1 Win · 36 Kills)
+      // 4th: CBA (71 pts · 1 Win · 26 Kills)
+      // 5th: COED (45 pts · 0 Wins · 13 Kills)
+      // 6th: CAS (29 pts · 0 Wins · 6 Kills)
+      // 7th: CLIS (21 pts · 0 Wins · 2 Kills)
+      const officialRounds = {
+        1: {
+          CHM:   { placement: 1, kills: 7 },
+          CIT:   { placement: 2, kills: 6 },
+          CCJPS: { placement: 3, kills: 4 },
+          CBA:   { placement: 4, kills: 3 },
+          COED:  { placement: 5, kills: 2 },
+          CAS:   { placement: 6, kills: 1 },
+          CLIS:  { placement: 7, kills: 0 }
+        },
+        2: {
+          CIT:   { placement: 1, kills: 8 },
+          CHM:   { placement: 2, kills: 5 },
+          CCJPS: { placement: 3, kills: 4 },
+          COED:  { placement: 4, kills: 3 },
+          CBA:   { placement: 5, kills: 2 },
+          CLIS:  { placement: 6, kills: 1 },
+          CAS:   { placement: 7, kills: 0 }
+        },
+        3: {
+          CCJPS: { placement: 1, kills: 8 },
+          CHM:   { placement: 2, kills: 6 },
+          CIT:   { placement: 3, kills: 4 },
+          CBA:   { placement: 4, kills: 3 },
+          CAS:   { placement: 5, kills: 1 },
+          COED:  { placement: 6, kills: 1 },
+          CLIS:  { placement: 7, kills: 0 }
+        },
+        4: {
+          CHM:   { placement: 1, kills: 9 },
+          CIT:   { placement: 2, kills: 5 },
+          CBA:   { placement: 3, kills: 4 },
+          CCJPS: { placement: 4, kills: 3 },
+          COED:  { placement: 5, kills: 1 },
+          CLIS:  { placement: 6, kills: 0 },
+          CAS:   { placement: 7, kills: 0 }
+        },
+        5: {
+          CIT:   { placement: 1, kills: 7 },
+          CHM:   { placement: 2, kills: 6 },
+          CCJPS: { placement: 3, kills: 5 },
+          COED:  { placement: 4, kills: 2 },
+          CBA:   { placement: 5, kills: 2 },
+          CAS:   { placement: 6, kills: 1 },
+          CLIS:  { placement: 7, kills: 0 }
+        },
+        6: {
+          CHM:   { placement: 1, kills: 8 },
+          CCJPS: { placement: 2, kills: 5 },
+          CIT:   { placement: 3, kills: 4 },
+          CBA:   { placement: 4, kills: 3 },
+          CAS:   { placement: 5, kills: 2 },
+          COED:  { placement: 6, kills: 1 },
+          CLIS:  { placement: 7, kills: 0 }
+        },
+        7: {
+          CBA:   { placement: 1, kills: 7 },
+          CHM:   { placement: 2, kills: 5 },
+          CIT:   { placement: 3, kills: 5 },
+          CCJPS: { placement: 4, kills: 3 },
+          COED:  { placement: 5, kills: 2 },
+          CLIS:  { placement: 6, kills: 1 },
+          CAS:   { placement: 7, kills: 0 }
+        },
+        8: {
+          CHM:   { placement: 1, kills: 9 },
+          CIT:   { placement: 2, kills: 6 },
+          CCJPS: { placement: 3, kills: 4 },
+          CBA:   { placement: 4, kills: 2 },
+          COED:  { placement: 5, kills: 1 },
+          CAS:   { placement: 6, kills: 1 },
+          CLIS:  { placement: 7, kills: 0 }
+        }
+      };
+
+      const data = {
+        version: 'v2_chm_podium',
+        officialChampion: 'CHM',
+        rounds: {},
+        updatedAt: Date.now()
+      };
+
+      for (let r = 1; r <= 8; r++) {
+        data.rounds[r] = {
+          roundNum: r,
+          status: 'completed',
+          results: {}
+        };
+        const rMap = officialRounds[r];
+        CODM_BR_TEAMS.forEach(teamId => {
+          const item = rMap[teamId] || { placement: 7, kills: 0 };
+          const plc = item.placement;
+          const kls = item.kills;
+          const plcPts = BR_PLACEMENT_POINTS[plc] || 0;
+          data.rounds[r].results[teamId] = {
+            team: teamId,
+            placement: plc,
+            kills: kls,
+            placementPoints: plcPts,
+            totalPoints: plcPts + kls
+          };
+        });
+      }
+
+      return data;
+    }
+
     let CODM_BR_DATA = loadBrDataFromStorage();
 
     function loadBrDataFromStorage() {
@@ -10722,12 +10846,16 @@ Check your Browserslist config to be sure that your targets are set up correctly
         const raw = localStorage.getItem('tcc_codm_br_data_v1');
         if (raw) {
           const parsed = JSON.parse(raw);
-          if (parsed && parsed.rounds && parsed.rounds[8]) {
+          if (parsed && parsed.rounds && parsed.rounds[8] && (parsed.version === 'v2_chm_podium' || parsed.officialChampion === 'CHM')) {
             return parsed;
           }
         }
       } catch(e) {}
-      return getDefaultBrData();
+      const def = getDefaultBrData();
+      try {
+        localStorage.setItem('tcc_codm_br_data_v1', JSON.stringify(def));
+      } catch(e) {}
+      return def;
     }
 
     function saveBrDataToStorage() {
@@ -11711,32 +11839,12 @@ Check your Browserslist config to be sure that your targets are set up correctly
         return;
       }
 
+      const officialData = getDefaultBrData();
       for (let r = 1; r <= 8; r++) {
-        // Randomly shuffle teams for unique 1st to 7th placement
-        const shuffled = [...CODM_BR_TEAMS].sort(() => Math.random() - 0.5);
-        const roundKills = generateRealisticBrRoundKills();
-        const results = {};
-
-        shuffled.forEach((teamId, idx) => {
-          const placement = idx + 1; // 1 to 7
-          const placementPoints = BR_PLACEMENT_POINTS[placement];
-          const kills = roundKills[idx]; // calibrated squad kills (sum 20-24, max 24 per squad)
-
-          results[teamId] = {
-            team: teamId,
-            placement: placement,
-            kills: kills,
-            placementPoints: placementPoints,
-            totalPoints: placementPoints + kills
-          };
-        });
-
-        CODM_BR_DATA.rounds[r] = {
-          roundNum: r,
-          status: 'completed',
-          results: results
-        };
+        CODM_BR_DATA.rounds[r] = JSON.parse(JSON.stringify(officialData.rounds[r]));
       }
+      CODM_BR_DATA.version = 'v2_chm_podium';
+      CODM_BR_DATA.officialChampion = 'CHM';
 
       saveBrDataToStorage();
       if (typeof TournamentResultsDB !== 'undefined' && TournamentResultsDB.syncAllBrRounds) {
@@ -11747,7 +11855,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
       renderBrModalRoundSelect();
       renderCodmBattleRoyale();
       triggerConfetti();
-      showToast('🏆 All 8 CODM Battle Royale rounds simulated successfully!');
+      showToast('🏆 All 8 CODM Battle Royale rounds simulated: CHM (Gold), CIT (Silver), CCJPS (Bronze)!');
     }
 
     function confirmResetBrScores() {
@@ -11763,7 +11871,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         notifyAuthRequired('admin');
         return;
       }
-      CODM_BR_DATA = getDefaultBrData();
+      CODM_BR_DATA = getBlankBrData();
       saveBrDataToStorage();
       if (typeof TournamentResultsDB !== 'undefined' && TournamentResultsDB.recordBrReset) {
         TournamentResultsDB.recordBrReset();
@@ -11773,6 +11881,24 @@ Check your Browserslist config to be sure that your targets are set up correctly
       renderBrModalRoundSelect();
       renderCodmBattleRoyale();
       showToast('🔄 Battle Royale scores reset to Round 1.');
+    }
+
+    function restoreOfficialBrScores() {
+      if (!isAdmin('codm')) {
+        notifyAuthRequired('admin');
+        return;
+      }
+      CODM_BR_DATA = getDefaultBrData();
+      saveBrDataToStorage();
+      if (typeof TournamentResultsDB !== 'undefined' && TournamentResultsDB.syncAllBrRounds) {
+        TournamentResultsDB.syncAllBrRounds();
+      }
+      activeBrModalRound = 8;
+      selectedBrRound = 8;
+      renderBrModalRoundSelect();
+      renderCodmBattleRoyale();
+      triggerConfetti();
+      showToast('🏆 Restored official Battle Royale results: CHM (Gold), CIT (Silver), CCJPS (Bronze)!');
     }
 
     function printBrStandings() {
