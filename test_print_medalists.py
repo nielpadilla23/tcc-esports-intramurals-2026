@@ -127,8 +127,44 @@ def run_tests():
     assert "Call of Duty: Mobile" in iframe_content
     assert "Battle Royale" in iframe_content
     assert "Official Aggregate College Esports Medal Tally" in iframe_content
-    assert "Esports Tournament Director" in iframe_content
-    print("SUCCESS: Print iframe received full 3-category printable document with logos, medalists, and medal tally!")
+    assert "Tournament Manager" in iframe_content, "Must contain Tournament Manager signatory"
+    assert "Sports Director" in iframe_content, "Must contain Sports Director signatory"
+    assert "Esports Tournament Director" not in iframe_content, "Must NOT contain old Esports Tournament Director title"
+    assert "Head Committee" not in iframe_content, "Must NOT contain Head Committee title"
+    assert "Table Marshal" not in iframe_content, "Must NOT contain Table Marshal in signatures"
+    assert "College Dean" not in iframe_content, "Must NOT contain College Dean title"
+    print("SUCCESS: Print iframe contains only Tournament Manager and Sports Director signatories!")
+
+    # Test printMatchScheduleList signatories
+    print("\n--- Testing printMatchScheduleList() signatories ---")
+    driver.execute_script("printMatchScheduleList('current', 'table', 'landscape', 'folio');")
+    time.sleep(1)
+    sched_content = driver.execute_script("""
+        const iframe = document.getElementById('bracketPrintIframe');
+        if (!iframe || !iframe.contentDocument) return null;
+        return iframe.contentDocument.body.innerHTML;
+    """)
+    assert sched_content is not None
+    assert "Tournament Manager" in sched_content, "Schedule must contain Tournament Manager signatory"
+    assert "Sports Director" in sched_content, "Schedule must contain Sports Director signatory"
+    assert "Head Committee" not in sched_content, "Schedule must NOT contain Head Committee"
+    assert "Table Marshal" not in sched_content, "Schedule must NOT contain Table Marshal"
+    print("SUCCESS: Match Schedule Ledger contains only Tournament Manager and Sports Director signatories!")
+
+    # Test printBracketSection signatories
+    print("\n--- Testing printBracketSection() signatories ---")
+    driver.execute_script("printBracketSection('upper');")
+    time.sleep(1)
+    bracket_content = driver.execute_script("""
+        const iframe = document.getElementById('bracketPrintIframe');
+        if (!iframe || !iframe.contentDocument) return null;
+        return iframe.contentDocument.body.innerHTML;
+    """)
+    assert bracket_content is not None
+    assert "Tournament Manager" in bracket_content, "Bracket must contain Tournament Manager signatory"
+    assert "Sports Director" in bracket_content, "Bracket must contain Sports Director signatory"
+    assert "Head Committee" not in bracket_content, "Bracket must NOT contain Head Committee"
+    print("SUCCESS: Bracket Print contains only Tournament Manager and Sports Director signatories!")
 
     # Test Print Modal integration
     print("\n--- Testing Print Modal UI ---")
