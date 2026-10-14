@@ -1334,8 +1334,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
         <button onclick="closePrintSeriesModal()" class="text-[var(--muted-foreground)] hover:text-[var(--foreground)] text-lg cursor-pointer p-1">✕</button>
       </div>
 
-      <!-- Scope Selection -->
-      <div class="space-y-2">
+      <!-- Scope Selection for Match Schedule -->
+      <div id="printScopeContainer" class="space-y-2">
         <label class="text-xs font-black text-[var(--foreground)] uppercase tracking-wider block">1. Select Match Scope</label>
         <div class="grid grid-cols-2 gap-2 text-xs">
           <label class="flex items-center gap-2 p-2.5 rounded-xl bg-[var(--secondary)]/40 border border-[var(--border)] hover:border-amber-500/40 cursor-pointer transition">
@@ -1365,29 +1365,78 @@ Check your Browserslist config to be sure that your targets are set up correctly
         </div>
       </div>
 
+      <!-- Scope Selection for Championship Medalists (Shown when Medalists layout is selected) -->
+      <div id="printMedalScopeContainer" class="space-y-2 hidden">
+        <label class="text-xs font-black text-amber-400 uppercase tracking-wider block">1. Select Medal Category Scope</label>
+        <div class="space-y-1.5 text-xs">
+          <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/40 hover:border-amber-500 cursor-pointer transition">
+            <input type="radio" name="printMedalCategoryRadio" value="all" checked class="text-amber-500 focus:ring-0">
+            <div>
+              <span class="font-black text-amber-400 block">🌟 All Categories (MLBB, CODM MP, CODM BR)</span>
+              <span class="text-[11px] text-[var(--muted-foreground)]">Unified Master Honor Roll with Gold, Silver, Bronze for all 3 disciplines + Overall Medal Tally.</span>
+            </div>
+          </label>
+          <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-[var(--secondary)]/40 border border-[var(--border)] hover:border-amber-500/40 cursor-pointer transition">
+            <input type="radio" name="printMedalCategoryRadio" value="current" class="text-amber-500 focus:ring-0">
+            <div>
+              <span class="font-bold text-[var(--foreground)] block">⚡ Current Active Category</span>
+              <span class="text-[10px] text-[var(--muted-foreground)]">Prints medal podium for the currently selected esport view.</span>
+            </div>
+          </label>
+          <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-[var(--secondary)]/40 border border-[var(--border)] hover:border-amber-500/40 cursor-pointer transition">
+            <input type="radio" name="printMedalCategoryRadio" value="mlbb" class="text-amber-500 focus:ring-0">
+            <div>
+              <span class="font-bold text-[var(--foreground)] block">🎮 Mobile Legends: Bang Bang (MLBB)</span>
+              <span class="text-[10px] text-[var(--muted-foreground)]">Gold, Silver, Bronze, and placements for MLBB tournament.</span>
+            </div>
+          </label>
+          <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-[var(--secondary)]/40 border border-[var(--border)] hover:border-amber-500/40 cursor-pointer transition">
+            <input type="radio" name="printMedalCategoryRadio" value="codm_mp" class="text-amber-500 focus:ring-0">
+            <div>
+              <span class="font-bold text-[var(--foreground)] block">🎯 Call of Duty: Mobile · 5v5 Multi-Player (CODM MP)</span>
+              <span class="text-[10px] text-[var(--muted-foreground)]">Gold, Silver, Bronze, and placements for 7-college CODM MP bracket.</span>
+            </div>
+          </label>
+          <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-[var(--secondary)]/40 border border-[var(--border)] hover:border-amber-500/40 cursor-pointer transition">
+            <input type="radio" name="printMedalCategoryRadio" value="codm_br" class="text-amber-500 focus:ring-0">
+            <div>
+              <span class="font-bold text-[var(--foreground)] block">🪂 Call of Duty: Mobile · Battle Royale (CODM BR)</span>
+              <span class="text-[10px] text-[var(--muted-foreground)]">Gold, Silver, Bronze leaders with total points & kills from 8 rounds.</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
       <!-- Format Selection -->
       <div class="space-y-2">
         <label class="text-xs font-black text-[var(--foreground)] uppercase tracking-wider block">2. Document Layout Style</label>
         <div class="space-y-1.5 text-xs">
           <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-[var(--secondary)]/40 border border-[var(--border)] hover:border-amber-500/40 cursor-pointer transition">
-            <input type="radio" name="printFormatRadio" value="table" checked class="mt-0.5 text-amber-500 focus:ring-0">
+            <input type="radio" name="printFormatRadio" value="table" checked onchange="onPrintFormatChange()" class="mt-0.5 text-amber-500 focus:ring-0">
             <div>
               <span class="font-black text-[var(--foreground)] block">📋 Official Tournament Ledger (Table)</span>
               <span class="text-[11px] text-[var(--muted-foreground)]">Full chronological playing sequence with scores, seeds, progression, and marshal initials.</span>
             </div>
           </label>
           <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-[var(--secondary)]/40 border border-[var(--border)] hover:border-amber-500/40 cursor-pointer transition">
-            <input type="radio" name="printFormatRadio" value="blank_referee" class="mt-0.5 text-amber-500 focus:ring-0">
+            <input type="radio" name="printFormatRadio" value="blank_referee" onchange="onPrintFormatChange()" class="mt-0.5 text-amber-500 focus:ring-0">
             <div>
               <span class="font-black text-[var(--foreground)] block">📝 Referee & Marshal Scoresheet (Blank)</span>
               <span class="text-[11px] text-[var(--muted-foreground)]">Empty score boxes and game checkboxes for live pencil/pen tracking at table official stations.</span>
             </div>
           </label>
           <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-[var(--secondary)]/40 border border-[var(--border)] hover:border-amber-500/40 cursor-pointer transition">
-            <input type="radio" name="printFormatRadio" value="cards" class="mt-0.5 text-amber-500 focus:ring-0">
+            <input type="radio" name="printFormatRadio" value="cards" onchange="onPrintFormatChange()" class="mt-0.5 text-amber-500 focus:ring-0">
             <div>
               <span class="font-black text-[var(--foreground)] block">🗂️ Match Series Cards Stack (Grid)</span>
               <span class="text-[11px] text-[var(--muted-foreground)]">Visual 2-column card stack layout matching the onscreen display for spectator boards.</span>
+            </div>
+          </label>
+          <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/40 hover:border-amber-500 cursor-pointer transition">
+            <input type="radio" name="printFormatRadio" value="medalists" onchange="onPrintFormatChange()" class="mt-0.5 text-amber-500 focus:ring-0">
+            <div>
+              <span class="font-black text-amber-400 block">🏅 Championship Medalists (Gold, Silver, Bronze)</span>
+              <span class="text-[11px] text-[var(--muted-foreground)]">Official Medal Ceremony Ledger & Certificate across categories with college logos, records, and signatures.</span>
             </div>
           </label>
         </div>
@@ -5089,6 +5138,531 @@ Check your Browserslist config to be sure that your targets are set up correctly
       return getPodiumStandings();
     }
 
+    // --- 9.1 MULTI-CATEGORY MEDALISTS & HONOR ROLL PRINT ENGINE ---
+    function getCategoryMedalists(cat) {
+      if (cat === 'codm_br') {
+        const standings = (typeof calculateBrStandings === 'function') ? calculateBrStandings() : [];
+        const completedCount = (typeof CODM_BR_DATA !== 'undefined' && CODM_BR_DATA.rounds) 
+          ? Object.values(CODM_BR_DATA.rounds).filter(r => r && r.status === 'completed').length 
+          : 0;
+        const isConcluded = completedCount === 8;
+        const top1 = standings[0] || null;
+        const top2 = standings[1] || null;
+        const top3 = standings[2] || null;
+        const fourth = standings[3] || null;
+        const hasScores = completedCount > 0 || (top1 && top1.totalPoints > 0);
+        return {
+          category: 'codm_br',
+          name: 'Call of Duty: Mobile · Battle Royale',
+          shortName: 'CODM BR',
+          icon: '🪂',
+          badgeColor: '#a855f7',
+          formatLabel: `8-Round Cumulative Battle Royale (${completedCount} of 8 Rounds Complete)`,
+          gold: hasScores ? (top1 ? top1.id : null) : null,
+          silver: hasScores ? (top2 ? top2.id : null) : null,
+          bronze: hasScores ? (top3 ? top3.id : null) : null,
+          fourth: hasScores ? (fourth ? fourth.id : null) : null,
+          fifth: hasScores ? (standings[4] ? standings[4].id : null) : null,
+          sixth: hasScores ? (standings[5] ? standings[5].id : null) : null,
+          seventh: hasScores ? (standings[6] ? standings[6].id : null) : null,
+          eighth: null,
+          top1Stats: top1 ? `${top1.totalPoints} PTS (${top1.totalKills} kills · ${top1.totalPlacementPoints} place pts)` : '',
+          top2Stats: top2 ? `${top2.totalPoints} PTS (${top2.totalKills} kills · ${top2.totalPlacementPoints} place pts)` : '',
+          top3Stats: top3 ? `${top3.totalPoints} PTS (${top3.totalKills} kills · ${top3.totalPlacementPoints} place pts)` : '',
+          fourthStats: fourth ? `${fourth.totalPoints} PTS` : '',
+          hasAny: hasScores,
+          isComplete: isConcluded,
+          standings: standings
+        };
+      }
+
+      const isMlbb = (cat === 'mlbb');
+      const esportKey = isMlbb ? 'mlbb' : 'codm';
+      let tMode, pData, teams;
+
+      if (esportKey === currentEsport) {
+        tMode = tournamentMode;
+        pData = PLAYOFF_DATA;
+        teams = TEAMS;
+      } else {
+        tMode = localStorage.getItem(esportKey + '_tournament_mode_v9') || 'double_elim';
+        try {
+          pData = JSON.parse(localStorage.getItem(esportKey + '_playoff_data_v9') || '{}');
+        } catch(e) {
+          pData = {};
+        }
+        try {
+          teams = JSON.parse(localStorage.getItem(esportKey + '_teams_v9') || '[]');
+        } catch(e) {
+          teams = [];
+        }
+      }
+
+      const getSeed = (name) => {
+        if (!name) return 99;
+        const idx = (teams || []).findIndex(t => t && (t === name || t.name === name || (name === 'COM' && (t === 'CMID' || t.name === 'CMID'))));
+        return idx !== -1 ? idx + 1 : 99;
+      };
+
+      let gold = null, silver = null, bronze = null;
+      let fourth = null, fifth = null, sixth = null, seventh = null, eighth = null;
+
+      if (tMode === 'double_elim') {
+        if (pData.gf8 && pData.gf8.winner) {
+          gold = pData.gf8.winner;
+          silver = pData.gf8.loser;
+        }
+        if (pData.lb_f && pData.lb_f.loser) {
+          bronze = pData.lb_f.loser;
+        }
+        if (pData.lb_sf && pData.lb_sf.loser) {
+          fourth = pData.lb_sf.loser;
+        }
+        const qfLosers = [pData.lb_qf1?.loser, pData.lb_qf2?.loser].filter(Boolean);
+        qfLosers.sort((a, b) => getSeed(a) - getSeed(b));
+        fifth = qfLosers[0] || null;
+        sixth = qfLosers[1] || null;
+
+        const r1Losers = [pData.lb_r1_1?.loser, pData.lb_r1_2?.loser].filter(Boolean);
+        r1Losers.sort((a, b) => getSeed(a) - getSeed(b));
+        seventh = r1Losers[0] || null;
+        eighth = r1Losers[1] || null;
+      } else {
+        if (pData.s8_gf && pData.s8_gf.winner) {
+          gold = pData.s8_gf.winner;
+          silver = pData.s8_gf.loser;
+        }
+        if (pData.s8_bronze && pData.s8_bronze.winner) {
+          bronze = pData.s8_bronze.winner;
+          fourth = pData.s8_bronze.loser;
+        }
+        const qfLosers = [
+          pData.s8_qf1?.loser,
+          pData.s8_qf2?.loser,
+          pData.s8_qf3?.loser,
+          pData.s8_qf4?.loser
+        ].filter(Boolean);
+        qfLosers.sort((a, b) => getSeed(a) - getSeed(b));
+        fifth = qfLosers[0] || null;
+        sixth = qfLosers[1] || null;
+        seventh = qfLosers[2] || null;
+        eighth = qfLosers[3] || null;
+      }
+
+      let gfScore = '';
+      const gfMatch = tMode === 'double_elim' ? pData.gf8 : pData.s8_gf;
+      if (gfMatch && gfMatch.winner && gfMatch.s1 !== null && gfMatch.s2 !== null) {
+        gfScore = `Finals: ${gfMatch.team1} (${gfMatch.s1}) vs ${gfMatch.team2} (${gfMatch.s2})`;
+      }
+
+      return {
+        category: isMlbb ? 'mlbb' : 'codm_mp',
+        name: isMlbb ? 'Mobile Legends: Bang Bang' : 'Call of Duty: Mobile (5v5 MP)',
+        shortName: isMlbb ? 'MLBB' : 'CODM MP',
+        icon: isMlbb ? '🎮' : '🎯',
+        badgeColor: isMlbb ? '#2563eb' : '#d97706',
+        formatLabel: tMode === 'double_elim' ? (isMlbb ? '8-Team Double Elimination' : '7-College Double Elimination (Fixed Draw)') : 'Single Elimination Tournament',
+        gold,
+        silver,
+        bronze,
+        fourth,
+        fifth,
+        sixth,
+        seventh,
+        eighth,
+        gfScore,
+        top1Stats: gfScore,
+        top2Stats: gfScore ? 'Runner-Up' : '',
+        top3Stats: '',
+        fourthStats: '',
+        hasAny: Boolean(gold || silver || bronze || fourth || fifth || sixth || seventh || eighth),
+        isComplete: Boolean(gold && silver && bronze)
+      };
+    }
+
+    function calculateOverallMedalTally() {
+      const tally = {};
+      DEFAULT_TEAMS.forEach(team => {
+        tally[team.id] = {
+          id: team.id,
+          name: team.name,
+          full: team.full,
+          mascot: team.mascot,
+          color: team.color,
+          icon: TEAM_ICONS[team.id] || '',
+          gold: 0,
+          silver: 0,
+          bronze: 0,
+          totalMedals: 0,
+          points: 0
+        };
+      });
+
+      const categories = ['mlbb', 'codm_mp', 'codm_br'];
+      categories.forEach(cat => {
+        const med = getCategoryMedalists(cat);
+        if (med.gold && tally[med.gold]) {
+          tally[med.gold].gold++;
+          tally[med.gold].totalMedals++;
+          tally[med.gold].points += 5;
+        }
+        if (med.silver && tally[med.silver]) {
+          tally[med.silver].silver++;
+          tally[med.silver].totalMedals++;
+          tally[med.silver].points += 3;
+        }
+        if (med.bronze && tally[med.bronze]) {
+          tally[med.bronze].bronze++;
+          tally[med.bronze].totalMedals++;
+          tally[med.bronze].points += 1;
+        }
+      });
+
+      const list = Object.values(tally);
+      list.sort((a, b) => {
+        if (b.gold !== a.gold) return b.gold - a.gold;
+        if (b.silver !== a.silver) return b.silver - a.silver;
+        if (b.bronze !== a.bronze) return b.bronze - a.bronze;
+        if (b.points !== a.points) return b.points - a.points;
+        return b.totalMedals - a.totalMedals;
+      });
+
+      list.forEach((item, idx) => {
+        item.rank = idx + 1;
+      });
+
+      return list;
+    }
+
+    function printPodiumMedalists(scope = 'all', paperSize = 'folio', orientation = 'landscape') {
+      let effScope = scope;
+      if (effScope === 'current') {
+        effScope = currentEsport === 'mlbb' ? 'mlbb' : (typeof codmMode !== 'undefined' && codmMode === 'br' ? 'codm_br' : 'codm_mp');
+      }
+
+      let cats = [];
+      let scopeTitle = 'ALL CATEGORIES (MLBB · CODM 5v5 MP · CODM BATTLE ROYALE)';
+      if (effScope === 'all') {
+        cats = ['mlbb', 'codm_mp', 'codm_br'];
+        scopeTitle = 'ALL CATEGORIES (MLBB · CODM 5v5 MP · CODM BATTLE ROYALE)';
+      } else if (effScope === 'mlbb') {
+        cats = ['mlbb'];
+        scopeTitle = 'MOBILE LEGENDS: BANG BANG (MLBB)';
+      } else if (effScope === 'codm_mp') {
+        cats = ['codm_mp'];
+        scopeTitle = 'CALL OF DUTY: MOBILE · 5v5 MULTI-PLAYER';
+      } else if (effScope === 'codm_br') {
+        cats = ['codm_br'];
+        scopeTitle = 'CALL OF DUTY: MOBILE · BATTLE ROYALE';
+      } else {
+        cats = ['mlbb', 'codm_mp', 'codm_br'];
+      }
+
+      const getCollege = (code) => DEFAULT_TEAMS.find(t => t.name === code || (code === 'COM' && t.name === 'CMID')) || { full: code || 'To Be Determined', mascot: '', color: '#94a3b8' };
+
+      let pageSizeCss = '13in 8.5in';
+      let paperLabel = 'Folio · 8.5" × 13" (Long Bond)';
+      if (paperSize === 'folio') {
+        pageSizeCss = orientation === 'portrait' ? '8.5in 13in' : '13in 8.5in';
+        paperLabel = 'Folio · 8.5" × 13" (Long Bond)';
+      } else if (paperSize === 'a4') {
+        pageSizeCss = orientation === 'portrait' ? '210mm 297mm' : '297mm 210mm';
+        paperLabel = 'A4 · 210mm × 297mm';
+      } else if (paperSize === 'letter') {
+        pageSizeCss = orientation === 'portrait' ? '8.5in 11in' : '11in 8.5in';
+        paperLabel = 'Letter · 8.5" × 11" (Short Bond)';
+      }
+
+      const printDate = new Date().toLocaleDateString('en-US', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+
+      const overallTally = calculateOverallMedalTally();
+
+      const categoryBlocksHtml = cats.map(cat => {
+        const med = getCategoryMedalists(cat);
+        const gObj = getCollege(med.gold);
+        const sObj = getCollege(med.silver);
+        const bObj = getCollege(med.bronze);
+        const fObj = getCollege(med.fourth);
+
+        return `
+          <div style="border: 2px solid #e2e8f0; border-radius: 12px; background: #ffffff; padding: 10px 12px; break-inside: avoid; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <!-- Header of Category -->
+            <div style="border-bottom: 2px solid ${med.badgeColor}; padding-bottom: 6px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 18px;">${med.icon}</span>
+                <div>
+                  <div style="font-size: 13px; font-weight: 900; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px;">${med.name}</div>
+                  <div style="font-size: 9px; color: #64748b; font-weight: bold;">${med.formatLabel}</div>
+                </div>
+              </div>
+              <span style="font-size: 8.5px; font-weight: 900; background: ${med.badgeColor}15; color: ${med.badgeColor}; border: 1px solid ${med.badgeColor}40; padding: 2px 6px; border-radius: 6px; text-transform: uppercase;">
+                ${med.isComplete ? 'Official Concluded' : (med.hasAny ? 'In Progress' : 'Pending Finals')}
+              </span>
+            </div>
+
+            <!-- 🥇 GOLD MEDAL (CHAMPION) -->
+            <div style="background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 2px solid #f59e0b; border-radius: 10px; padding: 8px 10px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px;">
+              <div style="font-size: 26px; line-height: 1; flex-shrink: 0; text-align: center;">
+                <div>🥇</div>
+                <div style="font-size: 7.5px; font-weight: 900; color: #b45309; text-transform: uppercase; margin-top: 2px;">GOLD</div>
+              </div>
+              ${med.gold ? (getTeamIcon(med.gold) ? `<img src="${getTeamIcon(med.gold)}" style="width: 38px; height: 38px; object-fit: contain; flex-shrink: 0; border-radius: 8px; border: 1px solid #fcd34d; background: #ffffff; padding: 2px;">` : `<div style="width: 38px; height: 38px; border-radius: 8px; background: #fef08a; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; color: #854d0e; flex-shrink: 0;">${med.gold}</div>`) : `<div style="width: 38px; height: 38px; border-radius: 8px; border: 2px dashed #cbd5e1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; color: #94a3b8; flex-shrink: 0;">—</div>`}
+              <div style="min-width: 0; flex: 1;">
+                <div style="display: flex; align-items: baseline; gap: 6px;">
+                  <span style="font-size: 15px; font-weight: 900; color: #92400e;">${med.gold || 'TBD (Finals Pending)'}</span>
+                  ${gObj.mascot ? `<span style="font-size: 10px; font-weight: 800; color: #b45309;">(${gObj.mascot})</span>` : ''}
+                </div>
+                <div style="font-size: 9.5px; font-weight: 600; color: #475569; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${gObj.full}</div>
+                ${med.top1Stats ? `<div style="font-size: 8.5px; font-weight: 800; color: #78350f; margin-top: 1px;">⚡ ${med.top1Stats}</div>` : ''}
+              </div>
+            </div>
+
+            <!-- 🥈 SILVER MEDAL (RUNNER-UP) -->
+            <div style="background: linear-gradient(135deg, #f8fafc, #f1f5f9); border: 1.5px solid #94a3b8; border-radius: 10px; padding: 6px 10px; margin-bottom: 6px; display: flex; align-items: center; gap: 10px;">
+              <div style="font-size: 22px; line-height: 1; flex-shrink: 0; text-align: center;">
+                <div>🥈</div>
+                <div style="font-size: 7px; font-weight: 900; color: #475569; text-transform: uppercase; margin-top: 2px;">SILVER</div>
+              </div>
+              ${med.silver ? (getTeamIcon(med.silver) ? `<img src="${getTeamIcon(med.silver)}" style="width: 32px; height: 32px; object-fit: contain; flex-shrink: 0; border-radius: 6px; border: 1px solid #cbd5e1; background: #ffffff; padding: 2px;">` : `<div style="width: 32px; height: 32px; border-radius: 6px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; color: #334155; flex-shrink: 0;">${med.silver}</div>`) : `<div style="width: 32px; height: 32px; border-radius: 6px; border: 2px dashed #cbd5e1; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: #94a3b8; flex-shrink: 0;">—</div>`}
+              <div style="min-width: 0; flex: 1;">
+                <div style="display: flex; align-items: baseline; gap: 6px;">
+                  <span style="font-size: 13px; font-weight: 900; color: #1e293b;">${med.silver || 'TBD (Runner-Up)'}</span>
+                  ${sObj.mascot ? `<span style="font-size: 9px; font-weight: 800; color: #64748b;">(${sObj.mascot})</span>` : ''}
+                </div>
+                <div style="font-size: 9px; font-weight: 600; color: #64748b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${sObj.full}</div>
+                ${med.top2Stats ? `<div style="font-size: 8px; font-weight: 700; color: #475569; margin-top: 1px;">${med.top2Stats}</div>` : ''}
+              </div>
+            </div>
+
+            <!-- 🥉 BRONZE MEDAL (3RD PLACE) -->
+            <div style="background: linear-gradient(135deg, #fff7ed, #ffedd5); border: 1.5px solid #d97706; border-radius: 10px; padding: 6px 10px; margin-bottom: 6px; display: flex; align-items: center; gap: 10px;">
+              <div style="font-size: 22px; line-height: 1; flex-shrink: 0; text-align: center;">
+                <div>🥉</div>
+                <div style="font-size: 7px; font-weight: 900; color: #c2410c; text-transform: uppercase; margin-top: 2px;">BRONZE</div>
+              </div>
+              ${med.bronze ? (getTeamIcon(med.bronze) ? `<img src="${getTeamIcon(med.bronze)}" style="width: 32px; height: 32px; object-fit: contain; flex-shrink: 0; border-radius: 6px; border: 1px solid #fed7aa; background: #ffffff; padding: 2px;">` : `<div style="width: 32px; height: 32px; border-radius: 6px; background: #ffedd5; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; color: #9a3412; flex-shrink: 0;">${med.bronze}</div>`) : `<div style="width: 32px; height: 32px; border-radius: 6px; border: 2px dashed #cbd5e1; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: #94a3b8; flex-shrink: 0;">—</div>`}
+              <div style="min-width: 0; flex: 1;">
+                <div style="display: flex; align-items: baseline; gap: 6px;">
+                  <span style="font-size: 13px; font-weight: 900; color: #7c2d12;">${med.bronze || 'TBD (3rd Place)'}</span>
+                  ${bObj.mascot ? `<span style="font-size: 9px; font-weight: 800; color: #c2410c;">(${bObj.mascot})</span>` : ''}
+                </div>
+                <div style="font-size: 9px; font-weight: 600; color: #64748b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${bObj.full}</div>
+                ${med.top3Stats ? `<div style="font-size: 8px; font-weight: 700; color: #9a3412; margin-top: 1px;">${med.top3Stats}</div>` : ''}
+              </div>
+            </div>
+
+            <!-- 4th Place Sub-card -->
+            <div style="padding: 4px 8px; border-radius: 6px; background: #f8fafc; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; font-size: 9px;">
+              <span style="font-weight: 800; color: #475569;">4th Place:</span>
+              <span style="font-weight: 900; color: #0f172a;">${med.fourth ? `${med.fourth} (${fObj.mascot || fObj.full})` : 'TBD'}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      let gridStyle = 'display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px;';
+      if (cats.length === 1) {
+        gridStyle = 'max-width: 600px; margin: 0 auto 14px auto;';
+      }
+
+      // Medal Tally Table HTML
+      let medalTallyHtml = '';
+      if (cats.length > 1) {
+        medalTallyHtml = `
+          <div style="border: 1px solid #cbd5e1; border-radius: 10px; background: #ffffff; padding: 8px 12px; margin-bottom: 12px; break-inside: avoid;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <div style="font-size: 11px; font-weight: 900; text-transform: uppercase; color: #0f172a; display: flex; align-items: center; gap: 6px;">
+                <span>🎖️</span> <span>Official Aggregate College Esports Medal Tally</span>
+              </div>
+              <span style="font-size: 8.5px; font-weight: bold; color: #64748b;">Point System: Gold = 5 pts · Silver = 3 pts · Bronze = 1 pt</span>
+            </div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 9.5px; text-align: center;">
+              <thead>
+                <tr style="background: #f1f5f9; border-bottom: 2px solid #cbd5e1; font-weight: 900; color: #334155; font-size: 9px; text-transform: uppercase;">
+                  <th style="padding: 4px 6px; width: 35px;">Rank</th>
+                  <th style="padding: 4px 8px; text-align: left;">Competing College Delegation</th>
+                  <th style="padding: 4px 6px; width: 55px; color: #b45309;">🥇 Gold</th>
+                  <th style="padding: 4px 6px; width: 55px; color: #475569;">🥈 Silver</th>
+                  <th style="padding: 4px 6px; width: 55px; color: #c2410c;">🥉 Bronze</th>
+                  <th style="padding: 4px 6px; width: 65px; background: #f8fafc;">Total Medals</th>
+                  <th style="padding: 4px 8px; width: 85px; font-weight: 900; color: #0f172a; background: #fef3c7;">Points ⚡</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${overallTally.map((item, idx) => {
+                  const hasAnyMedal = item.totalMedals > 0;
+                  const rowBg = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
+                  const highlight = hasAnyMedal ? (item.gold > 0 ? '#fffbeb' : rowBg) : rowBg;
+                  return `
+                    <tr style="background: ${highlight}; border-bottom: 1px solid #e2e8f0;">
+                      <td style="padding: 4px; font-weight: 900; color: ${idx === 0 && hasAnyMedal ? '#d97706' : '#64748b'};">${idx + 1}</td>
+                      <td style="padding: 4px 8px; text-align: left; display: flex; align-items: center; gap: 6px;">
+                        ${item.icon ? `<img src="${item.icon}" style="width: 14px; height: 14px; object-fit: contain;">` : ''}
+                        <strong style="color: #0f172a;">${item.name}</strong>
+                        <span style="color: #64748b; font-size: 8.5px;">- ${item.full} (${item.mascot})</span>
+                      </td>
+                      <td style="padding: 4px; font-weight: 900; color: #b45309;">${item.gold || '-'}</td>
+                      <td style="padding: 4px; font-weight: 900; color: #475569;">${item.silver || '-'}</td>
+                      <td style="padding: 4px; font-weight: 900; color: #c2410c;">${item.bronze || '-'}</td>
+                      <td style="padding: 4px; font-weight: 900; background: #f8fafc;">${item.totalMedals || '-'}</td>
+                      <td style="padding: 4px; font-weight: 900; color: #0f172a; font-family: monospace; font-size: 10px; background: #fef3c7;">${item.points} pts</td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      const printHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TCC E-Sports Intramurals 2026 - Official Championship Medalists & Honor Roll</title>
+  <style>
+    @page {
+      size: ${pageSizeCss};
+      margin: 0.3in 0.35in;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #0f172a;
+      background: #ffffff;
+      line-height: 1.3;
+    }
+    .print-hdr-banner {
+      border-bottom: 3px double #0f172a;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .print-hdr-title {
+      font-size: 16px;
+      font-weight: 900;
+      color: #0f172a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .print-hdr-sub {
+      font-size: 11px;
+      font-weight: 800;
+      color: #b45309;
+      text-transform: uppercase;
+      margin-top: 1px;
+    }
+    .print-hdr-meta {
+      font-size: 9px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+    .badge-chip {
+      background: #0f172a;
+      color: #ffffff;
+      font-weight: 900;
+      font-size: 9px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="print-hdr-banner">
+    <div>
+      <div class="print-hdr-title">TAGOLOAN COMMUNITY COLLEGE · INTRAMURALS 2026</div>
+      <div class="print-hdr-sub">🏆 Official E-Sports Championship Medalists & Honor Roll</div>
+      <div class="print-hdr-meta">Verified Record of Gold (Champion), Silver (Runner-Up), and Bronze (3rd Place) Medalists</div>
+    </div>
+    <div style="text-align: right;">
+      <span class="badge-chip">OFFICIAL CERTIFIED LEDGER</span>
+      <div style="font-size: 8.5px; color: #64748b; margin-top: 4px;">Paper: ${paperLabel}</div>
+      <div style="font-size: 8.5px; color: #64748b;">Printed: ${printDate}</div>
+    </div>
+  </div>
+
+  <!-- Category Podium Cards -->
+  <div style="${gridStyle}">
+    ${categoryBlocksHtml}
+  </div>
+
+  <!-- Aggregate Medal Tally -->
+  ${medalTallyHtml}
+
+  <!-- Footer Signatures -->
+  <div style="margin-top: 14px; border-top: 2px solid #cbd5e1; padding-top: 8px; display: grid; grid-template-columns: repeat(3, 1fr) 1.2fr; gap: 14px; font-size: 9.5px; color: #334155; break-inside: avoid;">
+    <div>
+      <div style="font-weight: 800; text-transform: uppercase; color: #0f172a; margin-bottom: 22px;">Esports Tournament Director</div>
+      <div style="border-bottom: 1px solid #0f172a; width: 85%;"></div>
+      <div style="font-size: 8px; color: #64748b; margin-top: 2px;">Signature over Printed Name</div>
+    </div>
+    <div>
+      <div style="font-weight: 800; text-transform: uppercase; color: #0f172a; margin-bottom: 22px;">Head Committee / Sports Coordinator</div>
+      <div style="border-bottom: 1px solid #0f172a; width: 85%;"></div>
+      <div style="font-size: 8px; color: #64748b; margin-top: 2px;">Signature over Printed Name</div>
+    </div>
+    <div>
+      <div style="font-weight: 800; text-transform: uppercase; color: #0f172a; margin-bottom: 22px;">College Dean / Sports Director</div>
+      <div style="border-bottom: 1px solid #0f172a; width: 85%;"></div>
+      <div style="font-size: 8px; color: #64748b; margin-top: 2px;">Signature over Printed Name</div>
+    </div>
+    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 10px; text-align: center;">
+      <div style="font-weight: 900; font-size: 9.5px; color: #0f172a; text-transform: uppercase;">Official Result Certification</div>
+      <div style="margin-top: 3px; font-weight: 800; font-size: 9px; color: #047857;">[ ✓ ] DULY VERIFIED & APPROVED</div>
+      <div style="font-size: 7.5px; color: #64748b; margin-top: 2px;">Tagoloan Community College Intramurals 2026</div>
+    </div>
+  </div>
+</body>
+</html>`;
+
+      let iframe = document.getElementById('bracketPrintIframe');
+      if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.id = 'bracketPrintIframe';
+        iframe.style.position = 'fixed';
+        iframe.style.right = '0';
+        iframe.style.bottom = '0';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.border = '0';
+        document.body.appendChild(iframe);
+      }
+
+      try {
+        const doc = iframe.contentWindow.document;
+        doc.open();
+        doc.write(printHtml);
+        doc.close();
+        setTimeout(() => {
+          try {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+          } catch(e) {
+            const win = window.open('', '_blank');
+            if (win) { win.document.write(printHtml); win.document.close(); win.focus(); win.print(); }
+          }
+        }, 300);
+      } catch(err) {
+        const win = window.open('', '_blank');
+        if (win) { win.document.write(printHtml); win.document.close(); win.focus(); win.print(); }
+      }
+
+      showToast(`🖨️ Opening print dialog for ${scopeTitle}...`);
+    }
+
     function renderPodium() {
       const container = document.getElementById('podiumBannerContainer');
       if (!container) return;
@@ -5117,10 +5691,18 @@ Check your Browserslist config to be sure that your targets are set up correctly
       container.innerHTML = `
         <div class="mt-10 p-6 sm:p-10 md:p-12 rounded-3xl bg-gradient-to-b from-amber-500/15 via-[var(--card)] to-[var(--card)] border-2 border-amber-500/40 shadow-2xl text-center space-y-8 max-w-6xl mx-auto">
           <div>
-            <span class="px-5 py-2 rounded-full text-xs sm:text-sm font-black uppercase tracking-widest bg-amber-500/20 text-amber-400 border border-amber-500/40 shadow-sm">
-              Official Medal Ceremony
-            </span>
-            <h2 class="text-3xl sm:text-4xl md:text-5xl font-black text-[var(--foreground)] mt-3 tracking-tight">
+            <div class="flex items-center justify-center gap-2 mb-2 flex-wrap">
+              <span class="px-5 py-2 rounded-full text-xs sm:text-sm font-black uppercase tracking-widest bg-amber-500/20 text-amber-400 border border-amber-500/40 shadow-sm">
+                Official Medal Ceremony
+              </span>
+              <button onclick="printPodiumMedalists('all')" title="Print All-Category Medalists (MLBB, CODM MP, CODM BR)" class="px-4 py-1.5 rounded-full bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs sm:text-sm font-black shadow-lg shadow-amber-500/20 transition flex items-center gap-1.5 cursor-pointer active:scale-95">
+                <span>🖨️</span> <span>Print All Categories (Gold, Silver, Bronze)</span>
+              </button>
+              <button onclick="printPodiumMedalists('current')" title="Print Current Esports Podium" class="px-3.5 py-1.5 rounded-full bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-[var(--foreground)] border border-[var(--border)] text-xs sm:text-sm font-bold shadow-sm transition flex items-center gap-1.5 cursor-pointer active:scale-95">
+                <span>📄</span> <span>Print Current Podium</span>
+              </button>
+            </div>
+            <h2 class="text-3xl sm:text-4xl md:text-5xl font-black text-[var(--foreground)] mt-2 tracking-tight">
               🏆 E-Sports: ${getCurrentEsportConfig().fullName} Podium
             </h2>
             <p class="text-sm sm:text-base text-[var(--muted-foreground)] font-medium mt-1">Official Final Standings & Championship Honors</p>
@@ -6079,7 +6661,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
             <div class="h-5 w-px bg-[var(--border)] hidden sm:block"></div>
 
             <!-- Print Actions -->
-            <div class="flex items-center gap-1.5">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <button onclick="printPodiumMedalists('all')" title="Print Official Championship Medalists (Gold, Silver, Bronze for MLBB, CODM MP, CODM BR)" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/40 text-xs font-black transition cursor-pointer shadow-xs active:scale-95">
+                <span>🏅</span> <span>Print Medalists</span>
+              </button>
               <button onclick="printMatchScheduleList('current')" title="Print Match Series (Official Scoresheet & Ledger)" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-500/15 hover:bg-sky-500 hover:text-slate-950 text-sky-400 border border-sky-500/30 text-xs font-black transition cursor-pointer shadow-xs active:scale-95">
                 <span>🖨️</span> <span>Print Series List</span>
               </button>
@@ -6570,7 +7155,23 @@ Check your Browserslist config to be sure that your targets are set up correctly
       printMatchScheduleList(matchId, 'table', 'landscape', 'folio');
     }
 
-    function openPrintSeriesModal() {
+    function onPrintFormatChange() {
+      const formatEl = document.querySelector('input[name="printFormatRadio"]:checked');
+      const format = formatEl ? formatEl.value : 'table';
+      const scopeCont = document.getElementById('printScopeContainer');
+      const medalCont = document.getElementById('printMedalScopeContainer');
+      if (scopeCont && medalCont) {
+        if (format === 'medalists') {
+          scopeCont.classList.add('hidden');
+          medalCont.classList.remove('hidden');
+        } else {
+          scopeCont.classList.remove('hidden');
+          medalCont.classList.add('hidden');
+        }
+      }
+    }
+
+    function openPrintSeriesModal(preselectedFormat = null, preselectedMedalCat = null) {
       const modal = document.getElementById('printSeriesModal');
       if (!modal) return;
       const currentLabel = document.getElementById('printScopeCurrentLabel');
@@ -6579,7 +7180,27 @@ Check your Browserslist config to be sure that your targets are set up correctly
         const fNames = { all: 'All Matches', day1: 'Day 1 Matches', day2: 'Day 2 Matches', day3: 'Day 3 Finals', final: 'Completed Only' };
         currentLabel.innerText = `Current (${fNames[f] || 'All'})`;
       }
+
+      if (preselectedFormat) {
+        const fRadio = document.querySelector(`input[name="printFormatRadio"][value="${preselectedFormat}"]`);
+        if (fRadio) {
+          fRadio.checked = true;
+          onPrintFormatChange();
+        }
+      } else {
+        onPrintFormatChange();
+      }
+
+      if (preselectedMedalCat) {
+        const mRadio = document.querySelector(`input[name="printMedalCategoryRadio"][value="${preselectedMedalCat}"]`);
+        if (mRadio) mRadio.checked = true;
+      }
+
       modal.classList.remove('hidden');
+    }
+
+    function openPrintMedalistsModal(cat = 'all') {
+      openPrintSeriesModal('medalists', cat);
     }
 
     function closePrintSeriesModal() {
@@ -6592,14 +7213,21 @@ Check your Browserslist config to be sure that your targets are set up correctly
       const formatEl = document.querySelector('input[name="printFormatRadio"]:checked');
       const orientEl = document.querySelector('input[name="printOrientationRadio"]:checked');
       const paperEl = document.querySelector('input[name="printPaperRadio"]:checked');
+      const medalCatEl = document.querySelector('input[name="printMedalCategoryRadio"]:checked');
 
       const scope = scopeEl ? scopeEl.value : 'current';
       const format = formatEl ? formatEl.value : 'table';
       const orientation = orientEl ? orientEl.value : 'landscape';
       const paperSize = paperEl ? paperEl.value : 'folio';
+      const medalCat = medalCatEl ? medalCatEl.value : 'all';
 
       closePrintSeriesModal();
-      printMatchScheduleList(scope, format, orientation, paperSize);
+
+      if (format === 'medalists') {
+        printPodiumMedalists(medalCat, paperSize, orientation);
+      } else {
+        printMatchScheduleList(scope, format, orientation, paperSize);
+      }
     }
 
     function renderCollegeRoster() {
@@ -8917,6 +9545,14 @@ Check your Browserslist config to be sure that your targets are set up correctly
             <p class="text-xs sm:text-sm text-slate-300 font-medium mt-0.5">
               Tagoloan Community College · Intramurals 2026 · Tournament Placement & Honor Roll
             </p>
+            <div class="flex items-center justify-center gap-2 mt-1.5">
+              <button onclick="printPodiumMedalists('all')" title="Print All-Category Medalists (MLBB, CODM MP, CODM BR)" class="px-3.5 py-1 rounded-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-md transition flex items-center gap-1.5 cursor-pointer active:scale-95">
+                <span>🖨️</span> <span>Print All Categories</span>
+              </button>
+              <button onclick="printPodiumMedalists('current')" title="Print Current Esports Podium" class="px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/20 shadow-xs transition flex items-center gap-1.5 cursor-pointer active:scale-95">
+                <span>📄</span> <span>Print This Podium</span>
+              </button>
+            </div>
           </div>
 
           <!-- Top 3 Championship Podium (Expansive Widescreen Arena Scale) -->
@@ -9188,19 +9824,27 @@ Check your Browserslist config to be sure that your targets are set up correctly
               </div>
             </div>
 
-            <!-- Current Leader Announcement Chip in Top Bar -->
-            ${hasActivity && top1 ? `
-              <div class="flex items-center gap-1.5 sm:gap-2.5 bg-amber-500/20 border border-amber-500/50 px-2.5 sm:px-4 py-1 rounded-xl shrink-0 shadow-lg shadow-amber-500/10">
-                <span class="text-sm sm:text-lg">👑</span>
-                <span class="text-[11px] sm:text-sm lg:text-base font-black text-amber-300 uppercase tracking-wide">
-                  ${isConcluded ? 'Champion:' : 'Leader:'} <span class="text-white">${top1.name}</span> (${top1.totalPoints} PTS ⚡)
-                </span>
-              </div>
-            ` : `
-              <div class="text-[11px] sm:text-xs font-mono text-slate-400 font-semibold shrink-0">
-                Awaiting Round 1 Drop
-              </div>
-            `}
+            <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <!-- Current Leader Announcement Chip in Top Bar -->
+              ${hasActivity && top1 ? `
+                <div class="flex items-center gap-1.5 sm:gap-2.5 bg-amber-500/20 border border-amber-500/50 px-2.5 sm:px-4 py-1 rounded-xl shrink-0 shadow-lg shadow-amber-500/10">
+                  <span class="text-sm sm:text-lg">👑</span>
+                  <span class="text-[11px] sm:text-sm lg:text-base font-black text-amber-300 uppercase tracking-wide">
+                    ${isConcluded ? 'Champion:' : 'Leader:'} <span class="text-white">${top1.name}</span> (${top1.totalPoints} PTS ⚡)
+                  </span>
+                </div>
+              ` : `
+                <div class="text-[11px] sm:text-xs font-mono text-slate-400 font-semibold shrink-0">
+                  Awaiting Round 1 Drop
+                </div>
+              `}
+              <button onclick="printPodiumMedalists('codm_br')" title="Print CODM Battle Royale Standings & Medalists" class="px-2.5 py-1 rounded-xl bg-purple-500/20 hover:bg-purple-500/40 text-purple-200 border border-purple-500/40 text-xs font-bold transition flex items-center gap-1 cursor-pointer active:scale-95">
+                <span>🖨️</span> <span class="hidden sm:inline">Print BR</span>
+              </button>
+              <button onclick="printPodiumMedalists('all')" title="Print All-Category Medalists (MLBB, CODM MP, CODM BR)" class="px-2.5 py-1 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black shadow-md transition flex items-center gap-1 cursor-pointer active:scale-95">
+                <span>🏅</span> <span class="hidden sm:inline">All Medals</span>
+              </button>
+            </div>
           </div>
 
           <!-- Master Scoreboard Table (Fills height naturally, no bottom gap, zero scroll) -->
